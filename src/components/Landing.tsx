@@ -30,6 +30,29 @@ export default function Landing() {
     document.body.style.overflow = menu ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menu]);
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reducedMotion.matches) return;
+
+    let frame = 0;
+    const updateBackground = () => {
+      frame = 0;
+      const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+      const progress = Math.min(window.scrollY / maxScroll, 1);
+      document.documentElement.style.setProperty("--ambient-scroll", `${progress * 140}px`);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateBackground);
+    };
+
+    updateBackground();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+      document.documentElement.style.removeProperty("--ambient-scroll");
+    };
+  }, []);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -46,6 +69,7 @@ export default function Landing() {
   };
 
   return <main>
+    <AmbientBackground/>
     <header className="header shell">
       <button className="brand" onClick={() => scrollTo("top")}>Den’s Workspace</button>
       <nav className="desktop-nav">{t.nav.map((label, index) => <button key={label} onClick={() => scrollTo(ids[index])}>{label}</button>)}</nav>
@@ -103,6 +127,44 @@ export default function Landing() {
     </section>
     <footer className="footer shell"><span>© 2026 Den’s Workspace</span><span><i/>{t.operational}</span></footer>
   </main>;
+}
+
+function AmbientBackground() {
+  return <div className="ambient-background" aria-hidden="true">
+    <div className="ambient-wash"/>
+    <svg className="neural-layer neural-layer-far" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+      <g className="neural-lines">
+        <path d="M-80 170 C180 90 315 275 535 215 S875 30 1095 150 S1415 330 1680 175"/>
+        <path d="M-40 590 C210 470 315 675 565 555 S930 430 1160 585 S1440 740 1650 630"/>
+        <path d="M120 930 C310 760 500 915 690 785 S1040 650 1225 805 S1470 970 1640 825"/>
+        <path d="M185 -80 C305 160 205 315 390 455 S690 640 620 880 S790 1080 940 1160"/>
+        <path d="M1120 -90 C970 145 1165 300 1005 470 S790 735 970 930 S1190 1080 1280 1160"/>
+      </g>
+      <g className="neural-nodes">
+        <circle cx="183" cy="131" r="4"/><circle cx="405" cy="239" r="2.5"/><circle cx="650" cy="153" r="3.5"/>
+        <circle cx="915" cy="93" r="2.5"/><circle cx="1160" cy="190" r="4"/><circle cx="1435" cy="284" r="2.5"/>
+        <circle cx="155" cy="521" r="2.5"/><circle cx="397" cy="613" r="4"/><circle cx="684" cy="501" r="2.5"/>
+        <circle cx="972" cy="493" r="3"/><circle cx="1240" cy="638" r="4"/><circle cx="1482" cy="686" r="2.5"/>
+        <circle cx="264" cy="826" r="3.5"/><circle cx="583" cy="855" r="2.5"/><circle cx="895" cy="721" r="4"/>
+        <circle cx="1138" cy="758" r="2.5"/><circle cx="1370" cy="900" r="3.5"/>
+      </g>
+    </svg>
+    <svg className="neural-layer neural-layer-near" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+      <g className="neural-lines">
+        <path d="M20 350 L260 265 L470 375 L735 280 L940 395 L1220 295 L1580 405"/>
+        <path d="M105 730 L365 640 L610 745 L860 630 L1090 735 L1370 620 L1610 700"/>
+        <path d="M260 265 L365 640 M470 375 L610 745 M735 280 L860 630 M940 395 L1090 735 M1220 295 L1370 620"/>
+      </g>
+      <g className="neural-nodes">
+        <circle cx="260" cy="265" r="3"/><circle cx="470" cy="375" r="4"/><circle cx="735" cy="280" r="2.5"/>
+        <circle cx="940" cy="395" r="3"/><circle cx="1220" cy="295" r="4"/><circle cx="365" cy="640" r="3"/>
+        <circle cx="610" cy="745" r="4"/><circle cx="860" cy="630" r="2.5"/><circle cx="1090" cy="735" r="3"/>
+        <circle cx="1370" cy="620" r="4"/>
+      </g>
+    </svg>
+    <div className="ambient-particles"/>
+    <div className="ambient-noise"/>
+  </div>;
 }
 
 function InfoPanel({ title, items, icons, action }: { title: string; items: readonly (readonly string[])[]; icons?: typeof workIcons; action: string }) {

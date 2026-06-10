@@ -10,3 +10,37 @@
 @media(max-width:700px){.shell{width:calc(100% - 28px)}.header{height:62px}.brand{font-size:18px}.hero{padding-top:32px}.system{margin-bottom:23px}.hero h1{font-size:clamp(48px,15vw,68px)}.kicker{font-size:10px;letter-spacing:.11em}.intro{font-size:15px}.hero-buttons{align-items:flex-start;flex-direction:column}.hero-panels{grid-template-columns:1fr}.hero-image{width:calc(100% + 28px);right:14px;min-height:430px}.section{padding:42px 0}.section-head h2{font-size:31px}.section-head button{display:none}.projects-row{display:flex;overflow-x:auto;margin:0 -14px;padding:0 14px 12px;gap:12px;scroll-snap-type:x mandatory;scrollbar-width:none}.projects-row::-webkit-scrollbar{display:none}.project-card{width:min(78vw,330px);flex:0 0 auto;scroll-snap-align:start}.solutions{display:grid;gap:13px;border:0;background:none}.solution-row{display:block;padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}.solution-cell{display:grid;grid-template-columns:52px 1fr;padding:8px 0}.solution-icon{margin:0}.flow{position:static;margin:4px 0 4px 15px;transform:rotate(90deg)}.contact{grid-template-columns:1fr}.contact-copy{display:block;grid-column:auto}.contact-copy h2{margin:23px 0}.contact-copy>i{display:block}.portrait{max-width:440px}.contact-panel{grid-template-columns:1fr}form{grid-template-columns:1fr}form label,.submit,.form-state{grid-column:1}.footer>span:first-child{display:none}.footer{justify-content:flex-end}}
 @media(orientation:landscape) and (max-height:520px) and (max-width:950px){.mobile-menu{overflow:auto}.mobile-menu nav{grid-template-columns:1fr 1fr;column-gap:20px}.mobile-menu nav strong{font-size:24px}.mobile-controls{position:static;margin-top:18px}.hero h1{font-size:57px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* Ambient neural background */
+:root{--ambient-scroll:0px;--network-line:#30dca8;--network-node:#4fffc0}
+:root[data-theme="light"]{--bg:#f2f3ef;--network-line:#53645e;--network-node:#61b990}
+main{position:relative;isolation:isolate;min-height:100vh}
+main>.header,main>.hero,main>.section,main>.footer{position:relative;z-index:1}
+.ambient-background{position:fixed;z-index:0;inset:0;overflow:hidden;pointer-events:none;background:linear-gradient(145deg,#020607 0%,#030a0b 48%,#010404 100%)}
+.ambient-wash{position:absolute;inset:-20%;background:radial-gradient(ellipse at 72% 12%,#063c3026 0%,transparent 36%),radial-gradient(ellipse at 15% 58%,#07362c18 0%,transparent 32%),radial-gradient(ellipse at 76% 90%,#07516016 0%,transparent 34%);transform:translate3d(0,calc(var(--ambient-scroll) * -.035),0);will-change:transform}
+.neural-layer{position:absolute;inset:-8%;width:116%;height:116%;overflow:visible;fill:none;will-change:transform}
+.neural-layer-far{opacity:.24;transform:translate3d(0,calc(var(--ambient-scroll) * -.08),0) scale(1.02)}
+.neural-layer-near{opacity:.13;transform:translate3d(0,calc(var(--ambient-scroll) * -.15),0) scale(1.05)}
+.neural-lines{stroke:var(--network-line);stroke-width:.8;stroke-opacity:.34}
+.neural-layer-near .neural-lines{stroke-width:.65;stroke-opacity:.25}
+.neural-nodes{fill:var(--network-node)}
+.neural-nodes circle{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--network-node) 75%,transparent));opacity:.68}
+.ambient-particles{position:absolute;inset:-12%;opacity:.22;background-image:radial-gradient(circle,#b9ffdf 0 1px,transparent 1.35px),radial-gradient(circle,#71c5b0 0 .7px,transparent 1.1px);background-size:113px 127px,181px 163px;background-position:17px 23px,66px 91px;transform:translate3d(0,calc(var(--ambient-scroll) * -.05),0);will-change:transform}
+.ambient-noise{position:absolute;inset:0;opacity:.026;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");background-size:180px 180px;mix-blend-mode:screen}
+:root[data-theme="light"] .ambient-background{background:linear-gradient(145deg,#f5f5f1 0%,#eef1ed 48%,#f7f6f2 100%)}
+:root[data-theme="light"] .ambient-wash{background:radial-gradient(ellipse at 72% 10%,#b8dfca4d 0%,transparent 35%),radial-gradient(ellipse at 12% 58%,#d2ddd74d 0%,transparent 35%),radial-gradient(ellipse at 80% 88%,#c6ddd750 0%,transparent 32%)}
+:root[data-theme="light"] .neural-layer-far{opacity:.18}
+:root[data-theme="light"] .neural-layer-near{opacity:.11}
+:root[data-theme="light"] .neural-lines{stroke-opacity:.25}
+:root[data-theme="light"] .neural-nodes circle{opacity:.48;filter:drop-shadow(0 0 4px #8acbaa66)}
+:root[data-theme="light"] .ambient-particles{opacity:.13;background-image:radial-gradient(circle,#527369 0 .8px,transparent 1.2px),radial-gradient(circle,#72a68d 0 .7px,transparent 1px)}
+:root[data-theme="light"] .ambient-noise{opacity:.035;mix-blend-mode:multiply}
+
+/* Light theme hero integration */
+:root[data-theme="light"] .hero-image{-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 25%,#000 77%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,#000 25%,#000 77%,transparent 100%);opacity:.86}
+:root[data-theme="light"] .hero-image:before{background:linear-gradient(90deg,#f2f3ef 0%,#f2f3efc9 12%,#f2f3ef40 38%,#f2f3ef66 83%,#f2f3ef 100%),linear-gradient(180deg,#f2f3ef8c 0%,transparent 30%,#f2f3ef99 100%)}
+:root[data-theme="light"] .hero-image:after{inset:0;height:auto;background:linear-gradient(120deg,#f4f5f1a8 0%,#f4f5f12e 48%,#e7ece85e 100%);mix-blend-mode:screen}
+:root[data-theme="light"] .hero-image img{filter:grayscale(.08) saturate(.55) contrast(.78) brightness(1.2);transform:scale(1.018)}
+
+@media(max-width:900px){:root[data-theme="light"] .hero-image{-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 14%,#000 82%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 14%,#000 82%,transparent 100%)}}
+@media(prefers-reduced-motion:reduce){.ambient-wash,.neural-layer,.ambient-particles{transform:none!important;will-change:auto}}
