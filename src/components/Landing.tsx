@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, Menu, MessageSquareText, Moon, Network, PenLine, PhoneOff, Rocket, Settings2, Sparkles, Sun, Workflow, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, ChevronDown, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, Menu, MessageSquareText, Moon, Network, PenLine, PhoneOff, Rocket, Sparkles, Sun, Workflow, X } from "lucide-react";
 import { content, newsItems, projects, solutions, workItems, type Locale } from "@/lib/content";
 
 const iconMap = { phone: PhoneOff, audio: AudioLines, chart: ChartNoAxesCombined, file: FileText, workflow: Workflow, clock: Clock3, database: Database, pie: ChartPie, eye: Eye, megaphone: Megaphone, pen: PenLine, rocket: Rocket };
@@ -13,7 +13,6 @@ export default function Landing() {
   const [locale, setLocale] = useState<Locale>(() => typeof window === "undefined" ? "ru" : (localStorage.getItem("dw-locale") as Locale) || "ru");
   const [theme, setTheme] = useState<"dark" | "light">(() => typeof window === "undefined" ? "dark" : (localStorage.getItem("dw-theme") as "dark" | "light") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
   const [menu, setMenu] = useState(false);
-  const [settings, setSettings] = useState(false);
   const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const t = content[locale];
   const langIndex = locale === "ru" ? 0 : 1;
@@ -74,10 +73,7 @@ export default function Landing() {
       <button className="brand" onClick={() => scrollTo("top")}>Den’s Workspace</button>
       <nav className="desktop-nav">{t.nav.map((label, index) => <button key={label} onClick={() => scrollTo(ids[index])}>{label}</button>)}</nav>
       <div className="header-actions">
-        <div className="settings-wrap">
-          <button className="icon-button desktop-settings" aria-label="Settings" onClick={() => setSettings(!settings)}><Settings2 size={17}/></button>
-          {settings && <div className="settings-menu"><button onClick={() => setLocale(locale === "ru" ? "en" : "ru")}><Globe2 size={16}/>{locale === "ru" ? "EN" : "RU"}</button><button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? <Sun size={16}/> : <Moon size={16}/>} {theme === "dark" ? "Light" : "Dark"}</button></div>}
-        </div>
+        <div className="desktop-preferences"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
         <button className="build-button" onClick={() => scrollTo("contact")}>{t.build}<ArrowRight size={15}/></button>
         <button className="icon-button burger" aria-label="Menu" onClick={() => setMenu(true)}><Menu size={21}/></button>
       </div>
@@ -86,7 +82,7 @@ export default function Landing() {
     {menu && <aside className="mobile-menu">
       <div className="mobile-menu-head"><span>Den’s Workspace</span><button className="icon-button" onClick={() => setMenu(false)} aria-label="Close"><X size={22}/></button></div>
       <nav>{t.nav.map((label, index) => <button key={label} onClick={() => scrollTo(ids[index])}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></button>)}</nav>
-      <div className="mobile-controls"><button onClick={() => setLocale(locale === "ru" ? "en" : "ru")}><Globe2/> {locale === "ru" ? "English" : "Русский"}</button><button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? <Sun/> : <Moon/>}{theme === "dark" ? "Light" : "Dark"}</button></div>
+      <div className="mobile-controls"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
     </aside>}
 
     <section className="hero shell" id="top">
@@ -127,6 +123,27 @@ export default function Landing() {
     </section>
     <footer className="footer shell"><span>© 2026 Den’s Workspace</span><span><i/>{t.operational}</span></footer>
   </main>;
+}
+
+function LanguageSelect({ locale, setLocale }: { locale: Locale; setLocale: (locale: Locale) => void }) {
+  return <label className="language-select" aria-label={locale === "ru" ? "Язык сайта" : "Site language"}>
+    <Globe2/>
+    <select value={locale} onChange={(event) => setLocale(event.target.value as Locale)}>
+      <option value="ru">RU</option>
+      <option value="en">EN</option>
+    </select>
+    <ChevronDown/>
+  </label>;
+}
+
+function ThemeSwitch({ locale, theme, setTheme }: { locale: Locale; theme: "dark" | "light"; setTheme: (theme: "dark" | "light") => void }) {
+  const isLight = theme === "light";
+  const label = locale === "ru" ? (isLight ? "Включить темную тему" : "Включить светлую тему") : (isLight ? "Enable dark theme" : "Enable light theme");
+  return <button className="theme-switch" type="button" role="switch" aria-checked={isLight} aria-label={label} onClick={() => setTheme(isLight ? "dark" : "light")}>
+    <Moon className="theme-moon"/>
+    <Sun className="theme-sun"/>
+    <span/>
+  </button>;
 }
 
 function AmbientBackground() {
