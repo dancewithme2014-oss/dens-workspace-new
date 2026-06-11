@@ -3,34 +3,27 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, ChevronDown, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, Menu, MessageSquareText, Moon, Network, PenLine, PhoneOff, Rocket, Sparkles, Sun, Workflow, X } from "lucide-react";
-import { content, newsItems, projects, solutions, workItems, type Locale } from "@/lib/content";
+import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, MessageSquareText, Network, PenLine, PhoneOff, Rocket, Sparkles, Workflow } from "lucide-react";
+import { content, newsItems, projects, solutions, workItems } from "@/lib/content";
+import SiteHeader from "@/components/SiteHeader";
+import { useSitePreferences } from "@/lib/preferences";
 
 const iconMap = { phone: PhoneOff, audio: AudioLines, chart: ChartNoAxesCombined, file: FileText, workflow: Workflow, clock: Clock3, database: Database, pie: ChartPie, eye: Eye, megaphone: Megaphone, pen: PenLine, rocket: Rocket };
 const workIcons = [CloudCog, BriefcaseBusiness, Bot, Network];
-const ids = ["projects", "ai-business", "about", "contact"];
 
 export default function Landing() {
   const router = useRouter();
-  const [locale, setLocale] = useState<Locale>(() => typeof window === "undefined" ? "ru" : (localStorage.getItem("dw-locale") as Locale) || "ru");
-  const [theme, setTheme] = useState<"dark" | "light">(() => typeof window === "undefined" ? "dark" : (localStorage.getItem("dw-theme") as "dark" | "light") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
-  const [menu, setMenu] = useState(false);
+  const { locale, setLocale, theme, setTheme } = useSitePreferences();
   const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const t = content[locale];
   const langIndex = locale === "ru" ? 0 : 1;
 
   useEffect(() => {
     document.documentElement.lang = locale;
-    localStorage.setItem("dw-locale", locale);
   }, [locale]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("dw-theme", theme);
   }, [theme]);
-  useEffect(() => {
-    document.body.style.overflow = menu ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menu]);
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (reducedMotion.matches) return;
@@ -57,10 +50,7 @@ export default function Landing() {
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMenu(false);
   };
-  const navigate = (index: number) => index === 0 ? router.push("/projects") : scrollTo(ids[index]);
-
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormState("loading");
@@ -72,21 +62,7 @@ export default function Landing() {
 
   return <main>
     <AmbientBackground/>
-    <header className="header shell">
-      <button className="brand" onClick={() => scrollTo("top")}>Den’s Workspace</button>
-      <nav className="desktop-nav">{t.nav.map((label, index) => <button key={label} onClick={() => navigate(index)}>{label}</button>)}</nav>
-      <div className="header-actions">
-        <div className="desktop-preferences"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
-        <button className="build-button" onClick={() => scrollTo("contact")}>{t.build}<ArrowRight size={15}/></button>
-        <button className="icon-button burger" aria-label="Menu" onClick={() => setMenu(true)}><Menu size={21}/></button>
-      </div>
-    </header>
-
-    {menu && <aside className="mobile-menu">
-      <div className="mobile-menu-head"><span>Den’s Workspace</span><button className="icon-button" onClick={() => setMenu(false)} aria-label="Close"><X size={22}/></button></div>
-      <nav>{t.nav.map((label, index) => <button key={label} onClick={() => navigate(index)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></button>)}</nav>
-      <div className="mobile-controls"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
-    </aside>}
+    <SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme} active="home"/>
 
     <section className="hero shell" id="top">
       <div className="hero-copy">
@@ -126,27 +102,6 @@ export default function Landing() {
     </section>
     <footer className="footer shell"><span>© 2026 Den’s Workspace</span><span><i/>{t.operational}</span></footer>
   </main>;
-}
-
-function LanguageSelect({ locale, setLocale }: { locale: Locale; setLocale: (locale: Locale) => void }) {
-  return <label className="language-select" aria-label={locale === "ru" ? "Язык сайта" : "Site language"}>
-    <Globe2/>
-    <select value={locale} onChange={(event) => setLocale(event.target.value as Locale)}>
-      <option value="ru">RU</option>
-      <option value="en">EN</option>
-    </select>
-    <ChevronDown/>
-  </label>;
-}
-
-function ThemeSwitch({ locale, theme, setTheme }: { locale: Locale; theme: "dark" | "light"; setTheme: (theme: "dark" | "light") => void }) {
-  const isLight = theme === "light";
-  const label = locale === "ru" ? (isLight ? "Включить темную тему" : "Включить светлую тему") : (isLight ? "Enable dark theme" : "Enable light theme");
-  return <button className="theme-switch" type="button" role="switch" aria-checked={isLight} aria-label={label} onClick={() => setTheme(isLight ? "dark" : "light")}>
-    <Moon className="theme-moon"/>
-    <Sun className="theme-sun"/>
-    <span/>
-  </button>;
 }
 
 function AmbientBackground() {
