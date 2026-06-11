@@ -127,3 +127,53 @@ main>.header{z-index:40}
 @media(max-width:700px){.pr-case-study{gap:10px;padding-top:20px}.pr-case-copy{display:block;padding:0 0 24px}.pr-case-copy>h2{font-size:42px}.pr-case-columns{grid-template-columns:1fr;gap:24px}.pr-desktop-view{margin-inline:-14px;border-radius:0;aspect-ratio:1.45}.pr-desktop-view>button{width:38px;height:38px}.pr-desktop-thumbs{display:flex;overflow-x:auto;margin-inline:-14px;padding:2px 14px 10px;scroll-snap-type:x mandatory;scrollbar-width:none}.pr-desktop-thumbs button{flex:0 0 42vw;scroll-snap-align:start}.pr-mobile-screens{display:flex;overflow-x:auto;margin-inline:-14px;padding:0 14px 18px;gap:14px;scroll-snap-type:x mandatory;scrollbar-width:none}.pr-mobile-screens figure{flex:0 0 min(64vw,260px);scroll-snap-align:center}.pr-mobile-screens figure>div{border-radius:20px}}
 .pr-desktop-view{aspect-ratio:1560/976}.pr-desktop-view img{object-fit:contain}
 @media(max-width:700px){.pr-desktop-view{aspect-ratio:1560/976}}
+
+/* Compact project support media and page-specific CTA */
+#showcase.pr-section{padding-bottom:24px}
+#connections.pr-section{padding-top:24px;padding-bottom:28px}
+#research.pr-section{padding-top:28px;padding-bottom:30px}
+.pr-case-media{padding-bottom:18px}
+.pr-mobile-support{display:grid;grid-template-columns:205px minmax(0,1fr);gap:22px;align-items:center;margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
+.pr-mobile-copy{min-width:0}
+.pr-mobile-title{margin:0;padding:0;border:0;color:var(--text)}
+.pr-mobile-copy>p{margin-top:11px;color:var(--muted);font-size:10px;line-height:1.55}
+.pr-mobile-copy ul{display:grid;gap:7px;margin-top:13px;padding:0;list-style:none}
+.pr-mobile-copy li{position:relative;padding-left:13px;color:var(--muted);font-size:9px;line-height:1.4}
+.pr-mobile-copy li:before{content:"";position:absolute;left:0;top:.48em;width:4px;height:4px;border-radius:50%;background:var(--green);box-shadow:0 0 7px #00ef7866}
+.pr-mobile-screens{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;gap:10px;margin:0;padding:0}
+.pr-mobile-screens figure{display:grid;place-items:center;min-width:0}
+.pr-mobile-screens figure>div{width:100%;max-width:138px;aspect-ratio:520/976;border-width:1px;border-radius:15px;box-shadow:0 10px 25px #0007}
+.pr-mobile-screens img{object-fit:cover}
+.pr-contact{min-height:0;margin-block:22px 32px;grid-template-columns:minmax(0,.86fr) minmax(440px,1.14fr)}
+.pr-contact-copy{padding:32px 38px;display:flex;flex-direction:column;justify-content:center}
+.pr-contact-kicker{margin:0!important;color:var(--green)!important;font:500 9px var(--font-mono)!important;text-transform:uppercase;letter-spacing:.08em}
+.pr-contact-copy h2{margin-top:13px;font-size:clamp(30px,3vw,43px);line-height:.98}
+.pr-contact-copy>p:not(.pr-contact-kicker){max-width:540px;margin-top:15px;font-size:11px;line-height:1.6}
+.pr-contact-meta{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:22px}
+.pr-contact-meta a,.pr-contact-meta span{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font:500 8px var(--font-mono)}
+.pr-contact-meta a:hover{color:var(--green)}
+.pr-contact-meta svg{width:13px;height:13px;color:var(--green)}
+.pr-contact form{align-content:center;padding:24px 28px;border-left:1px solid var(--border)}
+.pr-contact textarea{min-height:82px}
+
+@media(max-width:1000px){
+  .pr-mobile-support{grid-template-columns:180px minmax(0,1fr);gap:16px}
+  .pr-mobile-screens{gap:8px}
+  .pr-contact{grid-template-columns:1fr}
+  .pr-contact form{border-top:1px solid var(--border);border-left:0}
+}
+@media(max-width:700px){
+  #showcase.pr-section{padding-bottom:19px}
+  #connections.pr-section{padding-top:19px;padding-bottom:24px}
+  #research.pr-section{padding-top:24px;padding-bottom:24px}
+  .pr-mobile-support{display:block;margin-top:18px;padding-top:16px}
+  .pr-mobile-copy>p{max-width:390px}
+  .pr-mobile-copy ul{grid-template-columns:1fr;gap:5px}
+  .pr-mobile-screens{display:flex;overflow-x:auto;margin:16px -14px 0;padding:0 14px 14px;gap:11px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .pr-mobile-screens figure{flex:0 0 min(42vw,165px);scroll-snap-align:start}
+  .pr-mobile-screens figure>div{max-width:none;border-radius:14px}
+  .pr-contact{margin-block:18px 25px}
+  .pr-contact-copy{padding:27px 22px 23px}
+  .pr-contact form{padding:22px}
+  .pr-contact-meta{gap:10px 14px;margin-top:18px}
+}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Atom, Bot, Boxes, BrainCircuit, Check, CircleDot, FlaskConical, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Rocket, Workflow } from "lucide-react";
+import { ArrowLeft, ArrowRight, Atom, Bot, Boxes, BrainCircuit, Check, Clock3, FlaskConical, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Rocket, Workflow } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import { featuredProjects } from "@/lib/projects-data";
 import type { Locale } from "@/lib/content";
@@ -26,6 +26,11 @@ const copy = {
     solves: "Что решает",
     founder: "Заметка основателя",
     mobile: "Мобильный опыт",
+    mobileText: "Создано для поиска, записи, live-commerce и повторного вовлечения.",
+    mobileBullets: ["Быстрый поиск бизнеса", "Коммерция через прямые эфиры", "Прямая запись и покупка"],
+    contactQuestion: "Есть проект, который стоит реализовать?",
+    contactPrompt: "Отправьте мне идею, узкое место или систему, которую хотите создать.",
+    response: "Ответ в течение 24–48 часов",
     connections: "Связи системы",
     research: "Исследования и эксперименты",
     researchNote: "Направления, которые мы изучаем сейчас.",
@@ -55,6 +60,11 @@ const copy = {
     solves: "What It Solves",
     founder: "Founder Note",
     mobile: "Mobile Experience",
+    mobileText: "Designed for discovery, booking, live commerce and repeat engagement.",
+    mobileBullets: ["Fast business discovery", "Stream-first commerce", "Direct booking and purchase actions"],
+    contactQuestion: "Have a project worth building?",
+    contactPrompt: "Send me the idea, bottleneck or system you want to create.",
+    response: "Response within 24–48 hours",
     connections: "System Connections",
     research: "Research & Exploration",
     researchNote: "Areas currently being explored.",
@@ -102,6 +112,8 @@ const biztokMobile = [
   "/projects/biztok/mobile/profile.jpg",
   "/projects/biztok/mobile/home.jpg",
   "/projects/biztok/mobile/discover.jpg",
+  "/projects/biztok/mainscreenbt.png",
+  "/projects/biztok/secondscreenbt.png",
 ];
 
 const research = [
@@ -163,8 +175,10 @@ export default function ProjectsPage() {
         <div className="pr-case-media">
           <div className="pr-desktop-view"><Image src={images[activeImage]} alt={`${project.name} interface`} fill sizes="(max-width: 800px) 100vw, 68vw"/><span>{activeImage + 1} / {images.length}</span><button className="previous" aria-label="Previous screenshot" onClick={() => setActiveImage((activeImage - 1 + images.length) % images.length)}><ArrowLeft/></button><button className="next" aria-label="Next screenshot" onClick={() => setActiveImage((activeImage + 1) % images.length)}><ArrowRight/></button></div>
           <div className="pr-desktop-thumbs">{images.map((image, index) => <button className={activeImage === index ? "active" : ""} key={image} onClick={() => setActiveImage(index)} aria-label={`Show screenshot ${index + 1}`}><Image src={image} alt="" fill sizes="14vw"/></button>)}</div>
-          <div className="pr-mobile-title"><MonitorSmartphone/><span>{t.mobile}</span></div>
-          <div className="pr-mobile-screens">{(selected === 0 ? biztokMobile : images.slice(0, 3)).map((image, index) => <figure key={`${image}-${index}`}><div><Image src={image} alt={`${project.name} mobile screen ${index + 1}`} fill sizes="(max-width: 700px) 64vw, 18vw"/></div></figure>)}</div>
+          <div className="pr-mobile-support">
+            <div className="pr-mobile-copy"><div className="pr-mobile-title"><MonitorSmartphone/><span>{t.mobile}</span></div><p>{t.mobileText}</p><ul>{t.mobileBullets.map(item => <li key={item}>{item}</li>)}</ul></div>
+            <div className="pr-mobile-screens">{(selected === 0 ? biztokMobile : [...images, images[0]].slice(0, 5)).map((image, index) => <figure key={`${image}-${index}`}><div><Image src={image} alt={`${project.name} mobile screen ${index + 1}`} fill sizes="(max-width: 700px) 48vw, 10vw"/></div></figure>)}</div>
+          </div>
         </div>
       </div>
     </section>
@@ -181,8 +195,7 @@ export default function ProjectsPage() {
     </section>
 
     <section className="pr-contact shell" id="contact">
-      <div className="pr-contact-image"><Image src="/landing/den-portrait.jpg" alt="Den" fill sizes="35vw"/></div>
-      <div className="pr-contact-copy"><h2>{t.contact}<strong>{t.contactAccent}</strong></h2><p>{t.contactText}</p><ul><li><Mail/>hello@densworkspace.com</li><li><MapPin/>Global · Remote</li><li><CircleDot/>Open for projects & collaborations</li></ul></div>
+      <div className="pr-contact-copy"><p className="pr-contact-kicker">{t.contactQuestion}</p><h2>{t.contact}<strong>{t.contactAccent}</strong></h2><p>{t.contactPrompt}</p><div className="pr-contact-meta"><a href="mailto:hello@densworkspace.com"><Mail/>hello@densworkspace.com</a><span><MapPin/>Global · Remote</span><span><Clock3/>{t.response}</span><a href="https://github.com/dancewithme2014-oss" target="_blank" rel="noreferrer"><GitBranch/>GitHub</a></div></div>
       <form onSubmit={submit}><div><label>{t.name}<input name="name" required placeholder={locale === "ru" ? "Ваше имя" : "John Doe"}/></label><label>{t.email}<input name="email" type="email" required placeholder="john@company.com"/></label></div><label>{t.message}<textarea name="message" required placeholder={locale === "ru" ? "Расскажите о вашей идее или проекте..." : "Tell me about your idea or project..."}/></label><button>{sent ? <><Check/>{t.success}</> : <>{t.send}<ArrowRight/></>}</button></form>
     </section>
   </main>;
