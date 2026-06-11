@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, ChevronDown, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, Menu, MessageSquareText, Moon, Network, PenLine, PhoneOff, Rocket, Sparkles, Sun, Workflow, X } from "lucide-react";
 import { content, newsItems, projects, solutions, workItems, type Locale } from "@/lib/content";
@@ -10,6 +11,7 @@ const workIcons = [CloudCog, BriefcaseBusiness, Bot, Network];
 const ids = ["projects", "ai-business", "about", "contact"];
 
 export default function Landing() {
+  const router = useRouter();
   const [locale, setLocale] = useState<Locale>(() => typeof window === "undefined" ? "ru" : (localStorage.getItem("dw-locale") as Locale) || "ru");
   const [theme, setTheme] = useState<"dark" | "light">(() => typeof window === "undefined" ? "dark" : (localStorage.getItem("dw-theme") as "dark" | "light") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
   const [menu, setMenu] = useState(false);
@@ -57,6 +59,7 @@ export default function Landing() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setMenu(false);
   };
+  const navigate = (index: number) => index === 0 ? router.push("/projects") : scrollTo(ids[index]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,7 +74,7 @@ export default function Landing() {
     <AmbientBackground/>
     <header className="header shell">
       <button className="brand" onClick={() => scrollTo("top")}>Den’s Workspace</button>
-      <nav className="desktop-nav">{t.nav.map((label, index) => <button key={label} onClick={() => scrollTo(ids[index])}>{label}</button>)}</nav>
+      <nav className="desktop-nav">{t.nav.map((label, index) => <button key={label} onClick={() => navigate(index)}>{label}</button>)}</nav>
       <div className="header-actions">
         <div className="desktop-preferences"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
         <button className="build-button" onClick={() => scrollTo("contact")}>{t.build}<ArrowRight size={15}/></button>
@@ -81,7 +84,7 @@ export default function Landing() {
 
     {menu && <aside className="mobile-menu">
       <div className="mobile-menu-head"><span>Den’s Workspace</span><button className="icon-button" onClick={() => setMenu(false)} aria-label="Close"><X size={22}/></button></div>
-      <nav>{t.nav.map((label, index) => <button key={label} onClick={() => scrollTo(ids[index])}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></button>)}</nav>
+      <nav>{t.nav.map((label, index) => <button key={label} onClick={() => navigate(index)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></button>)}</nav>
       <div className="mobile-controls"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
     </aside>}
 
@@ -91,7 +94,7 @@ export default function Landing() {
         <h1>{t.heroTitle}</h1>
         <p className="kicker">{t.kicker}</p>
         <p className="intro">{t.intro}</p>
-        <div className="hero-buttons"><button className="primary" onClick={() => scrollTo("projects")}>{t.explore}<ArrowDownRight/></button><button className="text-button" onClick={() => scrollTo("ai-business")}>{t.work}<i/></button></div>
+        <div className="hero-buttons"><button className="primary" onClick={() => router.push("/projects")}>{t.explore}<ArrowDownRight/></button><button className="text-button" onClick={() => scrollTo("ai-business")}>{t.work}<i/></button></div>
       </div>
       <div className="hero-panels">
         <InfoPanel title={t.working} items={workItems} icons={workIcons} action={t.allExperiments}/>
