@@ -77,13 +77,13 @@ export default function Landing() {
         <InfoPanel title={t.news} items={newsItems} action={t.allNews}/>
       </div>
       <div className="hero-image" aria-hidden="true">
-        <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.png" alt="" fill priority sizes="100vw"/>
-        <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.png" alt="" fill priority sizes="100vw"/>
+        <video className="theme-art theme-art-dark" src="/landing/hero-robot-dark.mp4" autoPlay muted loop playsInline preload="auto" />
+        <video className="theme-art theme-art-light" src="/landing/hero-robot-light.mp4" autoPlay muted loop playsInline preload="auto" />
       </div>
     </section>
 
     <section className="section shell" id="projects">
-      <SectionHead eyebrow={t.featured} title={t.projectsTitle} action={t.allProjects}/>
+      <SectionHead eyebrow={t.featured} title={t.projectsTitle} action={t.allProjects} onAction={() => router.push("/projects")}/>
       <div className="projects-row">{projects.map((project) => <article className="project-card" key={project.number}><span>{project.number}</span><div className="project-image"><Image src={project.image} alt={project.title} fill sizes="(max-width: 700px) 78vw, 20vw"/></div><h3>{project.title}</h3><p>{project.category[langIndex]}</p><b>Active</b></article>)}</div>
     </section>
 
@@ -148,5 +148,5 @@ function AmbientBackground() {
 function InfoPanel({ title, items, icons, action }: { title: string; items: readonly (readonly string[])[]; icons?: typeof workIcons; action: string }) {
   return <article className="info-panel"><h2>{title}<i/></h2><div>{items.map((item, index) => { const Icon = icons?.[index] || Sparkles; return <p key={item[0]}><Icon/><span>{item[0]}</span><small>{item[1]}</small></p>; })}</div><button>{action}<ArrowRight/></button></article>;
 }
-function SectionHead({ eyebrow, title, action }: { eyebrow: string; title: string; action: string }) { return <div className="section-head"><div><p>{eyebrow}</p><h2>{title}<i/></h2></div><button>{action}<ArrowRight/></button></div>; }
+function SectionHead({ eyebrow, title, action, onAction }: { eyebrow: string; title: string; action: string; onAction?: () => void }) { return <div className="section-head"><div><p>{eyebrow}</p><h2>{title}<i/></h2></div><button type="button" onClick={onAction}>{action}<ArrowRight/></button></div>; }
 function ContactItem({ icon: Icon, title, text }: { icon: typeof Mail; title: string; text: string }) { return <li><Icon/><div><b>{title}</b><span>{text}</span></div></li>; }
