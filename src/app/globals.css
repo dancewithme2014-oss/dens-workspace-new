@@ -175,3 +175,32 @@ main>.header{z-index:40}
   .pr-contact form{padding:22px}
   .pr-contact-meta{gap:10px 14px;margin-top:18px}
 }
+
+/* Theme-specific hero artwork */
+.theme-art-light{display:none}
+:root[data-theme="light"] .theme-art-dark{display:none}
+:root[data-theme="light"] .theme-art-light{display:block}
+
+.hero-image{inset:0;width:100%}
+.hero-image:before{background:linear-gradient(90deg,var(--bg) 0%,var(--bg) 16%,transparent 48%,transparent 92%,var(--bg) 100%)}
+.hero-image img{object-position:center;filter:none}
+:root[data-theme="light"] .hero-image{opacity:1;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 10%,#000 91%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,#000 10%,#000 91%,transparent 100%)}
+:root[data-theme="light"] .hero-image:before{background:linear-gradient(90deg,#eef2f0 0%,#eef2f0f2 16%,#eef2f05e 42%,transparent 68%,#eef2f026 88%,#eef2f0 100%),linear-gradient(180deg,#eef2f05c 0%,transparent 28%,#eef2f0a8 100%)}
+:root[data-theme="light"] .hero-image:after{inset:0;height:auto;background:linear-gradient(120deg,#ffffff24 0%,transparent 55%,#e5ebe732 100%)}
+:root[data-theme="light"] .hero-image img{filter:none;transform:none}
+
+.pr-hero-art{inset:0;width:100%;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 9%,#000 92%,transparent 100%),linear-gradient(180deg,transparent 0%,#000 10%,#000 90%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,#000 9%,#000 92%,transparent 100%),linear-gradient(180deg,transparent 0%,#000 10%,#000 90%,transparent 100%)}
+.pr-hero-art:after{background:linear-gradient(90deg,var(--bg) 0%,var(--bg) 18%,transparent 48%),linear-gradient(180deg,var(--bg),transparent 15%,transparent 82%,var(--bg))}
+.pr-hero-art img{object-position:center;filter:none;transform:none}
+:root[data-theme="light"] .pr-hero-art{opacity:1}
+:root[data-theme="light"] .pr-hero-art img{filter:none}
+:root[data-theme="light"] .pr-hero-art:after{background:linear-gradient(90deg,#f2f3ef 0%,#f2f3eff0 18%,#f2f3ef57 47%,transparent 68%),linear-gradient(180deg,#f2f3ef,transparent 20%,transparent 78%,#f2f3ef)}
+
+.pr-contact form>label{grid-column:1/-1}
+.pr-contact textarea{min-height:104px}
+
+@media(max-width:900px){
+  .hero-image{inset:auto 0 0;width:100%;right:auto}
+  .hero-image:before{background:linear-gradient(180deg,var(--bg),transparent 16%,transparent 86%,var(--bg))}
+  .pr-hero-art{inset:auto -18px 0;width:calc(100% + 36px)}
+}

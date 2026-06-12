@@ -76,7 +76,10 @@ export default function Landing() {
         <InfoPanel title={t.working} items={workItems} icons={workIcons} action={t.allExperiments}/>
         <InfoPanel title={t.news} items={newsItems} action={t.allNews}/>
       </div>
-      <div className="hero-image"><Image src="/landing/hero-workshop.png" alt="AI robotics workshop" fill priority sizes="(max-width: 900px) 100vw, 52vw"/></div>
+      <div className="hero-image" aria-hidden="true">
+        <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.png" alt="" fill priority sizes="100vw"/>
+        <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.png" alt="" fill priority sizes="100vw"/>
+      </div>
     </section>
 
     <section className="section shell" id="projects">

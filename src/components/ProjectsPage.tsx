@@ -135,7 +135,10 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
     <SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme} active="projects"/>
 
     <section className="pr-hero shell">
-      <div className="pr-hero-art" aria-hidden="true"><Image src="/projects/projects-hero-reference.png" alt="" fill priority sizes="70vw"/></div>
+      <div className="pr-hero-art" aria-hidden="true">
+        <Image className="theme-art theme-art-dark" src="/projects/projects-hero-dark.png" alt="" fill priority sizes="100vw"/>
+        <Image className="theme-art theme-art-light" src="/projects/projects-hero-light.png" alt="" fill priority sizes="100vw"/>
+      </div>
       <div className="pr-hero-copy">
         <p className="projects-eyebrow"><i/>{t.eyebrow}</p>
         <h1>{t.title[0]}<br/>{t.title[1]}<br/><strong>{t.title[2]}</strong></h1>
