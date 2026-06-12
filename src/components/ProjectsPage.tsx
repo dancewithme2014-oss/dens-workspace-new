@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Atom, Bot, Boxes, BrainCircuit, Check, Clock3, FlaskConical, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Rocket, Workflow } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, Atom, Bot, BrainCircuit, Check, Clock3, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Radar, Workflow } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
-import { featuredProjects } from "@/lib/projects-data";
-import type { Locale } from "@/lib/content";
+import SystemArchitecture from "@/components/SystemArchitecture";
+import { compactProjects, featuredProjects } from "@/lib/projects-data";
 import { useSitePreferences } from "@/lib/preferences";
 
 const copy = {
@@ -42,6 +43,8 @@ const copy = {
     message: "Сообщение",
     send: "Начать разговор",
     success: "Сообщение отправлено.",
+    showMore: "Смотреть еще",
+    showLess: "Скрыть",
   },
   en: {
     eyebrow: "Venture studio",
@@ -76,6 +79,8 @@ const copy = {
     message: "Message",
     send: "Start a Conversation",
     success: "Message sent.",
+    showMore: "Show more",
+    showLess: "Show less",
   },
 } as const;
 
@@ -118,6 +123,7 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
   const [selected, setSelected] = useState(0);
   const [activeImage, setActiveImage] = useState(0);
   const [sent, setSent] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const t = copy[locale];
   const project = featuredProjects[selected];
   const images = gallery[project.name];
@@ -136,8 +142,8 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
 
     <section className="pr-hero shell">
       <div className="pr-hero-art" aria-hidden="true">
-        <Image className="theme-art theme-art-dark" src="/projects/projects-hero-dark.png" alt="" fill priority sizes="100vw"/>
-        <Image className="theme-art theme-art-light" src="/projects/projects-hero-light.png" alt="" fill priority sizes="100vw"/>
+        <video className="theme-art theme-art-dark" src="/projects/projects-hero-dark.mp4" autoPlay muted loop playsInline preload="auto" />
+        <video className="theme-art theme-art-light" src="/projects/projects-hero-light.mp4" autoPlay muted loop playsInline preload="auto" />
       </div>
       <div className="pr-hero-copy">
         <p className="projects-eyebrow"><i/>{t.eyebrow}</p>
@@ -148,13 +154,18 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
     </section>
 
     <section className="pr-section shell" id="featured">
-      <ProjectsHeading title={t.featured} action={t.all}/>
+      <ProjectsHeading title={t.featured}/>
       <div className="pr-featured-grid">{featuredProjects.map((item, index) => <button key={item.name} className={`pr-featured-card ${selected === index ? "selected" : ""}`} onClick={() => { setSelected(index); setActiveImage(0); jump("showcase"); }}>
         <div className="pr-card-top"><span>{item.number}</span><b className={`status ${item.status.toLowerCase()}`}>{item.status}</b></div>
         <div className="pr-card-image"><Image src={item.image} alt={item.name} fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
         <h3>{item.name}</h3><p>{item.subtitle}</p><div className="pr-tags"><span>AI</span><span>Automation</span><span>{index === 2 ? "Logistics" : "Platform"}</span></div>
       </button>)}</div>
-      <div className="pr-pagination"><i/><i/><i/><i/></div>
+      <AnimatePresence initial={false}>{showMore && <motion.div className="pr-featured-grid pr-featured-more" initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: "auto", y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} transition={{ duration: .3 }}>{compactProjects.slice(0, 5).map(([number, name, subtitle, status], index) => <article className="pr-featured-card pr-additional-card" key={name}>
+        <div className="pr-card-top"><span>{number}</span><b className={`status ${status.toLowerCase()}`}>{status}</b></div>
+        <div className="pr-card-image"><Image src={featuredProjects[index].image} alt="" fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
+        <h3>{name}</h3><p>{subtitle}</p><div className="pr-tags"><span>AI</span><span>System</span><span>Research</span></div>
+      </article>)}</motion.div>}</AnimatePresence>
+      <div className="pr-show-more"><button type="button" onClick={() => setShowMore(value => !value)} aria-expanded={showMore}>{showMore ? t.showLess : t.showMore}<ArrowRight/></button></div>
     </section>
 
     <section className="pr-section shell" id="showcase">
@@ -179,7 +190,7 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
 
     <section className="pr-section shell" id="connections">
       <ProjectsHeading title={t.connections}/>
-      <SystemConnections locale={locale}/>
+      <SystemArchitecture locale={locale}/>
     </section>
 
     <section className="pr-section shell" id="research">
@@ -195,23 +206,6 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
   </main>;
 }
 
-function ProjectsHeading({ title, action }: { title: string; action?: string }) {
-  return <div className="pr-heading"><h2>{title}<i/></h2>{action && <a href="#showcase">{action}<ArrowRight/></a>}</div>;
-}
-
-function SystemConnections({ locale }: { locale: Locale }) {
-  const labels = locale === "ru" ? ["Общая инфраструктура", "Общие автоматизации", "AI-процессы", "Общие знания"] : ["Shared Infrastructure", "Shared Automations", "AI Workflows", "Shared Knowledge"];
-  return <div className="pr-connections">
-    <aside>{labels.map((label, index) => <p key={label}><i className={`dot-${index}`}/>{label}</p>)}</aside>
-    <div className="pr-system-map">
-      <svg viewBox="0 0 760 340" aria-hidden="true"><g>{[[380,170,170,75],[380,170,590,75],[380,170,650,200],[380,170,540,285],[380,170,235,280],[380,170,105,205]].map((line,index)=><line key={index} x1={line[0]} y1={line[1]} x2={line[2]} y2={line[3]}/>)}</g></svg>
-      <div className="system-core"><b>D</b><small>Den’s Workspace</small></div>
-      <SystemNode className="n1" icon={Layers3} label="Virtual COO"/><SystemNode className="n2" icon={Boxes} label="Warehouse AI"/><SystemNode className="n3" icon={FlaskConical} label="Research Systems"/><SystemNode className="n4" icon={Network} label="Experiments"/><SystemNode className="n5" icon={Rocket} label="Marketing Engine"/><SystemNode className="n6" icon={Play} label="BizTok"/>
-    </div>
-    <aside><h3>Warehouse AI</h3><small>Inventory Intelligence System</small><p>Computer vision and AI for real-time inventory tracking and predictive analytics.</p><b>{locale === "ru" ? "Связи" : "Connections"}</b><ul><li>Shares AI Models</li><li>Shares Automations</li><li>Core Infrastructure</li></ul></aside>
-  </div>;
-}
-
-function SystemNode({ className, icon: Icon, label }: { className: string; icon: typeof Layers3; label: string }) {
-  return <div className={`system-node ${className}`}><span><Icon/></span><b>{label}</b></div>;
+function ProjectsHeading({ title }: { title: string }) {
+  return <div className="pr-heading"><h2>{title}<i/></h2></div>;
 }

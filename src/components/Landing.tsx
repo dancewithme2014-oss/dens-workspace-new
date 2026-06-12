@@ -77,8 +77,14 @@ export default function Landing() {
         <InfoPanel title={t.news} items={newsItems} action={t.allNews}/>
       </div>
       <div className="hero-image" aria-hidden="true">
-        <video className="theme-art theme-art-dark" src="/landing/hero-robot-dark.mp4" autoPlay muted loop playsInline preload="auto" />
-        <video className="theme-art theme-art-light" src="/landing/hero-robot-light.mp4" autoPlay muted loop playsInline preload="auto" />
+        <div className="hero-media-desktop">
+          <video className="theme-art theme-art-dark" src="/landing/hero-robot-dark.mp4" autoPlay muted loop playsInline preload="auto" />
+          <video className="theme-art theme-art-light" src="/landing/hero-robot-light.mp4" autoPlay muted loop playsInline preload="auto" />
+        </div>
+        <div className="hero-media-mobile">
+          <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.png" alt="" fill sizes="100vw"/>
+          <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.png" alt="" fill sizes="100vw"/>
+        </div>
       </div>
     </section>
 
