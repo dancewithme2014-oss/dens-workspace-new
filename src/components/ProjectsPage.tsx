@@ -108,20 +108,12 @@ const showcaseCopy = {
   },
 } as const;
 
-const biztokMobile = [
-  "/projects/biztok/mobile/profile.jpg",
-  "/projects/biztok/mobile/home.jpg",
-  "/projects/biztok/mobile/discover.jpg",
-  "/projects/biztok/mainscreenbt.png",
-  "/projects/biztok/secondscreenbt.png",
-];
-
 const research = [
   ["AI Agents", Bot, "Exploring"], ["Voice AI", Mic2, "Testing"], ["Computer Vision", Radar, "Exploring"], ["Knowledge Systems", BrainCircuit, "Researching"],
   ["Human-AI Interfaces", Network, "Testing"], ["Robotics", Orbit, "Exploring"], ["Autonomous Workflows", Workflow, "Researching"], ["Decision Systems", Atom, "Exploring"],
 ] as const;
 
-export default function ProjectsPage() {
+export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<string, string[]> }) {
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
   const [selected, setSelected] = useState(0);
   const [activeImage, setActiveImage] = useState(0);
@@ -129,6 +121,8 @@ export default function ProjectsPage() {
   const t = copy[locale];
   const project = featuredProjects[selected];
   const images = gallery[project.name];
+  const mobileScreens = mobileMedia[project.name] ?? [];
+  const hasMobileExperience = mobileScreens.length === 6;
   const detail = showcaseCopy[locale];
 
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
@@ -164,21 +158,18 @@ export default function ProjectsPage() {
       <ProjectsHeading title={t.showcase}/>
       <div className="pr-case-study">
         <article className="pr-case-copy">
-          <p className="pr-case-number">{project.number}</p>
           <h2>{project.name}</h2><p className="pr-case-subtitle">{project.subtitle}</p>
           <p className="pr-case-description">{detail.description}</p>
           <div className="pr-case-rule"/>
           <h3>{t.solves}</h3><p>{detail.solves}</p>
           <div className="pr-case-columns"><div><h3>{t.features}</h3><ul>{detail.features.map(item => <li key={item}>{item}</li>)}</ul></div><div><h3>{t.stack}</h3><ul className="pr-stack-list"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>OpenAI</li><li>n8n</li><li>WebSockets</li></ul></div></div>
           <blockquote><b>{t.founder}</b><p>{detail.founder}</p></blockquote>
+          {hasMobileExperience && <div className="pr-mobile-copy"><div className="pr-mobile-title"><MonitorSmartphone/><span>{t.mobile}</span></div><p>{t.mobileText}</p><ul>{t.mobileBullets.map(item => <li key={item}>{item}</li>)}</ul></div>}
         </article>
         <div className="pr-case-media">
           <div className="pr-desktop-view"><Image src={images[activeImage]} alt={`${project.name} interface`} fill sizes="(max-width: 800px) 100vw, 68vw"/><span>{activeImage + 1} / {images.length}</span><button className="previous" aria-label="Previous screenshot" onClick={() => setActiveImage((activeImage - 1 + images.length) % images.length)}><ArrowLeft/></button><button className="next" aria-label="Next screenshot" onClick={() => setActiveImage((activeImage + 1) % images.length)}><ArrowRight/></button></div>
           <div className="pr-desktop-thumbs">{images.map((image, index) => <button className={activeImage === index ? "active" : ""} key={image} onClick={() => setActiveImage(index)} aria-label={`Show screenshot ${index + 1}`}><Image src={image} alt="" fill sizes="14vw"/></button>)}</div>
-          <div className="pr-mobile-support">
-            <div className="pr-mobile-copy"><div className="pr-mobile-title"><MonitorSmartphone/><span>{t.mobile}</span></div><p>{t.mobileText}</p><ul>{t.mobileBullets.map(item => <li key={item}>{item}</li>)}</ul></div>
-            <div className="pr-mobile-screens">{(selected === 0 ? biztokMobile : [...images, images[0]].slice(0, 5)).map((image, index) => <figure key={`${image}-${index}`}><div><Image src={image} alt={`${project.name} mobile screen ${index + 1}`} fill sizes="(max-width: 700px) 48vw, 10vw"/></div></figure>)}</div>
-          </div>
+          {hasMobileExperience && <div className="pr-mobile-screens">{mobileScreens.map((image, index) => <figure key={image}><div><Image src={image} alt={`${project.name} mobile screen ${index + 1}`} fill sizes="(max-width: 700px) 42vw, 10vw"/></div></figure>)}</div>}
         </div>
       </div>
     </section>
