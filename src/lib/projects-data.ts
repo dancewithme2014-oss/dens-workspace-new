@@ -7,23 +7,55 @@ export type PortfolioProject = {
   description: string;
   image: string;
   status: ProjectStatus;
-  metrics: [string, string][];
+  architectureId: string;
+  gallery: string[];
+  tags: string[];
+  folder?: string;
 };
 
 export const featuredProjects: PortfolioProject[] = [
-  { number:"01", name:"BizTok", subtitle:"Live Commerce Platform", description:"AI-powered live shopping and engagement platform.", image:"/projects/biztok/mainscreenbt.png", status:"Active", metrics:[["25K+","Users"],["$2.1M+","GMV"]] },
-  { number:"02", name:"Virtual COO", subtitle:"AI Operating System", description:"AI executive that runs daily operations and drives growth.", image:"/projects/Virtual COO/main.png", status:"Active", metrics:[["8K+","Businesses"],["1.2M+","Tasks"]] },
-  { number:"03", name:"Warehouse AI", subtitle:"Inventory Intelligence", description:"Computer vision and AI for real-time inventory and space.", image:"/projects/warehouse/main.png", status:"Active", metrics:[["99.5%","Accuracy"],["40%","Faster"]] },
-  { number:"04", name:"Marketing Engine", subtitle:"Content & Automation", description:"AI content factory for brands and marketing teams.", image:"/projects/n8n_news/main.jpg", status:"Building", metrics:[["10K+","Assets"],["300%","ROI"]] },
-  { number:"05", name:"Den’s Workspace OS", subtitle:"Founder Operating System", description:"AI-native OS for building, launching and scaling ventures.", image:"/ai-universe/main-planet-v13.png", status:"Active", metrics:[["5K+","Users"],["30+","Integrations"]] },
+  {
+    number: "01", name: "BizTok", subtitle: "Live Commerce Platform",
+    description: "AI-powered live shopping and business discovery platform.", image: "/projects/biztok/mainscreenbt.png", status: "Active", architectureId: "biztok",
+    gallery: ["/projects/biztok/mainscreenbt.png", "/projects/biztok/secondscreenbt.png", "/projects/biztok/thirdscreenbt.png", "/projects/biztok/fourth.png", "/projects/biztok/BizTok Info Restream.png"], tags: ["AI", "Commerce", "Platform"],
+  },
+  {
+    number: "02", name: "OSA Consulting", subtitle: "AI Consulting Platform",
+    description: "Consulting, automation and business intelligence in one digital experience.", image: "/projects/osa/mainosa.png", status: "Active", architectureId: "osa-consulting",
+    gallery: ["/projects/osa/mainosa.png", "/projects/osa/osa1.png", "/projects/osa/osa2.png", "/projects/osa/osa3.png", "/projects/osa/osa4.png", "/projects/osa/osa5.png", "/projects/osa/osablog.png"], tags: ["AI", "Consulting", "Web"],
+  },
+  {
+    number: "03", name: "Virtual COO", subtitle: "AI Operating System",
+    description: "An AI operating layer for daily execution, decisions and growth.", image: "/projects/Virtual COO/main.png", status: "Active", architectureId: "virtual-coo",
+    gallery: ["/projects/Virtual COO/main.png", "/projects/Virtual COO/first.png", "/projects/Virtual COO/third.png", "/projects/Virtual COO/fourth.png", "/projects/Virtual COO/fifth.png"], tags: ["AI", "Operations", "SaaS"],
+  },
+  {
+    number: "04", name: "Warehouse App", subtitle: "Inventory Intelligence",
+    description: "Computer vision and automation for warehouse operations.", image: "/projects/warehouse/main.png", status: "Active", architectureId: "warehouse-app",
+    gallery: ["/projects/warehouse/main.png", "/projects/warehouse/first.jpg", "/projects/warehouse/second.jpg", "/projects/warehouse/third.png", "/projects/warehouse/fourth.png", "/projects/warehouse/fifth.png", "/projects/warehouse/sixth.png"], tags: ["AI", "Logistics", "Vision"],
+  },
+  {
+    number: "05", name: "N8N News Autoposting", subtitle: "Content Automation",
+    description: "Automated research, production and publishing workflow.", image: "/projects/n8n_news/1.png", status: "Active", architectureId: "n8n-news",
+    gallery: ["/projects/n8n_news/1.png", "/projects/n8n_news/2.png", "/projects/n8n_news/3.png"], tags: ["n8n", "Content", "Automation"],
+  },
 ];
 
-export const compactProjects = [
-  ["06","AI Agents Hub","Multi-agent marketplace","Active"],["07","Data OS","Unified data layer","Building"],["08","Insight Studio","AI analytics platform","Active"],["09","FlowBuilder","Automation builder","Building"],["10","DocuMind","AI document intelligence","Active"],
-  ["11","Finance Copilot","AI financial assistant","Research"],["12","Meeting AI","Smart meeting notes","Active"],["13","VoiceOps","Voice automation","Building"],["14","Brand OS","Brand intelligence","Research"],["15","Predictive Engine","ML forecasting","Active"],
-  ["16","Customer OS","Customer intelligence","Building"],["17","HR Copilot","AI HR assistant","Research"],["18","Legal AI","Contract intelligence","Building"],["19","Supply Chain AI","Supply chain optimization","Active"],["20","Research Copilot","AI research assistant","Research"],
-] as const;
+export const additionalProjects: PortfolioProject[] = [
+  {
+    number: "06", name: "MMZ1 Promo", subtitle: "Interactive Brand Promo",
+    description: "A cinematic digital promotion experience.", image: "/projects/mmz1/main.png", status: "Active", architectureId: "mmz1-promo",
+    gallery: ["/projects/mmz1/main.png", "/projects/mmz1/clip.mp4", "/projects/mmz1/first.png", "/projects/mmz1/second.jpg"], tags: ["Promo", "Motion", "Web"],
+  },
+  {
+    number: "07", name: "Golden Lion Dubai", subtitle: "Premium Property Experience",
+    description: "A premium digital showcase built for discovery and conversion.", image: "/projects/golden lion/main screen.png", status: "Active", architectureId: "golden-lion",
+    gallery: ["/projects/golden lion/main screen.png", "/projects/golden lion/first screen.png", "/projects/golden lion/third screen.png", "/projects/golden lion/fourth screen.png", "/projects/golden lion/fifth screen.png"], tags: ["Property", "Dubai", "Platform"],
+  },
+];
+
+export const allProjects = [...featuredProjects, ...additionalProjects];
 
 export const researchAreas = [
-  ["AI Agents","Exploring","/ai-universe/chatgpt-v13.png"],["Robotics","Testing","/projects/warehouse/main.png"],["Computer Vision","Researching","/ai-universe/qwen-v10.png"],["Voice AI","Testing","/ai-universe/perplexity-v8.png"],["Knowledge Systems","Exploring","/ai-universe/ecosystem-core.png"],["Autonomous Businesses","Researching","/ai-universe/space-background.png"],
+  ["AI Agents", "Exploring", "/ai-universe/chatgpt-v13.png"], ["Robotics", "Testing", "/projects/warehouse/main.png"], ["Computer Vision", "Researching", "/ai-universe/qwen-v10.png"], ["Voice AI", "Testing", "/ai-universe/perplexity-v8.png"], ["Knowledge Systems", "Exploring", "/ai-universe/ecosystem-core.png"], ["Autonomous Businesses", "Researching", "/ai-universe/space-background.png"],
 ] as const;

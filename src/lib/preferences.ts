@@ -1,44 +1,45 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Locale } from "@/lib/content";
 
 type Theme = "dark" | "light";
-const listeners = new Set<() => void>();
-const serverSnapshot = "ru|dark";
-
-function readSnapshot() {
-  if (typeof window === "undefined") return serverSnapshot;
-  const locale = localStorage.getItem("dw-locale") === "en" ? "en" : "ru";
-  const theme = localStorage.getItem("dw-theme") === "light" ? "light" : "dark";
-  return `${locale}|${theme}`;
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener("storage", listener);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", listener);
-  };
-}
-
-function notify() {
-  listeners.forEach(listener => listener());
-}
+const preferenceEvent = "dw-preferences-change";
 
 export function useSitePreferences() {
-  const snapshot = useSyncExternalStore(subscribe, readSnapshot, () => serverSnapshot);
-  const [locale, theme] = snapshot.split("|") as [Locale, Theme];
+  const [locale, setLocaleState] = useState<Locale>("ru");
+  const [theme, setThemeState] = useState<Theme>("dark");
 
-  const setLocale = (value: Locale) => {
-    localStorage.setItem("dw-locale", value);
-    notify();
-  };
-  const setTheme = (value: Theme) => {
-    localStorage.setItem("dw-theme", value);
-    notify();
-  };
+  useEffect(() => {
+    const sync = () => {
+      try {
+        setLocaleState(window.localStorage.getItem("dw-locale") === "en" ? "en" : "ru");
+        setThemeState(window.localStorage.getItem("dw-theme") === "light" ? "light" : "dark");
+      } catch {
+        setLocaleState("ru");
+        setThemeState("dark");
+      }
+    };
+
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener(preferenceEvent, sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(preferenceEvent, sync);
+    };
+  }, []);
+
+  const setLocale = useCallback((value: Locale) => {
+    setLocaleState(value);
+    try { window.localStorage.setItem("dw-locale", value); } catch {}
+    window.dispatchEvent(new Event(preferenceEvent));
+  }, []);
+  const setTheme = useCallback((value: Theme) => {
+    setThemeState(value);
+    try { window.localStorage.setItem("dw-theme", value); } catch {}
+    window.dispatchEvent(new Event(preferenceEvent));
+  }, []);
 
   return { locale, theme, setLocale, setTheme };
 }

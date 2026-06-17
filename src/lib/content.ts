@@ -2,12 +2,12 @@ export type Locale = "ru" | "en";
 
 export const content = {
   ru: {
-    nav: ["Проекты", "AI для бизнеса", "Обо мне", "Контакты"],
+    nav: ["Проекты", "ИИ для бизнеса", "Обо мне", "Контакты"],
     build: "Обсудить проект",
     status: "Статус системы",
     operational: "Работает",
     heroTitle: "Создаю Системы Для Бизнеса",
-    kicker: "ИИ. Автоматизация. Бизнес-системы.",
+    kicker: "ИИ. Автоматизация. Маркетинг.",
     intro: "Помогаю компаниям и основателям проектировать, создавать и масштабировать интеллектуальные системы, которые автоматизируют операции, увеличивают выручку и создают устойчивое преимущество.",
     explore: "Смотреть проекты",
     work: "Проблемы/Решение",
@@ -18,7 +18,7 @@ export const content = {
     featured: "Избранные проекты",
     projectsTitle: "Реальные продукты. Реальные системы.",
     allProjects: "Все проекты",
-    business: "AI для бизнеса",
+    business: "ИИ для бизнеса",
     businessTitle: "От проблем к интеллектуальным системам.",
     allSolutions: "Все решения",
     contactNumber: "07",
@@ -38,10 +38,10 @@ export const content = {
     status: "System Status",
     operational: "Operational",
     heroTitle: "Building Systems For Real Impact.",
-    kicker: "AI. Automation. Business Systems. Real Solutions.",
+    kicker: "AI. Automation. Business Systems. Marketing.",
     intro: "I help businesses and founders design, build, and scale intelligent systems that automate operations, increase revenue, and create meaningful leverage.",
     explore: "Explore Projects",
-    work: "View How I Work",
+    work: "Problems/Solutions",
     working: "Currently Working On",
     news: "Live News Feed",
     allExperiments: "View All Experiments",
@@ -77,8 +77,8 @@ export const workItems = [["AI Automations", "In Progress"], ["Business Systems"
 export const newsItems = [["New reasoning model for complex tasks", "2m"], ["Humanoid robot starts real-world trials", "15m"], ["AI agents move from demos to operations", "32m"], ["Robotics VLA connects vision and action", "1h"], ["Automation becomes infrastructure", "2h"]];
 
 export const solutions = [
-  { p: ["Пропущенные заявки", "Missed Leads"], pd: ["Клиенты звонят после рабочего дня или не получают ответа.", "Customers call after hours or send inquiries."], s: ["AI-рецепционист", "AI Receptionist"], sd: ["Отвечает на звонки, квалифицирует лиды и обновляет CRM.", "Answers calls, qualifies leads and updates CRM."], r: ["Ни одной упущенной возможности", "Never Miss An Opportunity"], rd: ["Каждая заявка фиксируется и мгновенно направляется в работу.", "Every lead is captured and routed instantly."], icons: ["phone", "audio", "chart"] },
+  { p: ["Пропущенные заявки", "Missed Leads"], pd: ["Клиенты звонят после рабочего дня или не получают ответа.", "Customers call after hours or send inquiries."], s: ["ИИ-рецепционист", "AI Receptionist"], sd: ["Отвечает на звонки, квалифицирует лиды и обновляет CRM.", "Answers calls, qualifies leads and updates CRM."], r: ["Ни одной упущенной возможности", "Never Miss An Opportunity"], rd: ["Каждая заявка фиксируется и мгновенно направляется в работу.", "Every lead is captured and routed instantly."], icons: ["phone", "audio", "chart"] },
   { p: ["Ручные операции", "Manual Operations"], pd: ["Команда тратит часы на повторяющиеся задачи.", "Teams waste hours on repetitive tasks."], s: ["Автоматизация процессов", "Workflow Automation"], sd: ["Связывает сервисы и выполняет процессы от начала до конца.", "Connects tools and executes processes end-to-end."], r: ["Больше времени для роста", "More Time For Growth"], rd: ["Команда концентрируется на работе высокой ценности.", "Your team focuses on high-value work."], icons: ["file", "workflow", "clock"] },
   { p: ["Разрозненные данные", "Fragmented Information"], pd: ["Информация хранится в разных системах без общей картины.", "Data lives in multiple tools without one clear view."], s: ["Слой бизнес-аналитики", "Business Intelligence Layer"], sd: ["Объединяет продажи, операции и финансы в реальном времени.", "Unifies sales, operations and finance in real time."], r: ["Понятные решения", "Clear Visibility"], rd: ["Видно, что происходит и где нужно действовать.", "See what is happening and decide with confidence."], icons: ["database", "pie", "eye"] },
-  { p: ["Контентные узкие места", "Content Bottlenecks"], pd: ["Создание и публикация контента занимают слишком много времени.", "Creating and publishing content takes too much time."], s: ["AI-контент-система", "AI Content Engine"], sd: ["Исследует, пишет и публикует контент по всем каналам.", "Researches, writes and publishes across channels."], r: ["Сильнее бренд, шире охват", "Stronger Brand, More Reach"], rd: ["Стабильное присутствие и рост без дополнительной нагрузки.", "Consistent presence and growth without more workload."], icons: ["megaphone", "pen", "rocket"] },
+  { p: ["Контентные узкие места", "Content Bottlenecks"], pd: ["Создание и публикация контента занимают слишком много времени.", "Creating and publishing content takes too much time."], s: ["ИИ-контент-система", "AI Content Engine"], sd: ["Исследует, пишет и публикует контент по всем каналам.", "Researches, writes and publishes across channels."], r: ["Сильнее бренд, шире охват", "Stronger Brand, More Reach"], rd: ["Стабильное присутствие и рост без дополнительной нагрузки.", "Consistent presence and growth without more workload."], icons: ["megaphone", "pen", "rocket"] },
 ];

@@ -1,19 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Atom, Bot, BrainCircuit, Check, Clock3, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Radar, Workflow } from "lucide-react";
+import { ArrowLeft, ArrowRight, Atom, Bot, BrainCircuit, Clock3, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Workflow } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SystemArchitecture from "@/components/SystemArchitecture";
-import { compactProjects, featuredProjects } from "@/lib/projects-data";
+import LoopingVideo from "@/components/LoopingVideo";
+import type { PortfolioProject } from "@/lib/projects-data";
+import { localizeAi } from "@/lib/localize";
 import { useSitePreferences } from "@/lib/preferences";
 
 const copy = {
   ru: {
-    eyebrow: "Венчурная студия",
+    eyebrow: "ИИ Системы и Продукты",
     title: ["Продукты.", "Системы.", "Эксперименты."],
-    intro: "Растущая коллекция AI-продуктов, бизнес-систем и экспериментов, созданных для совместной работы людей и интеллектуальных систем.",
+    intro: "Растущая коллекция ИИ-продуктов, бизнес-систем и экспериментов, созданных для совместной работы людей и интеллектуальных систем.",
     explore: "Смотреть проекты",
     map: "Карта систем",
     featured: "Избранные системы",
@@ -45,9 +48,11 @@ const copy = {
     success: "Сообщение отправлено.",
     showMore: "Смотреть еще",
     showLess: "Скрыть",
+    emailAction: "Написать на email",
+    homeContact: "Открыть форму на главной",
   },
   en: {
-    eyebrow: "Venture studio",
+    eyebrow: "AI Systems and Products",
     title: ["Products.", "Systems.", "Experiments."],
     intro: "A growing collection of AI products, business systems and experiments designed to explore how humans and intelligent systems can work together.",
     explore: "Explore Projects",
@@ -81,24 +86,18 @@ const copy = {
     success: "Message sent.",
     showMore: "Show more",
     showLess: "Show less",
+    emailAction: "Send an email",
+    homeContact: "Open the main contact form",
   },
 } as const;
 
-const gallery: Record<string, string[]> = {
-  "BizTok": ["/projects/biztok/mainscreenbt.png", "/projects/biztok/mob.jpg", "/projects/biztok/secondscreenbt.png", "/projects/biztok/thirdscreenbt.png"],
-  "Virtual COO": ["/projects/Virtual COO/main.png", "/projects/Virtual COO/first.png", "/projects/Virtual COO/third.png", "/projects/Virtual COO/fourth.png"],
-  "Warehouse AI": ["/projects/warehouse/main.png", "/projects/warehouse/first.jpg", "/projects/warehouse/second.jpg", "/projects/warehouse/third.png"],
-  "Marketing Engine": ["/projects/n8n_news/main.jpg", "/projects/osa/mainosa.png", "/projects/osa/osa1.png", "/projects/osa/osa2.png"],
-  "Den’s Workspace OS": ["/ai-universe/main-planet-v13.png", "/ai-universe/ecosystem-core.png", "/ai-universe/reference-page.png", "/landing/hero-workshop.png"],
-};
-
 const showcaseCopy = {
   ru: {
-    description: "AI-платформа, которая объединяет создателей, бренды и покупателей через интерактивные live-shopping сценарии.",
+    description: "ИИ-платформа, которая объединяет создателей, бренды и покупателей через интерактивные live-shopping сценарии.",
     problem: "Покупки в прямом эфире разрознены, сложны и лишены данных в реальном времени.",
     solution: "BizTok объединяет трансляции, вовлечение, платежи и аналитику в одной платформе.",
-    features: ["Live-трансляции", "Чат и вовлечение", "AI-рекомендации", "Платежи и аналитика"],
-    focus: "Улучшаем discovery, инструменты авторов и AI-рекомендации.",
+    features: ["Live-трансляции", "Чат и вовлечение", "ИИ-рекомендации", "Платежи и аналитика"],
+    focus: "Улучшаем discovery, инструменты авторов и ИИ-рекомендации.",
     solves: "Большинство прямых эфиров привлекают внимание, но не превращают его в продажи. BizTok сокращает путь между просмотром и покупкой.",
     founder: "Обычные каталоги помогают людям находить бизнес. Социальные сети помогают бизнесу привлекать внимание. BizTok соединяет оба мира.",
   },
@@ -118,32 +117,42 @@ const research = [
   ["Human-AI Interfaces", Network, "Testing"], ["Robotics", Orbit, "Exploring"], ["Autonomous Workflows", Workflow, "Researching"], ["Decision Systems", Atom, "Exploring"],
 ] as const;
 
-export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<string, string[]> }) {
+export default function ProjectsPage({ projects, mobileMedia, initialProjectId }: { projects: PortfolioProject[]; mobileMedia: Record<string, string[]>; initialProjectId?: string }) {
+  const featuredProjects = projects.slice(0, 5);
+  const additionalProjects = projects.slice(5);
+  const allProjects = projects;
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
-  const [selected, setSelected] = useState(0);
+  const initialIndex = Math.max(0, allProjects.findIndex(item => item.architectureId === initialProjectId));
+  const [selected, setSelected] = useState(initialIndex);
   const [activeImage, setActiveImage] = useState(0);
-  const [sent, setSent] = useState(false);
-  const [showMore, setShowMore] = useState(false);
+  const [showDesktopHeroMedia, setShowDesktopHeroMedia] = useState(false);
+  const [showMore, setShowMore] = useState(initialIndex >= featuredProjects.length);
   const t = copy[locale];
-  const project = featuredProjects[selected];
-  const images = gallery[project.name];
+  const project = allProjects[selected];
+  const images = project.gallery;
   const mobileScreens = mobileMedia[project.name] ?? [];
   const hasMobileExperience = mobileScreens.length === 6;
   const detail = showcaseCopy[locale];
 
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
-
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 901px)");
+    const update = () => setShowDesktopHeroMedia(media.matches);
+    update(); media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setSent(true); };
 
   return <main className="projects-page projects-redesign">
     <SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme} active="projects"/>
 
     <section className="pr-hero shell">
       <div className="pr-hero-art" aria-hidden="true">
-        <video className="theme-art theme-art-dark" src="/projects/projects-hero-dark.mp4" autoPlay muted loop playsInline preload="auto" />
-        <video className="theme-art theme-art-light" src="/projects/projects-hero-light.mp4" autoPlay muted loop playsInline preload="auto" />
+        {showDesktopHeroMedia ? <><LoopingVideo key={theme} src={theme === "dark" ? "/projects/projects-hero-dark.mp4" : "/projects/projects-hero-light.mp4"}/><span className="video-corner-mask" /></> : <>
+          <Image className="theme-art theme-art-dark" src="/projects/projects-hero-dark.png" alt="" fill sizes="100vw" loading="eager"/>
+          <Image className="theme-art theme-art-light" src="/projects/projects-hero-light.png" alt="" fill sizes="100vw" loading="eager"/>
+        </>}
       </div>
       <div className="pr-hero-copy">
         <p className="projects-eyebrow"><i/>{t.eyebrow}</p>
@@ -156,56 +165,94 @@ export default function ProjectsPage({ mobileMedia }: { mobileMedia: Record<stri
     <section className="pr-section shell" id="featured">
       <ProjectsHeading title={t.featured}/>
       <div className="pr-featured-grid">{featuredProjects.map((item, index) => <button key={item.name} className={`pr-featured-card ${selected === index ? "selected" : ""}`} onClick={() => { setSelected(index); setActiveImage(0); jump("showcase"); }}>
-        <div className="pr-card-top"><span>{item.number}</span><b className={`status ${item.status.toLowerCase()}`}>{item.status}</b></div>
+        <div className="pr-card-top"><span>{item.number}</span><b className={`status ${item.status.toLowerCase()}`}>{localizeProjectStatus(item.status, locale)}</b></div>
         <div className="pr-card-image"><Image src={item.image} alt={item.name} fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
-        <h3>{item.name}</h3><p>{item.subtitle}</p><div className="pr-tags"><span>AI</span><span>Automation</span><span>{index === 2 ? "Logistics" : "Platform"}</span></div>
+        <h3>{item.name}</h3><p>{localizeProjectText(item.subtitle, locale)}</p><div className="pr-tags">{item.tags.map(tag => <span key={tag}>{localizeProjectText(tag, locale)}</span>)}</div>
       </button>)}</div>
-      <AnimatePresence initial={false}>{showMore && <motion.div className="pr-featured-grid pr-featured-more" initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: "auto", y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} transition={{ duration: .3 }}>{compactProjects.slice(0, 5).map(([number, name, subtitle, status], index) => <article className="pr-featured-card pr-additional-card" key={name}>
-        <div className="pr-card-top"><span>{number}</span><b className={`status ${status.toLowerCase()}`}>{status}</b></div>
-        <div className="pr-card-image"><Image src={featuredProjects[index].image} alt="" fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
-        <h3>{name}</h3><p>{subtitle}</p><div className="pr-tags"><span>AI</span><span>System</span><span>Research</span></div>
-      </article>)}</motion.div>}</AnimatePresence>
-      <div className="pr-show-more"><button type="button" onClick={() => setShowMore(value => !value)} aria-expanded={showMore}>{showMore ? t.showLess : t.showMore}<ArrowRight/></button></div>
+      <AnimatePresence initial={false}>{showMore && additionalProjects.length > 0 && <motion.div className="pr-featured-grid pr-featured-more" initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: "auto", y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} transition={{ duration: .3 }}>{additionalProjects.map((item, index) => <button className={`pr-featured-card ${selected === featuredProjects.length + index ? "selected" : ""}`} key={item.name} onClick={() => { setSelected(featuredProjects.length + index); setActiveImage(0); jump("showcase"); }}>
+        <div className="pr-card-top"><span>{item.number}</span><b className={`status ${item.status.toLowerCase()}`}>{localizeProjectStatus(item.status, locale)}</b></div>
+        <div className="pr-card-image"><Image src={item.image} alt={item.name} fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
+        <h3>{item.name}</h3><p>{localizeProjectText(item.subtitle, locale)}</p><div className="pr-tags">{item.tags.map(tag => <span key={tag}>{localizeProjectText(tag, locale)}</span>)}</div>
+      </button>)}</motion.div>}</AnimatePresence>
+      {additionalProjects.length > 0 && <div className="pr-show-more"><button type="button" onClick={() => setShowMore(value => !value)} aria-expanded={showMore}>{showMore ? t.showLess : t.showMore}<ArrowRight/></button></div>}
     </section>
 
     <section className="pr-section shell" id="showcase">
       <ProjectsHeading title={t.showcase}/>
       <div className="pr-case-study">
         <article className="pr-case-copy">
-          <h2>{project.name}</h2><p className="pr-case-subtitle">{project.subtitle}</p>
-          <p className="pr-case-description">{detail.description}</p>
+          <h2>{project.name}</h2><p className="pr-case-subtitle">{localizeProjectText(project.subtitle, locale)}</p>
+          <p className="pr-case-description">{localizeProjectText(project.description, locale)}</p>
           <div className="pr-case-rule"/>
           <h3>{t.solves}</h3><p>{detail.solves}</p>
-          <div className="pr-case-columns"><div><h3>{t.features}</h3><ul>{detail.features.map(item => <li key={item}>{item}</li>)}</ul></div><div><h3>{t.stack}</h3><ul className="pr-stack-list"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>OpenAI</li><li>n8n</li><li>WebSockets</li></ul></div></div>
+          <div className="pr-case-columns"><div><h3>{t.features}</h3><ul>{detail.features.map(item => <li key={item}>{localizeAi(item, locale)}</li>)}</ul></div><div><h3>{t.stack}</h3><ul className="pr-stack-list"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>OpenAI</li><li>n8n</li><li>WebSockets</li></ul></div></div>
           <blockquote><b>{t.founder}</b><p>{detail.founder}</p></blockquote>
-          {hasMobileExperience && <div className="pr-mobile-copy"><div className="pr-mobile-title"><MonitorSmartphone/><span>{t.mobile}</span></div><p>{t.mobileText}</p><ul>{t.mobileBullets.map(item => <li key={item}>{item}</li>)}</ul></div>}
         </article>
         <div className="pr-case-media">
-          <div className="pr-desktop-view"><Image src={images[activeImage]} alt={`${project.name} interface`} fill sizes="(max-width: 800px) 100vw, 68vw"/><span>{activeImage + 1} / {images.length}</span><button className="previous" aria-label="Previous screenshot" onClick={() => setActiveImage((activeImage - 1 + images.length) % images.length)}><ArrowLeft/></button><button className="next" aria-label="Next screenshot" onClick={() => setActiveImage((activeImage + 1) % images.length)}><ArrowRight/></button></div>
-          <div className="pr-desktop-thumbs">{images.map((image, index) => <button className={activeImage === index ? "active" : ""} key={image} onClick={() => setActiveImage(index)} aria-label={`Show screenshot ${index + 1}`}><Image src={image} alt="" fill sizes="14vw"/></button>)}</div>
-          {hasMobileExperience && <div className="pr-mobile-screens">{mobileScreens.map((image, index) => <figure key={image}><div><Image src={image} alt={`${project.name} mobile screen ${index + 1}`} fill sizes="(max-width: 700px) 42vw, 10vw"/></div></figure>)}</div>}
+          <div className="pr-media-stage"><ProjectMedia key={images[activeImage]} src={images[activeImage]} alt={`${project.name} interface`} poster={project.image}/><span className="pr-media-count">{activeImage + 1} / {images.length}</span><button className="previous pr-media-arrow" aria-label="Previous screenshot" onClick={() => setActiveImage((activeImage - 1 + images.length) % images.length)}><ArrowLeft/></button><button className="next pr-media-arrow" aria-label="Next screenshot" onClick={() => setActiveImage((activeImage + 1) % images.length)}><ArrowRight/></button></div>
+          <div className="pr-desktop-thumbs">{images.map((image, index) => <button className={activeImage === index ? "active" : ""} key={image} onClick={() => setActiveImage(index)} aria-label={`Show media ${index + 1}`}>{isVideo(image) ? <><video src={image} muted playsInline preload="metadata"/><i className="pr-thumb-play"><Play/></i></> : <Image src={image} alt="" fill sizes="14vw"/>}</button>)}</div>
         </div>
+        {hasMobileExperience && <div className="pr-mobile-experience"><div className="pr-mobile-copy"><div className="pr-mobile-title"><MonitorSmartphone/><span>{t.mobile}</span></div><p>{t.mobileText}</p><ul>{t.mobileBullets.map(item => <li key={item}>{item}</li>)}</ul></div><div className="pr-mobile-screens">{mobileScreens.map((image, index) => <figure key={image}><div><Image src={image} alt={`${project.name} mobile screen ${index + 1}`} fill sizes="(max-width: 700px) 42vw, 10vw"/></div></figure>)}</div></div>}
       </div>
     </section>
 
     <section className="pr-section shell" id="connections">
       <ProjectsHeading title={t.connections}/>
-      <SystemArchitecture locale={locale}/>
+      <SystemArchitecture key={project.architectureId} locale={locale} projectId={project.architectureId}/>
     </section>
 
     <section className="pr-section shell" id="research">
       <ProjectsHeading title={t.research}/><p className="pr-section-note">{t.researchNote}</p>
-      <div className="pr-research-grid">{research.map(([name, Icon, state], index) => <article key={name}><div><Icon/></div><h3>{name}</h3><b className={`research-state state-${index % 4}`}>{state}</b></article>)}</div>
+      <div className="pr-research-grid">{research.map(([name, Icon, state], index) => <article key={name}><div><Icon/></div><h3>{localizeResearchName(name, locale)}</h3><b className={`research-state state-${index % 4}`}>{localizeResearchState(state, locale)}</b></article>)}</div>
       <div className="pr-pagination"><i/><i/><i/></div>
     </section>
 
     <section className="pr-contact shell" id="contact">
-      <div className="pr-contact-copy"><p className="pr-contact-kicker">{t.contactQuestion}</p><h2>{t.contact}<strong>{t.contactAccent}</strong></h2><p>{t.contactPrompt}</p><div className="pr-contact-meta"><a href="mailto:hello@densworkspace.com"><Mail/>hello@densworkspace.com</a><span><MapPin/>Global · Remote</span><span><Clock3/>{t.response}</span><a href="https://github.com/dancewithme2014-oss" target="_blank" rel="noreferrer"><GitBranch/>GitHub</a></div></div>
-      <form onSubmit={submit}><div><label>{t.name}<input name="name" required placeholder={locale === "ru" ? "Ваше имя" : "John Doe"}/></label><label>{t.email}<input name="email" type="email" required placeholder="john@company.com"/></label></div><label>{t.message}<textarea name="message" required placeholder={locale === "ru" ? "Расскажите о вашей идее или проекте..." : "Tell me about your idea or project..."}/></label><button>{sent ? <><Check/>{t.success}</> : <>{t.send}<ArrowRight/></>}</button></form>
+      <div className="pr-contact-copy"><p className="pr-contact-kicker">{t.contactQuestion}</p><h2>{t.contact}<strong>{t.contactAccent}</strong></h2><p>{t.contactPrompt}</p><div className="pr-contact-meta"><a href="mailto:hello@densworkspace.com"><Mail/>hello@densworkspace.com</a><span><MapPin/>{locale === "ru" ? "Весь мир · Удаленно" : "Global · Remote"}</span><span><Clock3/>{t.response}</span><a href="https://github.com/dancewithme2014-oss" target="_blank" rel="noreferrer"><GitBranch/>GitHub</a></div></div>
+      <div className="pr-contact-actions"><a className="projects-primary" href="mailto:hello@densworkspace.com">{t.emailAction}<Mail/></a><Link className="projects-secondary" href="/#start-conversation">{t.homeContact}<ArrowRight/></Link></div>
     </section>
   </main>;
 }
 
 function ProjectsHeading({ title }: { title: string }) {
   return <div className="pr-heading"><h2>{title}<i/></h2></div>;
+}
+
+function isVideo(src: string) {
+  return /\.(mp4|webm|mov)$/i.test(src);
+}
+
+function localizeResearchName(name: string, locale: "ru" | "en") {
+  if (locale === "en") return name;
+  return ({ "AI Agents": "ИИ-агенты", "Voice AI": "Голосовой ИИ", "Computer Vision": "Компьютерное зрение", "Knowledge Systems": "Системы знаний", "Human-AI Interfaces": "Интерфейсы человек–ИИ", Robotics: "Робототехника", "Autonomous Workflows": "Автономные процессы", "Decision Systems": "Системы принятия решений" } as Record<string, string>)[name] ?? localizeAi(name, locale);
+}
+
+function localizeResearchState(state: string, locale: "ru" | "en") {
+  if (locale === "en") return state;
+  return ({ Exploring: "Изучаю", Testing: "Тестирую", Researching: "Исследую" } as Record<string, string>)[state] ?? state;
+}
+
+function localizeProjectStatus(status: string, locale: "ru" | "en") {
+  if (locale === "en") return status;
+  return ({ Active: "Активен", Building: "В разработке", Research: "Исследование" } as Record<string, string>)[status] ?? status;
+}
+
+function localizeProjectText(text: string, locale: "ru" | "en") {
+  if (locale === "en") return text;
+  const translations: Record<string, string> = {
+    "Live Commerce Platform": "Платформа live-commerce", "AI Consulting Platform": "Платформа ИИ-консалтинга", "AI Operating System": "Операционная ИИ-система", "Inventory Intelligence": "Интеллектуальное управление складом", "Content Automation": "Автоматизация контента", "Interactive Brand Promo": "Интерактивный бренд-промо", "Premium Property Experience": "Премиальный сервис недвижимости",
+    "AI-powered live shopping and business discovery platform.": "ИИ-платформа для прямых продаж и поиска бизнеса.", "Consulting, automation and business intelligence in one digital experience.": "Консалтинг, автоматизация и бизнес-аналитика в единой цифровой среде.", "An AI operating layer for daily execution, decisions and growth.": "ИИ-уровень для ежедневной работы, решений и роста.", "Computer vision and automation for warehouse operations.": "Компьютерное зрение и автоматизация складских операций.", "Automated research, production and publishing workflow.": "Автоматизированный процесс исследования, производства и публикации.", "A cinematic digital promotion experience.": "Кинематографичный цифровой промо-проект.", "A premium digital showcase built for discovery and conversion.": "Премиальная цифровая витрина для поиска и конверсии.",
+    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость",
+  };
+  return translations[text] ?? localizeAi(text, locale);
+}
+
+function ProjectMedia({ src, alt, poster }: { src: string; alt: string; poster: string }) {
+  const [playing, setPlaying] = useState(false);
+  if (!isVideo(src)) return <div className="pr-desktop-view"><Image src={src} alt={alt} fill sizes="(max-width: 800px) 100vw, 68vw"/></div>;
+
+  return <div className="pr-desktop-view pr-video-view">
+    <video id={`project-video-${src.replace(/[^a-z0-9]/gi, "-")}`} src={src} poster={poster} playsInline preload="metadata" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}/>
+    {!playing && <button className="pr-video-play" type="button" aria-label="Play project video" onClick={(event) => event.currentTarget.previousElementSibling instanceof HTMLVideoElement && event.currentTarget.previousElementSibling.play()}><Play/></button>}
+  </div>;
 }

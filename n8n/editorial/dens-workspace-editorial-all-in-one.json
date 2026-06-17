@@ -1,0 +1,1011 @@
+{
+  "name": "Den's Workspace - Editorial Platform - All in One",
+  "nodes": [
+    {
+      "id": "dw-1",
+      "name": "Setup and credentials",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -280
+      ],
+      "parameters": {
+        "content": "DEN'S WORKSPACE — ALL-IN-ONE EDITORIAL PIPELINE\n\nRequired n8n environment variables:\nDW_RSS_FEED_URL, DENS_SITE_URL, N8N_INTEGRATION_SECRET,\nSUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,\nTELEGRAM_APPROVAL_CHAT_ID, TELEGRAM_APPROVAL_TOPIC_RU,\nTELEGRAM_APPROVAL_TOPIC_EN, TELEGRAM_PUBLIC_CHAT_ID.\n\nAfter import select OpenAI credentials on “AI Editorial Rewrite” and Telegram credentials on both Telegram nodes. The same N8N_INTEGRATION_SECRET must exist in the website .env.local / deployment secrets.",
+        "height": 220,
+        "width": 720
+      }
+    },
+    {
+      "id": "dw-2",
+      "name": "Manual test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        80
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "dw-3",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        240
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dw-4",
+      "name": "RSS Feed Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "url": "={{ $env.DW_RSS_FEED_URL }}"
+      }
+    },
+    {
+      "id": "dw-5",
+      "name": "Normalize + Sign Ingest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst secret = $env.N8N_INTEGRATION_SECRET;\nif (!secret) throw new Error('N8N_INTEGRATION_SECRET is not configured');\nreturn items.map(({ json }) => {\n  const sourceUrl = json.link || json.url || json.sourceUrl;\n  if (!sourceUrl) throw new Error('RSS item has no source URL');\n  const canonicalUrl = String(sourceUrl).split('#')[0];\n  const rawContent = String(json.content || json.contentSnippet || json.text || json.description || '').trim();\n  const externalId = String(json.guid || json.id || canonicalUrl);\n  const inferredLocale = /[а-яё]/i.test(String(json.title || '') + ' ' + rawContent) ? 'ru' : 'en';\n  const enclosure = json.enclosure?.url || null;\n  const imageUrl = json.imageUrl || enclosure || null;\n  const payload = {\n    externalId,\n    sourcePlatform: 'rss',\n    sourceName: json.feedTitle || json.sourceName || 'RSS',\n    sourceUrl,\n    canonicalUrl,\n    author: json.creator || json.author || null,\n    locale: json.locale === 'ru' || json.locale === 'en' ? json.locale : inferredLocale,\n    title: String(json.title || 'Untitled').slice(0, 500),\n    rawContent: rawContent || String(json.title || 'Untitled'),\n    imageUrl,\n    publishedAt: json.isoDate || json.pubDate || null,\n    fingerprint: crypto.createHash('sha256').update(canonicalUrl + '|' + rawContent.replace(/\\s+/g, ' ')).digest('hex'),\n    category: json.category || 'ai'\n  };\n  const rawBody = JSON.stringify(payload);\n  const signature = 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex');\n  return { json: { payload, rawBody, signature } };\n});"
+      }
+    },
+    {
+      "id": "dw-6",
+      "name": "Ingest and Dedupe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/ingest' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-7",
+      "name": "Only New Articles",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        160
+      ],
+      "parameters": {
+        "jsCode": "if ($json.duplicate === true) return [];\nconst source = $('Normalize + Sign Ingest').item.json.payload;\nif (!$json.article?.id || !$json.article?.version) throw new Error('Ingest response has no article');\nreturn [{ json: { article: $json.article, source } }];"
+      }
+    },
+    {
+      "id": "dw-8",
+      "name": "AI Editorial Rewrite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1300,
+        160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  model: 'gpt-4.1-mini',\n  messages: [\n    {\n      role: 'system',\n      content: 'You are the editorial engine for Den\\'s Workspace. Rewrite the supplied source into an accurate, concise technology article in the source language. Preserve attribution and facts. Never invent sources, numbers, quotes, or claims. Return only JSON matching the schema.'\n    },\n    {\n      role: 'user',\n      content: JSON.stringify($json.source)\n    }\n  ],\n  response_format: {\n    type: 'json_schema',\n    json_schema: {\n      name: 'editorial_article',\n      strict: true,\n      schema: {\n        type: 'object',\n        additionalProperties: false,\n        required: ['title','summary','body','seoTitle','seoDescription','telegramText','category','tags','factWarnings'],\n        properties: {\n          title: { type: 'string' },\n          summary: { type: 'string' },\n          body: { type: 'string' },\n          seoTitle: { type: ['string','null'] },\n          seoDescription: { type: ['string','null'] },\n          telegramText: { type: ['string','null'] },\n          category: { type: 'string' },\n          tags: { type: 'array', items: { type: 'string' } },\n          factWarnings: { type: 'array', items: { type: 'string' } }\n        }\n      }\n    }\n  }\n}) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-9",
+      "name": "Parse + Sign Editorial",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1570,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst secret = $env.N8N_INTEGRATION_SECRET;\nconst prepared = $('Only New Articles').item.json;\nconst content = $json.choices?.[0]?.message?.content;\nif (!content) throw new Error('AI response does not contain JSON content');\nlet editorial;\ntry { editorial = typeof content === 'string' ? JSON.parse(content) : content; }\ncatch (error) { throw new Error('AI returned invalid JSON: ' + error.message); }\nconst payload = {\n  articleId: prepared.article.id,\n  expectedVersion: prepared.article.version,\n  locale: prepared.source.locale,\n  title: String(editorial.title || '').slice(0, 220),\n  summary: String(editorial.summary || '').slice(0, 800),\n  body: String(editorial.body || ''),\n  seoTitle: editorial.seoTitle ? String(editorial.seoTitle).slice(0, 220) : null,\n  seoDescription: editorial.seoDescription ? String(editorial.seoDescription).slice(0, 500) : null,\n  telegramText: editorial.telegramText ? String(editorial.telegramText).slice(0, 4096) : null,\n  category: String(editorial.category || prepared.source.category || 'ai').slice(0, 80),\n  tags: Array.isArray(editorial.tags) ? editorial.tags.slice(0, 12).map(String) : [],\n  factWarnings: Array.isArray(editorial.factWarnings) ? editorial.factWarnings.slice(0, 20).map(String) : []\n};\nif (!payload.title || !payload.summary || !payload.body) throw new Error('AI editorial result is incomplete');\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex');\nreturn [{ json: { payload, rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-10",
+      "name": "Save Editorial Result",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/editorial' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-11",
+      "name": "Sign Approve Token",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2110,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst article = $('Save Editorial Result').item.json.article;\nconst payload = { articleId: article.id, articleVersion: article.version, action: 'approve' };\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-12",
+      "name": "Create Approve Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2360,
+        160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/approval-token' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-13",
+      "name": "Sign Reject Token",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2610,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst article = $('Save Editorial Result').item.json.article;\nconst payload = { articleId: article.id, articleVersion: article.version, action: 'reject' };\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-14",
+      "name": "Create Reject Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/approval-token' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-15",
+      "name": "Sign Regenerate Token",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3110,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst article = $('Save Editorial Result').item.json.article;\nconst payload = { articleId: article.id, articleVersion: article.version, action: 'regenerate' };\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-16",
+      "name": "Create Regenerate Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3370,
+        160
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/approval-token' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-17",
+      "name": "Send Telegram Preview",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3630,
+        160
+      ],
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_APPROVAL_CHAT_ID }}",
+        "text": "={{ [\n  $('Only New Articles').item.json.source.imageUrl || '',\n  '<b>' + $('Parse + Sign Editorial').item.json.payload.title.replace(/[<>&]/g, '') + '</b>',\n  $('Parse + Sign Editorial').item.json.payload.summary,\n  '',\n  'Source: ' + $('Only New Articles').item.json.source.canonicalUrl\n].filter(Boolean).join('\\n\\n') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parseMode": "HTML",
+          "message_thread_id": "={{ $('Parse + Sign Editorial').item.json.payload.locale === 'ru' ? $env.TELEGRAM_APPROVAL_TOPIC_RU : $env.TELEGRAM_APPROVAL_TOPIC_EN }}",
+          "reply_markup": "={{ JSON.stringify({ inline_keyboard: [\n  [\n    { text: 'Approve', callback_data: 'approve:' + $('Create Approve Token').item.json.token },\n    { text: 'Edit', url: $env.DENS_SITE_URL + '/admin/articles/' + $('Save Editorial Result').item.json.article.id }\n  ],\n  [\n    { text: 'Regenerate', callback_data: 'regenerate:' + $('Create Regenerate Token').item.json.token },\n    { text: 'Reject', callback_data: 'reject:' + $('Create Reject Token').item.json.token }\n  ]\n] }) }}"
+        }
+      }
+    },
+    {
+      "id": "dw-18",
+      "name": "Telegram Callback",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        620
+      ],
+      "parameters": {
+        "updates": [
+          "callback_query"
+        ],
+        "additionalFields": {}
+      }
+    },
+    {
+      "id": "dw-19",
+      "name": "Sign Telegram Callback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        620
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst callback = $json.callback_query;\nif (!callback?.data || !callback?.from?.id) throw new Error('Invalid Telegram callback');\nconst token = String(callback.data).split(':').slice(1).join(':');\nconst payload = { token, telegramUserId: String(callback.from.id) };\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { rawBody, signature, callbackQueryId: callback.id } }];"
+      }
+    },
+    {
+      "id": "dw-20",
+      "name": "Apply Telegram Approval",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        540,
+        620
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/telegram-callback' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-21",
+      "name": "Every minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        960
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dw-22",
+      "name": "Load Publication Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        960
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL + '/rest/v1/publication_jobs?select=*,articles(id,image_url,article_localizations(locale,slug,title,summary,telegram_text))&status=eq.queued&or=(scheduled_at.is.null,scheduled_at.lte.' + $now.toISO() + ')&order=created_at.asc&limit=20' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-23",
+      "name": "Route Publication Channel",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        540,
+        960
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "site",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "site"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-24",
+      "name": "Sign Site Revalidate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        820,
+        860
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst rawBody = JSON.stringify({ jobId: $json.id, articleId: $json.article_id });\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { job: $json, rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-25",
+      "name": "Revalidate Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1080,
+        860
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/revalidate' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-26",
+      "name": "Sign Site Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        860
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst job = $('Sign Site Revalidate').item.json.job;\nconst payload = { jobId: job.id, status: 'published', externalUrl: $env.DENS_SITE_URL + '/news-feed' };\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-27",
+      "name": "Report Site Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        860
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/publications' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-28",
+      "name": "Prepare Telegram Publication",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        820,
+        1060
+      ],
+      "parameters": {
+        "jsCode": "const localizations = $json.articles?.article_localizations || [];\nconst preferred = localizations.find(item => item.locale === 'ru') || localizations[0];\nif (!preferred) throw new Error('Publication has no localization');\nreturn [{ json: {\n  job: $json,\n  text: preferred.telegram_text || ('<b>' + preferred.title.replace(/[<>&]/g, '') + '</b>\\n\\n' + preferred.summary + '\\n\\n' + $env.DENS_SITE_URL + '/news-feed/' + preferred.slug)\n} }];"
+      }
+    },
+    {
+      "id": "dw-29",
+      "name": "Publish to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1080,
+        1060
+      ],
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_PUBLIC_CHAT_ID }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parseMode": "HTML"
+        }
+      }
+    },
+    {
+      "id": "dw-30",
+      "name": "Sign Telegram Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        1060
+      ],
+      "parameters": {
+        "jsCode": "const crypto = require('node:crypto');\nconst job = $('Prepare Telegram Publication').item.json.job;\nconst payload = { jobId: job.id, status: 'published', externalId: String($json.message_id || $json.result?.message_id || '') || null };\nconst rawBody = JSON.stringify(payload);\nconst signature = 'sha256=' + crypto.createHmac('sha256', $env.N8N_INTEGRATION_SECRET).update(rawBody).digest('hex');\nreturn [{ json: { rawBody, signature } }];"
+      }
+    },
+    {
+      "id": "dw-31",
+      "name": "Report Telegram Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        1060
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DENS_SITE_URL + '/api/integrations/publications' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Dens-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.rawBody }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "dw-32",
+      "name": "Publisher note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1880,
+        830
+      ],
+      "parameters": {
+        "content": "Publication jobs are created atomically when an article is approved. The publisher polls Supabase every minute, publishes site/Telegram jobs, then reports the result to the website. X, Reddit and Threads can be added later as extra Switch outputs.",
+        "height": 160,
+        "width": 450
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual test": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Read": {
+      "main": [
+        [
+          {
+            "node": "Normalize + Sign Ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize + Sign Ingest": {
+      "main": [
+        [
+          {
+            "node": "Ingest and Dedupe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest and Dedupe": {
+      "main": [
+        [
+          {
+            "node": "Only New Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only New Articles": {
+      "main": [
+        [
+          {
+            "node": "AI Editorial Rewrite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Editorial Rewrite": {
+      "main": [
+        [
+          {
+            "node": "Parse + Sign Editorial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Sign Editorial": {
+      "main": [
+        [
+          {
+            "node": "Save Editorial Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Editorial Result": {
+      "main": [
+        [
+          {
+            "node": "Sign Approve Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Approve Token": {
+      "main": [
+        [
+          {
+            "node": "Create Approve Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Approve Token": {
+      "main": [
+        [
+          {
+            "node": "Sign Reject Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Reject Token": {
+      "main": [
+        [
+          {
+            "node": "Create Reject Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Reject Token": {
+      "main": [
+        [
+          {
+            "node": "Sign Regenerate Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Regenerate Token": {
+      "main": [
+        [
+          {
+            "node": "Create Regenerate Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Regenerate Token": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Preview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Callback": {
+      "main": [
+        [
+          {
+            "node": "Sign Telegram Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Telegram Callback": {
+      "main": [
+        [
+          {
+            "node": "Apply Telegram Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every minute": {
+      "main": [
+        [
+          {
+            "node": "Load Publication Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Publication Jobs": {
+      "main": [
+        [
+          {
+            "node": "Route Publication Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Publication Channel": {
+      "main": [
+        [
+          {
+            "node": "Sign Site Revalidate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Telegram Publication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Site Revalidate": {
+      "main": [
+        [
+          {
+            "node": "Revalidate Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revalidate Website": {
+      "main": [
+        [
+          {
+            "node": "Sign Site Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Site Success": {
+      "main": [
+        [
+          {
+            "node": "Report Site Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Telegram Publication": {
+      "main": [
+        [
+          {
+            "node": "Publish to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to Telegram": {
+      "main": [
+        [
+          {
+            "node": "Sign Telegram Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign Telegram Success": {
+      "main": [
+        [
+          {
+            "node": "Report Telegram Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Tbilisi",
+    "saveManualExecutions": true
+  },
+  "versionId": "20260615-editorial-all-in-one",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
+

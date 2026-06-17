@@ -1,0 +1,10 @@
+{
+  "name":"DW Editorial 06 - Error and Retry",
+  "nodes":[
+    {"parameters":{},"id":"60000000-0000-4000-8000-000000000001","name":"Workflow Error","type":"n8n-nodes-base.errorTrigger","typeVersion":1,"position":[-480,0]},
+    {"parameters":{"method":"POST","url":"={{ $env.SUPABASE_URL + '/rest/v1/workflow_runs' }}","sendHeaders":true,"headerParameters":{"parameters":[{"name":"apikey","value":"={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"},{"name":"Authorization","value":"={{ 'Bearer ' + $env.SUPABASE_SERVICE_ROLE_KEY }}"},{"name":"Content-Type","value":"application/json"}]},"sendBody":true,"contentType":"raw","rawContentType":"application/json","body":"={{ JSON.stringify({ workflow_name: $json.workflow.name, execution_id: String($json.execution.id), status: 'failed', error: $json.execution.error?.message || 'Unknown error', metadata: $json }) }}","options":{}},"id":"60000000-0000-4000-8000-000000000002","name":"Write Failure","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[-220,0]},
+    {"parameters":{"content":"Use this workflow as the Error Workflow for all five editorial workflows. Retriable publication jobs remain in Supabase with attempts/max_attempts; do not use long Wait nodes.","height":110,"width":500},"id":"60000000-0000-4000-8000-000000000003","name":"Retry Policy","type":"n8n-nodes-base.stickyNote","typeVersion":1,"position":[-360,200]}
+  ],
+  "connections":{"Workflow Error":{"main":[[{"node":"Write Failure","type":"main","index":0}]]}},
+  "settings":{"executionOrder":"v1"},"active":false,"versionId":"60000000-0000-4000-8000-000000000010","meta":{"templateCredsSetupCompleted":false},"tags":[]
+}
