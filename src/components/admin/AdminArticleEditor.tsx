@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import type { ArticleLocale, ArticleStatus, EditorialArticle } from "@/lib/editorial/types";
 
-type Initial = { id: string; status: ArticleStatus; version: number; category: string; tags: string[]; imageUrl: string | null; ru: EditorialArticle | null; en: EditorialArticle | null };
+type Initial = { id: string; source: "articles" | "editorial_drafts"; status: ArticleStatus; version: number; category: string; tags: string[]; imageUrl: string | null; ru: EditorialArticle | null; en: EditorialArticle | null };
 
 export default function AdminArticleEditor({ initial }: { initial: Initial }) {
   const [locale, setLocale] = useState<ArticleLocale>(initial.ru ? "ru" : "en");
@@ -34,10 +34,10 @@ export default function AdminArticleEditor({ initial }: { initial: Initial }) {
   };
 
   return <div className="admin-editor">
-    <div className="admin-editor-top"><div className="admin-tabs"><button className={locale === "ru" ? "active" : ""} onClick={() => setLocale("ru")}>RU</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button></div><span className={`status status-${status}`}>{status}</span><small>v{version}</small></div>
+    <div className="admin-editor-top"><div className="admin-tabs"><button className={locale === "ru" ? "active" : ""} onClick={() => setLocale("ru")}>RU</button><button className={locale === "en" ? "active" : ""} disabled={initial.source === "editorial_drafts"} onClick={() => setLocale("en")}>EN</button></div><span className={`status status-${status}`}>{status}</span><small>{initial.source === "editorial_drafts" ? "Supabase draft" : "Article"} · v{version}</small></div>
     <div className="admin-editor-grid"><section className="admin-editor-form"><label>Заголовок<input value={form.title} onChange={e => set("title", e.target.value)}/></label><label>Slug<input value={form.slug} onChange={e => set("slug", e.target.value)}/></label><label>Краткое описание<textarea value={form.summary} onChange={e => set("summary", e.target.value)}/></label><label>Полная статья<textarea className="article-body" value={form.body} onChange={e => set("body", e.target.value)}/></label><div className="admin-form-row"><label>Категория<input value={form.category} onChange={e => set("category", e.target.value)}/></label><label>Теги<input value={form.tags} onChange={e => set("tags", e.target.value)}/></label></div><label>Telegram preview<textarea value={form.telegramText} onChange={e => set("telegramText", e.target.value)}/></label><div className="admin-form-row"><label>SEO title<input value={form.seoTitle} onChange={e => set("seoTitle", e.target.value)}/></label><label>SEO description<input value={form.seoDescription} onChange={e => set("seoDescription", e.target.value)}/></label></div></section>
       <aside className="admin-preview"><p>PREVIEW</p>{initial.imageUrl && <div className="admin-preview-image"><Image src={initial.imageUrl} alt="" fill sizes="360px" unoptimized/></div>}<h2>{form.title || "Заголовок материала"}</h2><p>{form.summary}</p><small>{article?.sourceName ?? "Den Workspace"}</small></aside></div>
-    <footer className="admin-editor-actions"><span>{message}</span><button onClick={save}>Сохранить</button><button onClick={() => transition("rejected")}>Отклонить</button><button className="primary" onClick={() => transition("approved")}>Подтвердить и поставить в очередь</button></footer>
+    <footer className="admin-editor-actions"><span>{message}</span><button onClick={save}>Сохранить</button><button onClick={() => transition("rejected")}>Отклонить</button><button onClick={() => transition("approved")}>Подтвердить</button><button className="primary" onClick={() => transition("published")}>Опубликовать на сайт</button></footer>
   </div>;
 }
 

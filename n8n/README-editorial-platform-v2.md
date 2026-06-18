@@ -8,17 +8,21 @@ The same file is also stored in the repo:
 
 `/Users/mila/dens-workspace/n8n/den-workspace-editorial-platform-v2-future-debate-ready.json`
 
-For the existing AI News Radar bot, use the cleaned site-API version:
+For the existing AI News Radar bot, keep the Supabase-direct workflow:
 
-`/Users/mila/dens-workspace/n8n/den-workspace-ai-news-radar-site-api.json`
+`/Users/mila/Desktop/Den Workspace - AI News Radar DW Bot - Embedded Variables.json`
 
-This version does not write to `editorial_drafts`. It sends selected news to `/api/integrations/ingest`, saves the AI editorial result through `/api/integrations/editorial`, and then opens the created article in `/admin/articles`.
+That workflow writes editorial rows directly into `public.editorial_drafts`. The website reads the same Supabase table for the admin queue and published news feed, so `/api/integrations/ingest` and `/api/integrations/editorial` are not required for this bot.
 
-## What This Workflow Does
+## What The Platform v2 Workflow Does
 
 Sources -> Normalize -> Website ingest API -> AI rewrite -> Website editorial API -> Telegram approval -> Publish jobs -> Website/Telegram publishing.
 
 It is designed so approved drafts appear in the Den Workspace admin panel through the existing integration endpoints, not by writing directly into admin UI state.
+
+For the AI News Radar Supabase-direct bot, the flow is:
+
+News selection -> AI opinion article -> Supabase `editorial_drafts` insert -> website admin reads and edits `editorial_drafts` -> admin publishes by setting `status = published`.
 
 ## Required n8n Environment Variables
 
@@ -47,6 +51,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 `N8N_INTEGRATION_SECRET` must match the website variable with the same name. The workflow signs all private website API requests with `x-dens-signature`.
 
+For the AI News Radar Supabase-direct bot, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TELEGRAM_BOT_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `CLOUDFLARE_API_TOKEN` are the important variables. The bot does not need `N8N_INTEGRATION_SECRET` for saving drafts, because it inserts into Supabase directly.
+
 ## Credentials To Select After Import
 
 Open the imported workflow and set credentials on these nodes:
@@ -71,7 +77,7 @@ TELEGRAM_ALLOWED_USER_IDS=
 
 The editorial SQL migration must already be applied in Supabase.
 
-## How To Test
+## How To Test Platform v2
 
 1. Keep the workflow inactive after import.
 2. Fill all env variables and select credentials.
@@ -83,6 +89,16 @@ The editorial SQL migration must already be applied in Supabase.
 8. Approve one item and verify publication jobs are created.
 9. Activate the workflow only after the manual path works.
 
+## How To Test AI News Radar Supabase Direct
+
+1. Run the AI News Radar workflow manually.
+2. Confirm that n8n inserts one row into `public.editorial_drafts`.
+3. Open `/admin/articles` on the website.
+4. The new Supabase draft should appear in the admin queue.
+5. Open it, edit title/body/SEO/Telegram text, and click `Сохранить`.
+6. Click `Опубликовать на сайт`.
+7. Open `/news-feed`; the material should be visible because the website reads published `editorial_drafts` from Supabase.
+
 ## Notes For Future Debate Radar
 
 The workflow uses patterns from Future Debate Radar:
@@ -92,4 +108,4 @@ The workflow uses patterns from Future Debate Radar:
 - RSS collection.
 - Optional expansion points for Reddit, X, Threads, and Apify.
 
-The important difference is that this workflow writes into the Den Workspace editorial platform through signed website APIs, so the admin panel remains the single place for editing, approval, and publishing.
+The important difference for the AI News Radar bot is that Supabase is the source of truth. n8n writes directly to `editorial_drafts`, and the website reads and edits that same table.
