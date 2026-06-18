@@ -1,8 +1,8 @@
-# Den's Workspace Editorial Platform v2
+# Den Workspace Editorial Platform v2
 
 Import this workflow into n8n 2.8.3:
 
-`/Users/mila/Desktop/Den's Workspace - Editorial Platform v2 - Future Debate Ready.json`
+`/Users/mila/Desktop/Den Workspace - Editorial Platform v2 - Future Debate Ready.json`
 
 The same file is also stored in the repo:
 
@@ -12,7 +12,7 @@ The same file is also stored in the repo:
 
 Sources -> Normalize -> Website ingest API -> AI rewrite -> Website editorial API -> Telegram approval -> Publish jobs -> Website/Telegram publishing.
 
-It is designed so approved drafts appear in the Den's Workspace admin panel through the existing integration endpoints, not by writing directly into admin UI state.
+It is designed so approved drafts appear in the Den Workspace admin panel through the existing integration endpoints, not by writing directly into admin UI state.
 
 ## Required n8n Environment Variables
 
@@ -84,4 +84,4 @@ The workflow uses patterns from Future Debate Radar:
 - RSS collection.
 - Optional expansion points for Reddit, X, Threads, and Apify.
 
-The important difference is that this workflow writes into the Den's Workspace editorial platform through signed website APIs, so the admin panel remains the single place for editing, approval, and publishing.
+The important difference is that this workflow writes into the Den Workspace editorial platform through signed website APIs, so the admin panel remains the single place for editing, approval, and publishing.

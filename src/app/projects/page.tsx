@@ -5,8 +5,8 @@ import { allProjects } from "@/lib/projects-data";
 import { discoverProjects, getProjectMobileMedia } from "@/lib/project-media";
 
 export const metadata: Metadata = {
-  title: "Projects | Den's Workspace",
-  description: "AI products, business systems, research and experiments by Den's Workspace.",
+  title: "Projects | Den Workspace",
+  description: "AI products, business systems, research and experiments by Den Workspace.",
 };
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ project?: string | string[] }> }) {
