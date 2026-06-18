@@ -11,6 +11,9 @@ export async function POST(request: Request) {
   const phoneCountry = findPhoneCountry(body.phoneCountry);
   const phone = (body.phone || "").replace(/\D/g, "");
   if (!body.name || body.name.length < 2 || !emailPattern.test(body.email || "") || !phoneCountry || phone.length < phoneCountry.min || phone.length > phoneCountry.max || !body.requestType || !body.message || body.message.length < 10) return NextResponse.json({ ok: false, error: "Invalid form data" }, { status: 400 });
+  if (process.env.TURNSTILE_SECRET_KEY && !(await verifyTurnstileToken(body.turnstileToken, request))) {
+    return NextResponse.json({ ok: false, error: "Security check failed" }, { status: 400 });
+  }
   const { RESEND_API_KEY, CONTACT_TO_EMAIL, CONTACT_FROM_EMAIL, TELEGRAM_BOT_TOKEN, TELEGRAM_CONTACT_CHAT_ID, TELEGRAM_CONTACT_THREAD_ID } = process.env;
   const hasEmailDelivery = !!(RESEND_API_KEY && CONTACT_TO_EMAIL && CONTACT_FROM_EMAIL);
   const hasTelegramDelivery = !!(TELEGRAM_BOT_TOKEN && TELEGRAM_CONTACT_CHAT_ID);
@@ -82,4 +85,22 @@ function formatTelegramLead({ name, email, phone, locale, requestType, message }
 
 function escapeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+async function verifyTurnstileToken(token: string | undefined, request: Request) {
+  if (!token) return false;
+
+  const formData = new FormData();
+  formData.append("secret", process.env.TURNSTILE_SECRET_KEY || "");
+  formData.append("response", token);
+  const ip = request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  if (ip) formData.append("remoteip", ip);
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: formData });
+    const result = await response.json() as { success?: boolean };
+    return !!result.success;
+  } catch {
+    return false;
+  }
 }

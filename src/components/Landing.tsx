@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, MessageSquareText, Network, PenLine, PhoneOff, Rocket, Sparkles, Workflow } from "lucide-react";
 import { content, newsItems, solutions, workItems } from "@/lib/content";
 import type { PortfolioProject } from "@/lib/projects-data";
@@ -15,6 +15,7 @@ import { defaultPhoneCountry, findPhoneCountry, phoneCountries } from "@/lib/pho
 
 const iconMap = { phone: PhoneOff, audio: AudioLines, chart: ChartNoAxesCombined, file: FileText, workflow: Workflow, clock: Clock3, database: Database, pie: ChartPie, eye: Eye, megaphone: Megaphone, pen: PenLine, rocket: Rocket };
 const workIcons = [CloudCog, BriefcaseBusiness, Bot, Network];
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const requestTypes = [
   { value: "ai-automation", ru: "ИИ автоматизация", en: "AI Automation" },
   { value: "business-system", ru: "Бизнес-система", en: "Business System" },
@@ -28,9 +29,12 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
   const router = useRouter();
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
   const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [phoneCountry, setPhoneCountry] = useState(defaultPhoneCountry);
   const [phoneDigits, setPhoneDigits] = useState("");
   const [showDesktopHeroMedia, setShowDesktopHeroMedia] = useState(false);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = useRef<string | null>(null);
   const t = content[locale];
   const langIndex = locale === "ru" ? 0 : 1;
   const localizedWorkItems = locale === "ru" ? [
@@ -98,6 +102,40 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
       document.documentElement.style.removeProperty("--ambient-scroll");
     };
   }, []);
+  useEffect(() => {
+    if (!turnstileSiteKey || !turnstileRef.current) return;
+
+    const renderTurnstile = () => {
+      if (!window.turnstile || !turnstileRef.current || turnstileWidgetId.current) return;
+      turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: turnstileSiteKey,
+        theme,
+        callback: (token: string) => setTurnstileToken(token),
+        "expired-callback": () => setTurnstileToken(""),
+        "error-callback": () => setTurnstileToken(""),
+      });
+    };
+
+    if (window.turnstile) {
+      renderTurnstile();
+    } else {
+      const existingScript = document.querySelector<HTMLScriptElement>('script[src^="https://challenges.cloudflare.com/turnstile/v0/api.js"]');
+      const script = existingScript ?? document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.onload = renderTurnstile;
+      if (!existingScript) document.head.appendChild(script);
+    }
+
+    return () => {
+      if (window.turnstile && turnstileWidgetId.current) {
+        window.turnstile.remove(turnstileWidgetId.current);
+        turnstileWidgetId.current = null;
+      }
+      setTurnstileToken("");
+    };
+  }, [theme]);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -106,8 +144,12 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
     event.preventDefault();
     setFormState("loading");
     const fd = new FormData(event.currentTarget);
-    const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: fd.get("name"), email: fd.get("email"), phoneCountry: phoneCountry.code, phone: phoneDigits, requestType: fd.get("requestType"), message: fd.get("message"), website: fd.get("website"), locale }) });
+    const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: fd.get("name"), email: fd.get("email"), phoneCountry: phoneCountry.code, phone: phoneDigits, requestType: fd.get("requestType"), message: fd.get("message"), website: fd.get("website"), turnstileToken, locale }) });
     setFormState(response.ok ? "success" : "error");
+    if (window.turnstile && turnstileWidgetId.current) {
+      window.turnstile.reset(turnstileWidgetId.current);
+      setTurnstileToken("");
+    }
     if (response.ok) {
       event.currentTarget.reset();
       setPhoneDigits("");
@@ -175,7 +217,8 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           <label className="phone-label">{locale === "ru" ? "Телефон" : "Phone"}<span className="phone-field"><select aria-label={locale === "ru" ? "Код страны" : "Country code"} value={phoneCountry.code} onChange={(event) => { const next = findPhoneCountry(event.target.value) ?? defaultPhoneCountry; setPhoneCountry(next); setPhoneDigits(""); }}>{phoneCountries.map(country => <option key={country.code} value={country.code}>{country.dial} · {country[locale]}</option>)}</select><input name="phone" type="tel" inputMode="numeric" autoComplete="tel-national" required minLength={phoneCountry.min} maxLength={phoneCountry.max} pattern={`[0-9]{${phoneCountry.min},${phoneCountry.max}}`} value={phoneDigits} onChange={(event) => setPhoneDigits(event.target.value.replace(/\D/g, "").slice(0, phoneCountry.max))} placeholder={phoneCountry.min === phoneCountry.max ? `${phoneCountry.min} ${locale === "ru" ? "цифр" : "digits"}` : `${phoneCountry.min}–${phoneCountry.max} ${locale === "ru" ? "цифр" : "digits"}`}/></span></label>
           <label>{t.type}<select name="requestType" required defaultValue=""><option value="" disabled>{locale === "ru" ? "Выберите вариант" : "Select an option"}</option>{requestTypes.map(option => <option value={option.value} key={option.value}>{option[locale]}</option>)}</select></label>
           <label className="message-label">{t.message}<textarea name="message" required minLength={10} placeholder={locale === "ru" ? "Что вы хотите создать?" : "What are you trying to build?"}/></label>
-          <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading"}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
+          {turnstileSiteKey && <div className="turnstile-field" ref={turnstileRef}/>}
+          <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading" || (!!turnstileSiteKey && !turnstileToken)}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
         </form>
       </div>
     </section>
@@ -187,3 +230,13 @@ function InfoPanel({ title, items, icons, action, onAction, locale }: { title: s
 }
 function SectionHead({ eyebrow, title, action, onAction }: { eyebrow: string; title: string; action?: string; onAction?: () => void }) { return <div className="section-head"><div><p>{eyebrow}</p><h2>{title}<i/></h2></div>{action && <button type="button" onClick={onAction}>{action}<ArrowRight/></button>}</div>; }
 function ContactItem({ icon: Icon, title, text }: { icon: typeof Mail; title: string; text: string }) { return <li><Icon/><div><b>{title}</b><span>{text}</span></div></li>; }
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: Record<string, unknown>) => string;
+      remove: (widgetId: string) => void;
+      reset: (widgetId: string) => void;
+    };
+  }
+}
