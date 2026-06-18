@@ -41,7 +41,7 @@ function mapArticle(row: ArticleRow, locale: ArticleLocale): EditorialArticle | 
     slug: translation.slug,
     status: row.status,
     sourcePlatform: row.source_items?.platform ?? "manual",
-    sourceName: row.source_items?.source_name ?? "Den’s Workspace",
+    sourceName: row.source_items?.source_name ?? "Den Workspace",
     sourceUrl: row.source_items?.source_url ?? "",
     sourcePublishedAt: row.source_items?.source_published_at ?? null,
     imageUrl: row.image_url,

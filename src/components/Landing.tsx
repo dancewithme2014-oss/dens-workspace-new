@@ -20,6 +20,8 @@ const requestTypes = [
   { value: "business-system", ru: "Бизнес-система", en: "Business System" },
   { value: "ai-agent", ru: "ИИ-агент", en: "AI Agent" },
   { value: "consulting", ru: "Консалтинг", en: "Consulting" },
+  { value: "collaboration", ru: "Сотрудничество", en: "Collaboration" },
+  { value: "other", ru: "Другое", en: "Other" },
 ] as const;
 
 export default function Landing({ projects }: { projects: PortfolioProject[] }) {
@@ -164,7 +166,7 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
 
     <section className="contact section shell" id="contact">
       <div className="contact-copy" id="about"><b>{t.contactNumber}</b><h2>{t.contactTitle}<strong>{t.contactAccent}</strong></h2><p>{t.contactText}</p><i/><p>{t.contactNote}</p></div>
-      <figure className="portrait"><div><Image src="/landing/den-portrait.jpg" alt="Den" fill sizes="(max-width: 700px) 92vw, 22vw"/></div><figcaption><MessageSquareText/><p>{t.quote}</p><b>— Den’s Workspace</b></figcaption></figure>
+      <figure className="portrait"><div><Image src="/landing/den-portrait-phone.png" alt="Den" fill sizes="(max-width: 700px) 92vw, 22vw"/></div><figcaption><MessageSquareText/><p>{t.quote}</p><b>— Den Workspace</b></figcaption></figure>
       <div className="contact-panel">
         <div className="contact-info" id="start-conversation"><h3>{t.conversation}<i/></h3><p>{t.conversationText}</p><ul><ContactItem icon={Mail} title="Email" text="hello@densworkspace.com"/><ContactItem icon={CalendarDays} title={locale === "ru" ? "Созвон" : "Schedule a Call"} text={locale === "ru" ? "Стратегическая сессия" : "Book a strategy session"}/><ContactItem icon={Clock3} title={locale === "ru" ? "Время ответа" : "Response Time"} text={locale === "ru" ? "24–48 часов" : "24–48 hours"}/><ContactItem icon={Globe2} title={locale === "ru" ? "Локация" : "Location"} text={locale === "ru" ? "Весь мир · Удаленно" : "Global · Remote"}/></ul></div>
         <form onSubmit={submit}>

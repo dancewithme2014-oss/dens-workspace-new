@@ -1,4 +1,4 @@
-# Den's Workspace Editorial Platform
+# Den Workspace Editorial Platform
 
 ## Architecture
 

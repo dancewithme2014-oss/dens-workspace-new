@@ -9,7 +9,7 @@ import { useSitePreferences } from "@/lib/preferences";
 const copy = {
   ru: {
     title: "Обработка персональных данных", updated: "Последнее обновление: 13 июня 2026 года",
-    intro: "Эта политика объясняет, какие данные Den’s Workspace получает через сайт и как они используются.",
+    intro: "Эта политика объясняет, какие данные Den Workspace получает через сайт и как они используются.",
     sections: [
       ["Какие данные мы собираем", "Данные, которые вы добровольно отправляете через контактную форму: имя, email, телефон, тип запроса и сообщение. Также сервер может обрабатывать технические данные запроса, необходимые для безопасности и определения кода страны."],
       ["Для чего используются данные", "Чтобы ответить на обращение, подготовить предложение, обеспечить безопасность сайта и, при наличии согласия, анализировать качество работы сайта."],
@@ -21,7 +21,7 @@ const copy = {
   },
   en: {
     title: "Privacy Policy", updated: "Last updated: June 13, 2026",
-    intro: "This policy explains what information Den’s Workspace receives through this website and how it is used.",
+    intro: "This policy explains what information Den Workspace receives through this website and how it is used.",
     sections: [
       ["Information we collect", "Information you voluntarily submit through the contact form: name, email, phone number, request type and message. The server may also process request metadata required for security and country-code detection."],
       ["How information is used", "To respond to inquiries, prepare proposals, protect the website and, where consent is given, understand and improve site performance."],
@@ -36,5 +36,5 @@ const copy = {
 export default function PrivacyPage() {
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
   const t = copy[locale];
-  return <main className="editorial-page privacy-page"><AmbientBackground/><SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme}/><article className="privacy-content shell"><Link href="/"><ArrowLeft/>{t.back}</Link><p className="projects-eyebrow">Den’s Workspace</p><h1>{t.title}<i/></h1><p className="privacy-updated">{t.updated}</p><p className="privacy-intro">{t.intro}</p>{t.sections.map(([title, text]) => <section key={title}><h2>{title}</h2><p>{text}</p></section>)}</article></main>;
+  return <main className="editorial-page privacy-page"><AmbientBackground/><SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme}/><article className="privacy-content shell"><Link href="/"><ArrowLeft/>{t.back}</Link><p className="projects-eyebrow">Den Workspace</p><h1>{t.title}<i/></h1><p className="privacy-updated">{t.updated}</p><p className="privacy-intro">{t.intro}</p>{t.sections.map(([title, text]) => <section key={title}><h2>{title}</h2><p>{text}</p></section>)}</article></main>;
 }
