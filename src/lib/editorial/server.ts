@@ -36,24 +36,24 @@ type ArticleRow = {
 type EditorialDraftRow = {
   id: string;
   status: EditorialArticle["status"];
-  slug: string | null;
+  slug?: string | null;
   title: string;
   summary: string;
   body: string;
-  seo_title: string | null;
-  seo_description: string | null;
-  telegram_text: string | null;
-  category: string;
-  tags: string[] | null;
-  fact_warnings: string[] | null;
-  image_url: string | null;
-  source_name: string | null;
-  source_url: string | null;
-  source_author: string | null;
-  published_at: string | null;
-  version: number;
-  created_at: string;
-  updated_at: string;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  telegram_text?: string | null;
+  category?: string | null;
+  tags?: string[] | null;
+  fact_warnings?: string[] | null;
+  image_url?: string | null;
+  source_name?: string | null;
+  source_url?: string | null;
+  source_author?: string | null;
+  published_at?: string | null;
+  version?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
 export type AdminArticleItem =
@@ -81,7 +81,7 @@ function mapArticle(row: ArticleRow, locale: ArticleLocale): EditorialArticle | 
     sourceName: row.source_items?.source_name ?? "Den Workspace",
     sourceUrl: row.source_items?.source_url ?? "",
     sourcePublishedAt: row.source_items?.source_published_at ?? null,
-    imageUrl: row.image_url,
+    imageUrl: row.image_url ?? null,
     category: row.category,
     tags: row.tags ?? [],
     locale,
@@ -113,6 +113,7 @@ function draftSlug(row: EditorialDraftRow) {
 }
 
 function mapDraft(row: EditorialDraftRow): EditorialArticle {
+  const timestamp = row.updated_at ?? row.created_at ?? new Date(0).toISOString();
   return {
     id: row.id,
     slug: draftSlug(row),
@@ -121,21 +122,21 @@ function mapDraft(row: EditorialDraftRow): EditorialArticle {
     sourceName: row.source_name ?? "AI News Radar",
     sourceUrl: row.source_url ?? "",
     sourcePublishedAt: null,
-    imageUrl: row.image_url,
-    category: row.category,
+    imageUrl: row.image_url ?? null,
+    category: row.category ?? "ai",
     tags: row.tags ?? [],
     locale: "ru",
     title: row.title,
     summary: row.summary,
     body: row.body,
-    seoTitle: row.seo_title,
-    seoDescription: row.seo_description,
-    telegramText: row.telegram_text,
+    seoTitle: row.seo_title ?? null,
+    seoDescription: row.seo_description ?? null,
+    telegramText: row.telegram_text ?? null,
     factWarnings: row.fact_warnings ?? [],
-    version: row.version,
-    publishedAt: row.published_at,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    version: row.version ?? 1,
+    publishedAt: row.published_at ?? null,
+    createdAt: row.created_at ?? timestamp,
+    updatedAt: timestamp,
   };
 }
 
@@ -145,11 +146,7 @@ const articleSelect = `
   article_localizations(locale,slug,title,summary,body,seo_title,seo_description,telegram_text,fact_warnings)
 `;
 
-const draftSelect = `
-  id,status,slug,title,summary,body,seo_title,seo_description,telegram_text,
-  category,tags,fact_warnings,image_url,source_name,source_url,source_author,
-  published_at,version,created_at,updated_at
-`;
+const draftSelect = "*";
 
 export async function getPublishedArticles(locale: ArticleLocale, limit = 24) {
   const supabase = await createSupabaseServerClient();
@@ -168,7 +165,6 @@ export async function getPublishedArticles(locale: ArticleLocale, limit = 24) {
           .from("editorial_drafts")
           .select(draftSelect)
           .eq("status", "published")
-          .order("published_at", { ascending: false })
           .limit(limit)
       : Promise.resolve({ data: [], error: null }),
   ]);
@@ -203,18 +199,9 @@ export async function getPublishedArticleBySlug(locale: ArticleLocale, slug: str
       .from("editorial_drafts")
       .select(draftSelect)
       .eq("status", "published")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (!draftError && draftBySlug) return mapDraft(draftBySlug as unknown as EditorialDraftRow);
-
-    const { data: publishedDrafts, error: draftListError } = await supabase
-      .from("editorial_drafts")
-      .select(draftSelect)
-      .eq("status", "published")
-      .order("published_at", { ascending: false })
-      .limit(100);
-    if (!draftListError) {
-      const draft = ((publishedDrafts ?? []) as unknown as EditorialDraftRow[]).find(item => draftSlug(item) === slug);
+      .limit(200);
+    if (!draftError) {
+      const draft = ((draftBySlug ?? []) as unknown as EditorialDraftRow[]).find(item => draftSlug(item) === slug);
       if (draft) return mapDraft(draft);
     }
   }
@@ -271,7 +258,7 @@ export async function getAdminArticles() {
   if (!supabase) return [];
   const [articleResult, draftResult] = await Promise.all([
     supabase.from("articles").select(articleSelect).order("updated_at", { ascending: false }).limit(100),
-    supabase.from("editorial_drafts").select(draftSelect).order("updated_at", { ascending: false }).limit(100),
+    supabase.from("editorial_drafts").select(draftSelect).limit(100),
   ]);
   if (articleResult.error) console.error("Unable to load admin articles", articleResult.error.message);
   if (draftResult.error) console.error("Unable to load admin editorial drafts", draftResult.error.message);
@@ -291,7 +278,7 @@ export async function getAdminArticles() {
   }));
 
   return [...articles, ...drafts]
-    .sort((a, b) => new Date(b.row.updated_at).getTime() - new Date(a.row.updated_at).getTime())
+    .sort((a, b) => new Date(b.row.updated_at ?? b.row.created_at ?? 0).getTime() - new Date(a.row.updated_at ?? a.row.created_at ?? 0).getTime())
     .slice(0, 100);
 }
 

@@ -26,27 +26,49 @@ export async function PATCH(request: Request, { params }: Context) {
   }
 
   if (payload.locale !== "ru") return NextResponse.json({ error: "editorial_drafts_support_ru_only" }, { status: 400 });
+  const fullPatch = {
+    slug,
+    title: payload.title,
+    summary: payload.summary,
+    body: payload.body,
+    category: payload.category,
+    tags: payload.tags,
+    seo_title: payload.seoTitle,
+    seo_description: payload.seoDescription,
+    telegram_text: payload.telegramText,
+    version: payload.expectedVersion + 1,
+  };
+  const legacyPatch = {
+    title: payload.title,
+    summary: payload.summary,
+    body: payload.body,
+    category: payload.category,
+    tags: payload.tags,
+    seo_title: payload.seoTitle,
+    seo_description: payload.seoDescription,
+    telegram_text: payload.telegramText,
+  };
   const { data: draft, error: draftError } = await supabase
     .from("editorial_drafts")
-    .update({
-      slug,
-      title: payload.title,
-      summary: payload.summary,
-      body: payload.body,
-      category: payload.category,
-      tags: payload.tags,
-      seo_title: payload.seoTitle,
-      seo_description: payload.seoDescription,
-      telegram_text: payload.telegramText,
-      version: payload.expectedVersion + 1,
-    })
+    .update(fullPatch)
     .eq("id", id)
     .eq("version", payload.expectedVersion)
-    .select("id,status,version")
+    .select("*")
     .maybeSingle();
-  if (draftError) return NextResponse.json({ error: draftError.message }, { status: 400 });
-  if (!draft) return NextResponse.json({ error: "version_conflict" }, { status: 409 });
-  return NextResponse.json({ article: draft });
+  if (!draftError && draft) return NextResponse.json({ article: draft });
+
+  const shouldTryLegacy = draftError?.message.includes("column") || draftError?.message.includes("schema cache") || draftError?.message.includes("version");
+  if (!shouldTryLegacy && !draft) return NextResponse.json({ error: "version_conflict" }, { status: 409 });
+
+  const { data: legacyDraft, error: legacyError } = await supabase
+    .from("editorial_drafts")
+    .update(legacyPatch)
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
+  if (legacyError) return NextResponse.json({ error: legacyError.message }, { status: 400 });
+  if (!legacyDraft) return NextResponse.json({ error: "draft_not_found" }, { status: 404 });
+  return NextResponse.json({ article: { ...legacyDraft, version: payload.expectedVersion + 1 } });
 }
 
 export async function POST(request: Request, { params }: Context) {
@@ -79,9 +101,20 @@ export async function POST(request: Request, { params }: Context) {
     .update(patch)
     .eq("id", id)
     .eq("version", parsed.data.expectedVersion)
-    .select("id,status,version")
+    .select("*")
     .maybeSingle();
-  if (draftError) return NextResponse.json({ error: draftError.message }, { status: 400 });
-  if (!draft) return NextResponse.json({ error: "version_conflict" }, { status: 409 });
-  return NextResponse.json({ article: draft });
+  if (!draftError && draft) return NextResponse.json({ article: draft });
+
+  const shouldTryLegacy = draftError?.message.includes("column") || draftError?.message.includes("schema cache") || draftError?.message.includes("version") || draftError?.message.includes("published_at");
+  if (!shouldTryLegacy && !draft) return NextResponse.json({ error: "version_conflict" }, { status: 409 });
+
+  const { data: legacyDraft, error: legacyError } = await supabase
+    .from("editorial_drafts")
+    .update({ status: parsed.data.toStatus })
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
+  if (legacyError) return NextResponse.json({ error: legacyError.message }, { status: 400 });
+  if (!legacyDraft) return NextResponse.json({ error: "draft_not_found" }, { status: 404 });
+  return NextResponse.json({ article: { ...legacyDraft, version: parsed.data.expectedVersion + 1 } });
 }
