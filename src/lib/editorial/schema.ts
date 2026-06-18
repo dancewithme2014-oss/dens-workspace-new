@@ -55,7 +55,7 @@ export const publicationResultSchema = z.object({
 export const articleUpdateSchema = z.object({
   expectedVersion: z.number().int().positive(),
   locale: z.enum(["ru", "en"]),
-  slug: z.string().min(1).max(220).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  slug: z.string().min(1).max(220).regex(/^[a-z0-9а-яё]+(?:-[a-z0-9а-яё]+)*$/iu),
   title: z.string().min(1).max(220),
   summary: z.string().min(1).max(800),
   body: z.string().min(1),

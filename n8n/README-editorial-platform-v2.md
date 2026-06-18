@@ -8,6 +8,12 @@ The same file is also stored in the repo:
 
 `/Users/mila/dens-workspace/n8n/den-workspace-editorial-platform-v2-future-debate-ready.json`
 
+For the existing AI News Radar bot, use the cleaned site-API version:
+
+`/Users/mila/dens-workspace/n8n/den-workspace-ai-news-radar-site-api.json`
+
+This version does not write to `editorial_drafts`. It sends selected news to `/api/integrations/ingest`, saves the AI editorial result through `/api/integrations/editorial`, and then opens the created article in `/admin/articles`.
+
 ## What This Workflow Does
 
 Sources -> Normalize -> Website ingest API -> AI rewrite -> Website editorial API -> Telegram approval -> Publish jobs -> Website/Telegram publishing.
@@ -26,6 +32,8 @@ DW_RSS_FEEDS=https://example.com/feed.xml,https://example.com/rss
 DW_HN_QUERIES=AI robotics,autonomous agents,future of work
 DW_YOUTUBE_QUERIES=AI robotics debate,future of AI agents
 YOUTUBE_API_KEY=your-youtube-data-api-key
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
+CLOUDFLARE_API_TOKEN=your-cloudflare-workers-ai-token
 
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 TELEGRAM_APPROVAL_CHAT_ID=your-private-approval-chat-id
