@@ -12,14 +12,14 @@ import { localizeAi } from "@/lib/localize";
 const aboutCopy = {
   ru: {
     eyebrow: "Обо мне", title: "Создаю бизнес с ИИ", subtitle: "Через системы, автоматизацию и постоянные эксперименты.",
-    intro: "Den’s Workspace — персональная лаборатория, где встречаются бизнес, маркетинг, ИИ и автоматизация. Я исследую новые технологии, создаю реальные системы, проверяю идеи на практике и открыто делюсь тем, что работает.",
+    intro: "Den Workspace — персональная лаборатория, где встречаются бизнес, маркетинг, ИИ и автоматизация. Я исследую новые технологии, создаю реальные системы, проверяю идеи на практике и открыто делюсь тем, что работает.",
     goal: "Цель проста:", bullets: ["Учиться.", "Создавать.", "Экспериментировать.", "Делиться тем, что работает."], what: "Что я делаю", interested: "Что мне интересно", process: "Как я работаю", focus: "Текущий фокус", philosophy: "Философия",
     quote1: "Будущее не открывается предсказанием.", quote2: "Оно открывается через эксперименты.",
     next: "Давайте создадим то, что будет дальше.", nextText: "Если вы создаете продукты, исследуете ИИ, улучшаете маркетинговые системы или проектируете интеллектуальные бизнес-процессы — давайте познакомимся.", start: "Начать разговор", projects: "Смотреть проекты",
   },
   en: {
     eyebrow: "About", title: "Building Businesses With AI.", subtitle: "Through Systems, Automation and Continuous Experimentation.",
-    intro: "Den’s Workspace is a personal laboratory where business, marketing, AI and automation come together. I research emerging technologies, build real systems, test ideas in practice and share what actually works.",
+    intro: "Den Workspace is a personal laboratory where business, marketing, AI and automation come together. I research emerging technologies, build real systems, test ideas in practice and share what actually works.",
     goal: "The goal is simple:", bullets: ["Learn.", "Build.", "Experiment.", "Share what works."], what: "What I Do", interested: "What I’m Interested In", process: "How I Work", focus: "Current Focus", philosophy: "Philosophy",
     quote1: "The future is not discovered through prediction.", quote2: "It is discovered through experimentation.",
     next: "Let’s Build What’s Next.", nextText: "If you’re building products, exploring AI, improving marketing systems or designing intelligent business operations, I’d love to connect.", start: "Start a Conversation", projects: "Explore Projects",

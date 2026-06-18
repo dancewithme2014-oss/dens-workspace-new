@@ -30,7 +30,7 @@ export const content = {
     conversationText: "Расскажите о задаче или идее. Я отвечу в течение 1–2 рабочих дней.",
     name: "Ваше имя", email: "Email", type: "Тип запроса", message: "Расскажите о задаче", send: "Отправить сообщение", sending: "Отправка...",
     success: "Сообщение отправлено. Скоро свяжусь с вами.", error: "Не удалось отправить сообщение.",
-    quote: "Лучший способ предсказать будущее — построить его.",
+    quote: "Все, что нужно для управления бизнесом, — телефон.",
   },
   en: {
     nav: ["Projects", "AI For Business", "About", "Contact"],
@@ -61,7 +61,7 @@ export const content = {
     conversationText: "Tell me about your challenge or idea. I’ll get back within 1–2 business days.",
     name: "Your Name", email: "Email", type: "Request type", message: "Tell me about your challenge", send: "Send Message", sending: "Sending...",
     success: "Message sent. I’ll be in touch soon.", error: "Message could not be sent.",
-    quote: "The best way to predict the future is to build it.",
+    quote: "All you need to run a business is a phone.",
   },
 } as const;
 
@@ -70,7 +70,7 @@ export const projects = [
   { number: "02", title: "Virtual COO", category: ["Операционная AI-система", "AI Operating System"], image: "/projects/Virtual COO/main.png" },
   { number: "03", title: "Warehouse AI", category: ["Складская аналитика", "Inventory Intelligence"], image: "/projects/warehouse/main.png" },
   { number: "04", title: "Marketing Engine", category: ["Контент и автоматизация", "Content & Automation"], image: "/projects/n8n_news/main.jpg" },
-  { number: "05", title: "Den’s Workspace", category: ["Персональная AI-экосистема", "Personal Lab & OS"], image: "/ai-universe/main-planet-v13.png" },
+  { number: "05", title: "Den Workspace", category: ["Персональная AI-экосистема", "Personal Lab & OS"], image: "/ai-universe/main-planet-v13.png" },
 ];
 
 export const workItems = [["AI Automations", "In Progress"], ["Business Systems", "Testing"], ["AI Agents Ecosystem", "Building"], ["Robotics Integrations", "Research"]];

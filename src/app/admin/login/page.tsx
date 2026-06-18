@@ -18,7 +18,7 @@ export default async function AdminLoginPage({
   if (await getCurrentEditorialProfile()) redirect("/admin");
   const { error } = await searchParams;
   return <main className="admin-login-page">
-    <Link href="/"><ArrowLeft/>Den’s Workspace</Link>
+    <Link href="/"><ArrowLeft/>Den Workspace</Link>
     <section><span><ShieldCheck/></span><p className="eyebrow">EDITORIAL CONTROL</p><h1>Вход в редакцию<i/></h1><p>Закрытая рабочая зона для владельца и приглашенных редакторов. Мы отправим одноразовую ссылку на ваш email.</p><LoginForm initialError={error ? loginErrors[error] ?? loginErrors.invalid_link : ""}/></section>
   </main>;
 }

@@ -3,7 +3,7 @@ import NewsFeedPage from "@/components/NewsFeedPage";
 import { getPublishedArticles } from "@/lib/editorial/server";
 
 export const metadata: Metadata = {
-  title: "News Feed | Den's Workspace",
+  title: "News Feed | Den Workspace",
   description: "Signals and editorial intelligence about AI, automation, robotics and emerging technology.",
 };
 

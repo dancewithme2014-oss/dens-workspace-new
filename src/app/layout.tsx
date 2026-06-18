@@ -16,7 +16,7 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Den’s Workspace | AI Systems & Automation",
+  title: "Den Workspace | AI Systems & Automation",
   description: "Интеллектуальные системы, автоматизация и продукты для реального бизнеса.",
 };
 
