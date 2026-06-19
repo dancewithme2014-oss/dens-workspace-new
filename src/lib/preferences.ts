@@ -6,6 +6,11 @@ import type { Locale } from "@/lib/content";
 type Theme = "dark" | "light";
 const preferenceEvent = "dw-preferences-change";
 
+function applyDocumentPreferences(locale: Locale, theme: Theme) {
+  document.documentElement.lang = locale;
+  document.documentElement.dataset.theme = theme;
+}
+
 export function useSitePreferences() {
   const [locale, setLocaleState] = useState<Locale>("ru");
   const [theme, setThemeState] = useState<Theme>("dark");
@@ -13,11 +18,15 @@ export function useSitePreferences() {
   useEffect(() => {
     const sync = () => {
       try {
-        setLocaleState(window.localStorage.getItem("dw-locale") === "en" ? "en" : "ru");
-        setThemeState(window.localStorage.getItem("dw-theme") === "light" ? "light" : "dark");
+        const nextLocale = window.localStorage.getItem("dw-locale") === "en" ? "en" : "ru";
+        const nextTheme = window.localStorage.getItem("dw-theme") === "light" ? "light" : "dark";
+        setLocaleState(nextLocale);
+        setThemeState(nextTheme);
+        applyDocumentPreferences(nextLocale, nextTheme);
       } catch {
         setLocaleState("ru");
         setThemeState("dark");
+        applyDocumentPreferences("ru", "dark");
       }
     };
 
@@ -32,14 +41,16 @@ export function useSitePreferences() {
 
   const setLocale = useCallback((value: Locale) => {
     setLocaleState(value);
+    applyDocumentPreferences(value, theme);
     try { window.localStorage.setItem("dw-locale", value); } catch {}
     window.dispatchEvent(new Event(preferenceEvent));
-  }, []);
+  }, [theme]);
   const setTheme = useCallback((value: Theme) => {
     setThemeState(value);
+    applyDocumentPreferences(locale, value);
     try { window.localStorage.setItem("dw-theme", value); } catch {}
     window.dispatchEvent(new Event(preferenceEvent));
-  }, []);
+  }, [locale]);
 
   return { locale, theme, setLocale, setTheme };
 }

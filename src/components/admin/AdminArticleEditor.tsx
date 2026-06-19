@@ -49,9 +49,23 @@ const copy = {
     source: "Оригинал",
     englishComment: "Комментарий к оригинальной новости на английском",
     openSource: "Открыть источник",
+    article: "Статья",
+    supabaseDraft: "Черновик Supabase",
+    status: {
+      ingested: "получено",
+      processing: "обработка",
+      draft: "черновик",
+      pending_approval: "на проверке",
+      approved: "подтверждено",
+      scheduled: "запланировано",
+      publishing: "публикация",
+      published: "опубликовано",
+      rejected: "отклонено",
+      failed: "ошибка",
+    },
     labels: {
       title: "Заголовок",
-      slug: "Slug",
+      slug: "Адрес страницы",
       summary: "Краткое описание",
       body: "Полная статья",
       category: "Категория",
@@ -59,10 +73,10 @@ const copy = {
       sourceName: "Источник",
       sourceUrl: "URL оригинальной новости",
       imageUrl: "URL картинки оригинальной новости",
-      telegramText: "Telegram preview",
-      englishComment: "English source comment",
-      seoTitle: "SEO title",
-      seoDescription: "SEO description",
+      telegramText: "Текст для Telegram",
+      englishComment: "Комментарий на английском",
+      seoTitle: "SEO-заголовок",
+      seoDescription: "SEO-описание",
     },
   },
   en: {
@@ -79,6 +93,20 @@ const copy = {
     source: "Original source",
     englishComment: "English comment for the original news",
     openSource: "Open source",
+    article: "Article",
+    supabaseDraft: "Supabase draft",
+    status: {
+      ingested: "ingested",
+      processing: "processing",
+      draft: "draft",
+      pending_approval: "review",
+      approved: "approved",
+      scheduled: "scheduled",
+      publishing: "publishing",
+      published: "published",
+      rejected: "rejected",
+      failed: "failed",
+    },
     labels: {
       title: "Title",
       slug: "Slug",
@@ -150,8 +178,8 @@ export default function AdminArticleEditor({ initial }: { initial: Initial }) {
         <button className={editorLocale === "ru" ? "active" : ""} disabled={busy} onClick={() => setEditorLocale("ru")}>RU</button>
         <button className={editorLocale === "en" ? "active" : ""} disabled={busy || initial.source === "editorial_drafts"} onClick={() => setEditorLocale("en")}>EN</button>
       </div>
-      <span className={`status status-${status}`}>{status}</span>
-      <small>{initial.source === "editorial_drafts" ? "Supabase draft" : "Article"} · v{version}</small>
+      <span className={`status status-${status}`}>{t.status[status]}</span>
+      <small>{initial.source === "editorial_drafts" ? t.supabaseDraft : t.article} · v{version}</small>
     </div>
 
     <div className="admin-editor-grid">
