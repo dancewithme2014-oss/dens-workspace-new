@@ -112,10 +112,6 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
     const failTurnstile = () => {
       setTurnstileToken("");
       setTurnstileStatus("error");
-      if (window.turnstile && turnstileWidgetId.current) {
-        window.turnstile.remove(turnstileWidgetId.current);
-        turnstileWidgetId.current = null;
-      }
     };
 
     const renderTurnstile = () => {
@@ -155,7 +151,9 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
     return () => {
       window.clearTimeout(fallbackTimer);
       if (window.turnstile && turnstileWidgetId.current) {
-        window.turnstile.remove(turnstileWidgetId.current);
+        try {
+          window.turnstile.remove(turnstileWidgetId.current);
+        } catch {}
         turnstileWidgetId.current = null;
       }
       setTurnstileToken("");
@@ -167,12 +165,19 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
   };
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (turnstileSiteKey && !turnstileToken) {
+      setTurnstileStatus("error");
+      setFormState("error");
+      return;
+    }
     setFormState("loading");
     const fd = new FormData(event.currentTarget);
     const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: fd.get("name"), email: fd.get("email"), phoneCountry: phoneCountry.code, phone: phoneDigits, requestType: fd.get("requestType"), message: fd.get("message"), website: fd.get("website"), turnstileToken, locale }) });
     setFormState(response.ok ? "success" : "error");
-    if (window.turnstile && turnstileWidgetId.current) {
-      window.turnstile.reset(turnstileWidgetId.current);
+    if (turnstileStatus === "ready" && window.turnstile && turnstileWidgetId.current) {
+      try {
+        window.turnstile.reset(turnstileWidgetId.current);
+      } catch {}
       setTurnstileToken("");
     }
     if (response.ok) {
@@ -244,7 +249,7 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           <label className="message-label">{t.message}<textarea name="message" required minLength={10} placeholder={locale === "ru" ? "Что вы хотите создать?" : "What are you trying to build?"}/></label>
           {turnstileSiteKey && <div className="turnstile-field-wrap">
             {turnstileStatus !== "error" && <div className="turnstile-field" ref={turnstileRef}/>}
-            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { setTurnstileToken(""); setTurnstileStatus("loading"); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
+            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { turnstileWidgetId.current = null; setTurnstileToken(""); setTurnstileStatus("loading"); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
           </div>}
           <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading" || (!!turnstileSiteKey && !turnstileToken)}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{turnstileSiteKey && turnstileStatus === "loading" && !turnstileToken && <p className="form-state muted">{locale === "ru" ? "Загружаем защиту формы..." : "Loading form protection..."}</p>}{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
         </form>
