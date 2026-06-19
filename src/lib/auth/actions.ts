@@ -4,20 +4,20 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export type LoginState = { message: string; success: boolean };
+export type LoginState = { message: string; success: boolean; email?: string };
 
 export async function sendMagicLink(_state: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (!/^\S+@\S+\.\S+$/.test(email)) return { success: false, message: "Введите корректный email." };
+  if (!/^\S+@\S+\.\S+$/.test(email)) return { success: false, message: "Введите корректный email.", email };
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return { success: false, message: "Supabase пока не настроен. Добавьте переменные окружения." };
+  if (!supabase) return { success: false, message: "Supabase пока не настроен. Добавьте переменные окружения.", email };
   const siteUrl = await getRequestOrigin();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: `${siteUrl}/auth/callback?next=/admin`, shouldCreateUser: false },
   });
-  if (error) return { success: false, message: "Доступ разрешен только приглашенным редакторам." };
-  return { success: true, message: "Ссылка для входа отправлена на email." };
+  if (error) return { success: false, message: "Доступ разрешен только приглашенным редакторам.", email };
+  return { success: true, message: "Ссылка для входа отправлена на email.", email };
 }
 
 export async function signOut() {

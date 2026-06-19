@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, MessageSquareText, Network, PenLine, PhoneOff, Rocket, Sparkles, Workflow } from "lucide-react";
+import { AlertTriangle, ArrowDownRight, ArrowRight, AudioLines, Bot, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined, ChartPie, Check, Clock3, CloudCog, Database, Eye, FileText, Globe2, Mail, Megaphone, MessageSquareText, Network, PenLine, PhoneOff, Rocket, Sparkles, Workflow } from "lucide-react";
 import { content, newsItems, solutions, workItems } from "@/lib/content";
 import type { PortfolioProject } from "@/lib/projects-data";
 import SiteHeader from "@/components/SiteHeader";
@@ -30,6 +30,8 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
   const [formState, setFormState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileStatus, setTurnstileStatus] = useState<"idle" | "loading" | "ready" | "error">(turnstileSiteKey ? "loading" : "ready");
+  const [turnstileRetryKey, setTurnstileRetryKey] = useState(0);
   const [phoneCountry, setPhoneCountry] = useState(defaultPhoneCountry);
   const [phoneDigits, setPhoneDigits] = useState("");
   const [showDesktopHeroMedia, setShowDesktopHeroMedia] = useState(false);
@@ -104,16 +106,28 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
   }, []);
   useEffect(() => {
     if (!turnstileSiteKey || !turnstileRef.current) return;
+    let fallbackTimer = 0;
+    setTurnstileStatus("loading");
 
     const renderTurnstile = () => {
       if (!window.turnstile || !turnstileRef.current || turnstileWidgetId.current) return;
       turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
         sitekey: turnstileSiteKey,
         theme,
-        callback: (token: string) => setTurnstileToken(token),
-        "expired-callback": () => setTurnstileToken(""),
-        "error-callback": () => setTurnstileToken(""),
+        callback: (token: string) => {
+          setTurnstileToken(token);
+          setTurnstileStatus("ready");
+        },
+        "expired-callback": () => {
+          setTurnstileToken("");
+          setTurnstileStatus("loading");
+        },
+        "error-callback": () => {
+          setTurnstileToken("");
+          setTurnstileStatus("error");
+        },
       });
+      window.clearTimeout(fallbackTimer);
     };
 
     if (window.turnstile) {
@@ -125,17 +139,22 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
       script.async = true;
       script.defer = true;
       script.onload = renderTurnstile;
+      script.onerror = () => setTurnstileStatus("error");
       if (!existingScript) document.head.appendChild(script);
     }
+    fallbackTimer = window.setTimeout(() => {
+      if (!turnstileWidgetId.current) setTurnstileStatus("error");
+    }, 8000);
 
     return () => {
+      window.clearTimeout(fallbackTimer);
       if (window.turnstile && turnstileWidgetId.current) {
         window.turnstile.remove(turnstileWidgetId.current);
         turnstileWidgetId.current = null;
       }
       setTurnstileToken("");
     };
-  }, [theme]);
+  }, [theme, turnstileRetryKey]);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -217,8 +236,11 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           <label className="phone-label">{locale === "ru" ? "Телефон" : "Phone"}<span className="phone-field"><select aria-label={locale === "ru" ? "Код страны" : "Country code"} value={phoneCountry.code} onChange={(event) => { const next = findPhoneCountry(event.target.value) ?? defaultPhoneCountry; setPhoneCountry(next); setPhoneDigits(""); }}>{phoneCountries.map(country => <option key={country.code} value={country.code}>{country.dial} · {country[locale]}</option>)}</select><input name="phone" type="tel" inputMode="numeric" autoComplete="tel-national" required minLength={phoneCountry.min} maxLength={phoneCountry.max} pattern={`[0-9]{${phoneCountry.min},${phoneCountry.max}}`} value={phoneDigits} onChange={(event) => setPhoneDigits(event.target.value.replace(/\D/g, "").slice(0, phoneCountry.max))} placeholder={phoneCountry.min === phoneCountry.max ? `${phoneCountry.min} ${locale === "ru" ? "цифр" : "digits"}` : `${phoneCountry.min}–${phoneCountry.max} ${locale === "ru" ? "цифр" : "digits"}`}/></span></label>
           <label>{t.type}<select name="requestType" required defaultValue=""><option value="" disabled>{locale === "ru" ? "Выберите вариант" : "Select an option"}</option>{requestTypes.map(option => <option value={option.value} key={option.value}>{option[locale]}</option>)}</select></label>
           <label className="message-label">{t.message}<textarea name="message" required minLength={10} placeholder={locale === "ru" ? "Что вы хотите создать?" : "What are you trying to build?"}/></label>
-          {turnstileSiteKey && <div className="turnstile-field" ref={turnstileRef}/>}
-          <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading" || (!!turnstileSiteKey && !turnstileToken)}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
+          {turnstileSiteKey && <div className="turnstile-field-wrap">
+            <div className="turnstile-field" ref={turnstileRef}/>
+            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { setTurnstileToken(""); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
+          </div>}
+          <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading" || (!!turnstileSiteKey && !turnstileToken)}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{turnstileSiteKey && turnstileStatus === "loading" && !turnstileToken && <p className="form-state muted">{locale === "ru" ? "Загружаем защиту формы..." : "Loading form protection..."}</p>}{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
         </form>
       </div>
     </section>
