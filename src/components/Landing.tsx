@@ -109,6 +109,15 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
     let fallbackTimer = 0;
     setTurnstileStatus("loading");
 
+    const failTurnstile = () => {
+      setTurnstileToken("");
+      setTurnstileStatus("error");
+      if (window.turnstile && turnstileWidgetId.current) {
+        window.turnstile.remove(turnstileWidgetId.current);
+        turnstileWidgetId.current = null;
+      }
+    };
+
     const renderTurnstile = () => {
       if (!window.turnstile || !turnstileRef.current || turnstileWidgetId.current) return;
       turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
@@ -122,10 +131,7 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           setTurnstileToken("");
           setTurnstileStatus("loading");
         },
-        "error-callback": () => {
-          setTurnstileToken("");
-          setTurnstileStatus("error");
-        },
+        "error-callback": failTurnstile,
       });
       window.clearTimeout(fallbackTimer);
     };
@@ -139,11 +145,11 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
       script.async = true;
       script.defer = true;
       script.onload = renderTurnstile;
-      script.onerror = () => setTurnstileStatus("error");
+      script.onerror = failTurnstile;
       if (!existingScript) document.head.appendChild(script);
     }
     fallbackTimer = window.setTimeout(() => {
-      if (!turnstileWidgetId.current) setTurnstileStatus("error");
+      if (!turnstileWidgetId.current) failTurnstile();
     }, 8000);
 
     return () => {
@@ -237,8 +243,8 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           <label>{t.type}<select name="requestType" required defaultValue=""><option value="" disabled>{locale === "ru" ? "Выберите вариант" : "Select an option"}</option>{requestTypes.map(option => <option value={option.value} key={option.value}>{option[locale]}</option>)}</select></label>
           <label className="message-label">{t.message}<textarea name="message" required minLength={10} placeholder={locale === "ru" ? "Что вы хотите создать?" : "What are you trying to build?"}/></label>
           {turnstileSiteKey && <div className="turnstile-field-wrap">
-            <div className="turnstile-field" ref={turnstileRef}/>
-            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { setTurnstileToken(""); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
+            {turnstileStatus !== "error" && <div className="turnstile-field" ref={turnstileRef}/>}
+            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { setTurnstileToken(""); setTurnstileStatus("loading"); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
           </div>}
           <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading" || (!!turnstileSiteKey && !turnstileToken)}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{turnstileSiteKey && turnstileStatus === "loading" && !turnstileToken && <p className="form-state muted">{locale === "ru" ? "Загружаем защиту формы..." : "Loading form protection..."}</p>}{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
         </form>
