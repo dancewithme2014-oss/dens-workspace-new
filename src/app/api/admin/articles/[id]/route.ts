@@ -33,9 +33,14 @@ export async function PATCH(request: Request, { params }: Context) {
     body: payload.body,
     category: payload.category,
     tags: payload.tags,
+    image_url: payload.imageUrl ?? null,
+    source_url: payload.sourceUrl ?? null,
+    source_name: payload.sourceName ?? null,
     seo_title: payload.seoTitle,
     seo_description: payload.seoDescription,
     telegram_text: payload.telegramText,
+    raw_source: { sourceName: payload.sourceName ?? null, sourceUrl: payload.sourceUrl ?? null, imageUrl: payload.imageUrl ?? null },
+    raw_opinion: { englishComment: payload.englishComment ?? null },
     version: payload.expectedVersion + 1,
   };
   const legacyPatch = {
@@ -44,9 +49,14 @@ export async function PATCH(request: Request, { params }: Context) {
     body: payload.body,
     category: payload.category,
     tags: payload.tags,
+    image_url: payload.imageUrl ?? null,
+    source_url: payload.sourceUrl ?? null,
+    source_name: payload.sourceName ?? null,
     seo_title: payload.seoTitle,
     seo_description: payload.seoDescription,
     telegram_text: payload.telegramText,
+    raw_source: { sourceName: payload.sourceName ?? null, sourceUrl: payload.sourceUrl ?? null, imageUrl: payload.imageUrl ?? null },
+    raw_opinion: { englishComment: payload.englishComment ?? null },
   };
   const { data: draft, error: draftError } = await supabase
     .from("editorial_drafts")

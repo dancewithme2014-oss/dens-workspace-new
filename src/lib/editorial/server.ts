@@ -50,6 +50,8 @@ type EditorialDraftRow = {
   source_name?: string | null;
   source_url?: string | null;
   source_author?: string | null;
+  raw_source?: Record<string, unknown> | null;
+  raw_opinion?: Record<string, unknown> | null;
   published_at?: string | null;
   version?: number | null;
   created_at?: string | null;
@@ -114,15 +116,21 @@ function draftSlug(row: EditorialDraftRow) {
 
 function mapDraft(row: EditorialDraftRow): EditorialArticle {
   const timestamp = row.updated_at ?? row.created_at ?? new Date(0).toISOString();
+  const rawSource = row.raw_source ?? {};
+  const rawOpinion = row.raw_opinion ?? {};
+  const rawImageUrl = typeof rawSource.imageUrl === "string" ? rawSource.imageUrl : null;
+  const rawSourceUrl = typeof rawSource.sourceUrl === "string" ? rawSource.sourceUrl : null;
+  const rawSourceName = typeof rawSource.sourceName === "string" ? rawSource.sourceName : null;
+  const englishComment = typeof rawOpinion.englishComment === "string" ? rawOpinion.englishComment : null;
   return {
     id: row.id,
     slug: draftSlug(row),
     status: row.status,
     sourcePlatform: "manual",
-    sourceName: row.source_name ?? "AI News Radar",
-    sourceUrl: row.source_url ?? "",
+    sourceName: row.source_name ?? rawSourceName ?? "AI News Radar",
+    sourceUrl: row.source_url ?? rawSourceUrl ?? "",
     sourcePublishedAt: null,
-    imageUrl: row.image_url ?? null,
+    imageUrl: row.image_url ?? rawImageUrl,
     category: row.category ?? "ai",
     tags: row.tags ?? [],
     locale: "ru",
@@ -132,6 +140,7 @@ function mapDraft(row: EditorialDraftRow): EditorialArticle {
     seoTitle: row.seo_title ?? null,
     seoDescription: row.seo_description ?? null,
     telegramText: row.telegram_text ?? null,
+    englishComment,
     factWarnings: row.fact_warnings ?? [],
     version: row.version ?? 1,
     publishedAt: row.published_at ?? null,

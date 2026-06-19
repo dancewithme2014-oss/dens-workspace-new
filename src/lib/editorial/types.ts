@@ -33,6 +33,7 @@ export interface EditorialArticle {
   seoTitle: string | null;
   seoDescription: string | null;
   telegramText: string | null;
+  englishComment?: string | null;
   factWarnings: string[];
   version: number;
   publishedAt: string | null;

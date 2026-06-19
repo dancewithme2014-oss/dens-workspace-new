@@ -64,6 +64,10 @@ export const articleUpdateSchema = z.object({
   seoTitle: z.string().max(220).nullable(),
   seoDescription: z.string().max(500).nullable(),
   telegramText: z.string().max(4096).nullable(),
+  imageUrl: z.url().nullable().optional(),
+  sourceUrl: z.url().nullable().optional(),
+  sourceName: z.string().max(180).nullable().optional(),
+  englishComment: z.string().max(4096).nullable().optional(),
 });
 
 export const transitionSchema = z.object({
