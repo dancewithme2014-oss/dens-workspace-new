@@ -127,9 +127,10 @@ export default function NewsFeedPage({ articles }: { articles?: { ru: EditorialA
         </div>
 
         <div className="news-list">{visibleItems.map(item => <article className="news-card" key={item.id}>
+          {item.slug ? <Link className="news-card-hitbox" href={`/news-feed/${item.slug}`} aria-label={locale === "ru" ? `Открыть материал: ${item.title}` : `Open signal: ${item.title}`}/> : null}
           <NewsCardImage src={item.image} title={item.title}/>
           <div className="news-card-body"><span className={`news-category category-${item.category}`}>{categories.find(categoryItem => categoryItem.id === item.category)?.[locale]}</span><h2>{localizeAi(item.title, locale)}</h2><p>{localizeAi(item.description, locale)}</p><div className="news-meta"><b><Cpu/>{feedLabel(item.source, locale)}</b><span><Clock3/>{item.read} {t.read}</span>{item.tags.map(tag => <em key={tag}>{feedLabel(tag, locale)}</em>)}</div></div>
-          {item.slug ? <Link className="news-card-arrow" href={`/news-feed/${item.slug}`} aria-label={locale === "ru" ? "Открыть материал" : "Open signal"}><ArrowRight/></Link> : <span className="news-card-arrow" aria-hidden="true"><ArrowRight/></span>}
+          <span className="news-card-arrow" aria-hidden="true"><ArrowRight/></span>
         </article>)}</div>
       </section>
 
