@@ -109,6 +109,14 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
     let fallbackTimer = 0;
     setTurnstileStatus("loading");
 
+    const safeRemoveTurnstile = () => {
+      if (!window.turnstile || !turnstileWidgetId.current) return;
+      try {
+        window.turnstile.remove(turnstileWidgetId.current);
+      } catch {}
+      turnstileWidgetId.current = null;
+    };
+
     const failTurnstile = () => {
       setTurnstileToken("");
       setTurnstileStatus("error");
@@ -150,12 +158,7 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
 
     return () => {
       window.clearTimeout(fallbackTimer);
-      if (window.turnstile && turnstileWidgetId.current) {
-        try {
-          window.turnstile.remove(turnstileWidgetId.current);
-        } catch {}
-        turnstileWidgetId.current = null;
-      }
+      safeRemoveTurnstile();
       setTurnstileToken("");
     };
   }, [theme, turnstileRetryKey]);
@@ -248,8 +251,8 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           <label>{t.type}<select name="requestType" required defaultValue=""><option value="" disabled>{locale === "ru" ? "Выберите вариант" : "Select an option"}</option>{requestTypes.map(option => <option value={option.value} key={option.value}>{option[locale]}</option>)}</select></label>
           <label className="message-label">{t.message}<textarea name="message" required minLength={10} placeholder={locale === "ru" ? "Что вы хотите создать?" : "What are you trying to build?"}/></label>
           {turnstileSiteKey && <div className="turnstile-field-wrap">
-            {turnstileStatus !== "error" && <div className="turnstile-field" ref={turnstileRef}/>}
-            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { turnstileWidgetId.current = null; setTurnstileToken(""); setTurnstileStatus("loading"); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
+            <div className={`turnstile-field ${turnstileStatus === "error" ? "turnstile-field-hidden" : ""}`} ref={turnstileRef}/>
+            {turnstileStatus === "error" && <div className="turnstile-fallback"><AlertTriangle/><p>{locale === "ru" ? "Cloudflare-проверка не подключилась. Проверьте VPN/ad blocker или попробуйте еще раз." : "Cloudflare verification could not connect. Check VPN/ad blocker or try again."}</p><button type="button" onClick={() => { setTurnstileToken(""); setTurnstileStatus("loading"); setTurnstileRetryKey(value => value + 1); }}>{locale === "ru" ? "Повторить" : "Retry"}</button></div>}
           </div>}
           <input className="honeypot" name="website" tabIndex={-1} autoComplete="off"/><button className="submit" disabled={formState === "loading" || (!!turnstileSiteKey && !turnstileToken)}>{formState === "loading" ? t.sending : t.send}<ArrowRight/></button>{turnstileSiteKey && turnstileStatus === "loading" && !turnstileToken && <p className="form-state muted">{locale === "ru" ? "Загружаем защиту формы..." : "Loading form protection..."}</p>}{formState === "success" && <p className="form-state success"><Check/>{t.success}</p>}{formState === "error" && <p className="form-state error">{t.error}</p>}
         </form>
