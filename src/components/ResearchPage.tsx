@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ByteDance, Claude, Codex, DeepSeek, ElevenLabs, Gemini, HermesAgent, Manus, N8n, OpenClaw, Zapier } from "@lobehub/icons";
 import { ArrowRight, AudioLines, Bot, BrainCircuit, Database, Layers3, MonitorUp, Phone, Sparkles, Users } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AmbientBackground from "@/components/AmbientBackground";
 import SiteHeader from "@/components/SiteHeader";
 import { useSitePreferences } from "@/lib/preferences";
@@ -45,29 +45,53 @@ const experiments = [
   [{ ru: "Интеграции с робототехникой", en: "Robotics Integrations" }, "Соединение ИИ-софта с физическими машинами и средами.", "Connecting AI software with physical machines and environments.", Bot, { ru: "Проверяю", en: "Investigating" }, { ru: "Автономные операции в реальном мире.", en: "Autonomous real-world operations." }],
 ] as const;
 
-const primaryTools = [
-  ["Claude", Claude.Color, null, { ru: "Продвинутые рассуждения и работа с большим контекстом.", en: "Advanced reasoning and long-context intelligence." }, { ru: "Каждый день", en: "Daily Use" }],
-  ["Codex", Codex.Color, null, { ru: "ИИ-разработка программного обеспечения и генерация кода.", en: "AI-powered software engineering and code generation." }, { ru: "Каждый день", en: "Daily Use" }],
-  ["n8n", N8n.Color, null, { ru: "Инфраструктура автоматизации и оркестрация процессов.", en: "Automation infrastructure and workflow orchestration." }, { ru: "Каждый день", en: "Daily Use" }],
-  ["Supabase", null, "/brands/supabase.svg", { ru: "Современная серверная платформа и база данных.", en: "Modern backend and database platform." }, { ru: "Каждый день", en: "Daily Use" }],
-  ["Gemini", Gemini.Color, null, { ru: "Мультимодальные рассуждения и масштабные ИИ-исследования.", en: "Multimodal reasoning and large-scale AI research." }, { ru: "Исследую", en: "Research" }],
-  ["ElevenLabs", ElevenLabs, null, { ru: "Синтез голоса и разговорные интерфейсы.", en: "Voice synthesis and conversational interfaces." }, { ru: "Тестирую", en: "Testing" }],
-  ["DeepSeek", DeepSeek.Color, null, { ru: "Открытые модели рассуждений и программирования.", en: "Open-source reasoning and coding models." }, { ru: "Оцениваю", en: "Evaluating" }],
-] as const;
+type ToolCategory = "all" | "text" | "code" | "automation" | "data" | "voice" | "video" | "agents";
+type ToolItem = {
+  name: string;
+  icon: React.ComponentType<{ size?: number }> | null;
+  image: string | null;
+  description: { readonly ru: string; readonly en: string };
+  state: { readonly ru: string; readonly en: string };
+  categories: readonly Exclude<ToolCategory, "all">[];
+};
 
-const secondaryTools = [
-  ["Seedance 2", ByteDance.Color, null, { ru: "Генерация и производство видео нового поколения.", en: "Next-generation generative video production." }, { ru: "Тестирую", en: "Testing" }],
-  ["Zapier", Zapier.Color, null, { ru: "Автоматизация приложений и бизнес-процессов.", en: "Application and business workflow automation." }, { ru: "Использую", en: "Using" }],
-  ["HeyGen", null, "/brands/heygen.ico", { ru: "Видеоаватары, локализация и синтетические медиа.", en: "Video avatars, localization and synthetic media." }, { ru: "Тестирую", en: "Testing" }],
-  ["Manus", Manus, null, { ru: "Автономный агент для многоэтапных задач.", en: "Autonomous agent for multi-step tasks." }, { ru: "Исследую", en: "Research" }],
-  ["Genspark", null, "/brands/genspark.ico", { ru: "Агентный поиск, исследования и создание материалов.", en: "Agentic search, research and content creation." }, { ru: "Изучаю", en: "Exploring" }],
-  ["OpenClaw", OpenClaw.Color, null, { ru: "Открытая агентная инфраструктура и управление инструментами.", en: "Open agent infrastructure and tool control." }, { ru: "Оцениваю", en: "Evaluating" }],
-  ["Hermes", HermesAgent, null, { ru: "Агентные рассуждения, инструменты и выполнение задач.", en: "Agent reasoning, tools and task execution." }, { ru: "Исследую", en: "Research" }],
-] as const;
+const toolCategories: { id: ToolCategory; ru: string; en: string }[] = [
+  { id: "all", ru: "Все", en: "All" },
+  { id: "text", ru: "Текст", en: "Text" },
+  { id: "code", ru: "Код", en: "Code" },
+  { id: "automation", ru: "Автоматизация", en: "Automation" },
+  { id: "data", ru: "Данные", en: "Data" },
+  { id: "voice", ru: "Речь и звук", en: "Voice & Audio" },
+  { id: "video", ru: "Видео", en: "Video" },
+  { id: "agents", ru: "Агенты", en: "Agents" },
+];
+
+const primaryTools: ToolItem[] = [
+  { name: "Claude", icon: Claude.Color, image: null, description: { ru: "Продвинутые рассуждения и работа с большим контекстом.", en: "Advanced reasoning and long-context intelligence." }, state: { ru: "Каждый день", en: "Daily Use" }, categories: ["text", "agents"] },
+  { name: "Codex", icon: Codex.Color, image: null, description: { ru: "ИИ-разработка программного обеспечения и генерация кода.", en: "AI-powered software engineering and code generation." }, state: { ru: "Каждый день", en: "Daily Use" }, categories: ["code", "agents"] },
+  { name: "n8n", icon: N8n.Color, image: null, description: { ru: "Инфраструктура автоматизации и оркестрация процессов.", en: "Automation infrastructure and workflow orchestration." }, state: { ru: "Каждый день", en: "Daily Use" }, categories: ["automation"] },
+  { name: "Supabase", icon: null, image: "/brands/supabase.svg", description: { ru: "Современная серверная платформа и база данных.", en: "Modern backend and database platform." }, state: { ru: "Каждый день", en: "Daily Use" }, categories: ["data", "automation"] },
+  { name: "Gemini", icon: Gemini.Color, image: null, description: { ru: "Мультимодальные рассуждения и масштабные ИИ-исследования.", en: "Multimodal reasoning and large-scale AI research." }, state: { ru: "Исследую", en: "Research" }, categories: ["text", "video", "agents"] },
+  { name: "ElevenLabs", icon: ElevenLabs, image: null, description: { ru: "Синтез голоса и разговорные интерфейсы.", en: "Voice synthesis and conversational interfaces." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["voice"] },
+  { name: "DeepSeek", icon: DeepSeek.Color, image: null, description: { ru: "Открытые модели рассуждений и программирования.", en: "Open-source reasoning and coding models." }, state: { ru: "Оцениваю", en: "Evaluating" }, categories: ["text", "code"] },
+];
+
+const secondaryTools: ToolItem[] = [
+  { name: "Seedance 2", icon: ByteDance.Color, image: null, description: { ru: "Генерация и производство видео нового поколения.", en: "Next-generation generative video production." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["video"] },
+  { name: "Zapier", icon: Zapier.Color, image: null, description: { ru: "Автоматизация приложений и бизнес-процессов.", en: "Application and business workflow automation." }, state: { ru: "Использую", en: "Using" }, categories: ["automation"] },
+  { name: "HeyGen", icon: null, image: "/brands/heygen.ico", description: { ru: "Видеоаватары, локализация и синтетические медиа.", en: "Video avatars, localization and synthetic media." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["video", "voice"] },
+  { name: "Manus", icon: Manus, image: null, description: { ru: "Автономный агент для многоэтапных задач.", en: "Autonomous agent for multi-step tasks." }, state: { ru: "Исследую", en: "Research" }, categories: ["agents", "automation"] },
+  { name: "Genspark", icon: null, image: "/brands/genspark.ico", description: { ru: "Агентный поиск, исследования и создание материалов.", en: "Agentic search, research and content creation." }, state: { ru: "Изучаю", en: "Exploring" }, categories: ["text", "agents"] },
+  { name: "OpenClaw", icon: OpenClaw.Color, image: null, description: { ru: "Открытая агентная инфраструктура и управление инструментами.", en: "Open agent infrastructure and tool control." }, state: { ru: "Оцениваю", en: "Evaluating" }, categories: ["agents", "automation"] },
+  { name: "Hermes", icon: HermesAgent, image: null, description: { ru: "Агентные рассуждения, инструменты и выполнение задач.", en: "Agent reasoning, tools and task execution." }, state: { ru: "Исследую", en: "Research" }, categories: ["text", "agents"] },
+];
 
 export default function ResearchPage() {
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
+  const [toolCategory, setToolCategory] = useState<ToolCategory>("all");
   const t = researchCopy[locale];
+  const filteredPrimaryTools = filterTools(primaryTools, toolCategory);
+  const filteredSecondaryTools = filterTools(secondaryTools, toolCategory);
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
 
@@ -88,7 +112,13 @@ export default function ResearchPage() {
     </EditorialSection>
 
     <EditorialSection number="03" title={t.tools} note={t.toolsNote} meta={t.core}>
-      <div className="tool-rows"><ToolGrid tools={primaryTools} locale={locale}/><ToolGrid tools={secondaryTools} locale={locale} secondary/></div>
+      <div className="tool-filter-bar" aria-label={locale === "ru" ? "Фильтр инструментов" : "Tool filter"}>
+        {toolCategories.map(category => <button type="button" key={category.id} className={toolCategory === category.id ? "active" : ""} onClick={() => setToolCategory(category.id)}>{category[locale]}</button>)}
+      </div>
+      <div className="tool-rows">
+        {filteredPrimaryTools.length > 0 && <ToolGrid tools={filteredPrimaryTools} locale={locale}/>}
+        {filteredSecondaryTools.length > 0 && <ToolGrid tools={filteredSecondaryTools} locale={locale} secondary/>}
+      </div>
     </EditorialSection>
 
     <section className="research-quote shell"><div><Sparkles/><h2>{t.quote1}<strong>{t.quote2}</strong></h2><i/><p>{t.quoteText}</p><Link href="/about">{locale === "ru" ? "О подходе" : "About the approach"}<ArrowRight/></Link></div><Image src="/research/neural-field.png" alt="" fill sizes="50vw"/></section>
@@ -96,8 +126,12 @@ export default function ResearchPage() {
   </main>;
 }
 
-function ToolGrid({ tools, locale, secondary = false }: { tools: readonly (readonly [string, React.ComponentType<{ size?: number }> | null, string | null, { readonly ru: string; readonly en: string }, { readonly ru: string; readonly en: string }])[]; locale: "ru" | "en"; secondary?: boolean }) {
-  return <div className={`tool-grid ${secondary ? "tool-grid-secondary" : ""}`}>{tools.map(([name, Icon, image, description, state]) => <article key={name}><i>{Icon ? <Icon size={38}/> : image ? <Image src={image} alt={name} width={38} height={38}/> : null}</i><h3>{name}</h3><p>{description[locale]}</p><b>{state[locale]}</b></article>)}</div>;
+function filterTools(tools: ToolItem[], category: ToolCategory) {
+  return category === "all" ? tools : tools.filter(tool => tool.categories.includes(category));
+}
+
+function ToolGrid({ tools, locale, secondary = false }: { tools: readonly ToolItem[]; locale: "ru" | "en"; secondary?: boolean }) {
+  return <div className={`tool-grid ${secondary ? "tool-grid-secondary" : ""}`}>{tools.map(({ name, icon: Icon, image, description, state }) => <article key={name}><i>{Icon ? <Icon size={38}/> : image ? <Image src={image} alt={name} width={38} height={38}/> : null}</i><h3>{name}</h3><p>{description[locale]}</p><b>{state[locale]}</b></article>)}</div>;
 }
 
 function EditorialSection({ id, number, title, note, meta, children }: { id?: string; number: string; title: string; note: string; meta: string; children: React.ReactNode }) {
