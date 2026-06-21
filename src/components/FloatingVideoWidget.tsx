@@ -18,8 +18,15 @@ export default function FloatingVideoWidget() {
 
   useEffect(() => {
     if (!expanded) return;
-    videoRef.current?.play().catch(() => {});
-  }, [expanded]);
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = muted;
+    video.play().catch(() => {
+      setMuted(true);
+      video.muted = true;
+      video.play().catch(() => {});
+    });
+  }, [expanded, muted]);
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/auth")) return null;
 
@@ -36,7 +43,7 @@ export default function FloatingVideoWidget() {
   }
 
   return <section className="floating-video-widget compact" aria-label={locale === "ru" ? "Открыть видео-приветствие" : "Open video introduction"}>
-    <button className="floating-video-card" type="button" onClick={() => setExpanded(true)}>
+    <button className="floating-video-card" type="button" onClick={() => { setMuted(false); setExpanded(true); }}>
       <span className="floating-video-hello">{hello}</span>
       <video src={videoSrc} poster={posterSrc} autoPlay loop muted playsInline preload="metadata"/>
       <span className="floating-video-expand" aria-hidden="true"><Maximize2/></span>
