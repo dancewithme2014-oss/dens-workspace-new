@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import CookieConsent from "@/components/CookieConsent";
+import FloatingVideoWidget from "@/components/FloatingVideoWidget";
 import SiteFooter from "@/components/SiteFooter";
 
 const inter = Inter({
@@ -27,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning data-scroll-behavior="smooth" className={`${inter.variable} ${mono.variable}`}>
-      <body>{children}<SiteFooter/><CookieConsent/></body>
+      <body>{children}<SiteFooter/><FloatingVideoWidget/><CookieConsent/></body>
     </html>
   );
 }
