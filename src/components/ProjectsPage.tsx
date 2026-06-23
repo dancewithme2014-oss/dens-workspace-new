@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Atom, Bot, BrainCircuit, Clock3, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Workflow } from "lucide-react";
+import { ArrowLeft, ArrowRight, Atom, Bot, BrainCircuit, Clock3, ExternalLink, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Workflow } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SystemArchitecture from "@/components/SystemArchitecture";
 import LoopingVideo from "@/components/LoopingVideo";
@@ -50,6 +50,7 @@ const copy = {
     showLess: "Скрыть",
     emailAction: "Написать на email",
     homeContact: "Открыть форму на главной",
+    openProject: "Открыть проект",
   },
   en: {
     eyebrow: "AI Systems and Products",
@@ -88,6 +89,7 @@ const copy = {
     showLess: "Show less",
     emailAction: "Send an email",
     homeContact: "Open the main contact form",
+    openProject: "Open project",
   },
 } as const;
 
@@ -183,6 +185,7 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
         <article className="pr-case-copy">
           <h2>{project.name}</h2><p className="pr-case-subtitle">{localizeProjectText(project.subtitle, locale)}</p>
           <p className="pr-case-description">{localizeProjectText(project.description, locale)}</p>
+          {project.websiteUrl && <a className="pr-project-link" href={project.websiteUrl} target="_blank" rel="noreferrer">{t.openProject}<ExternalLink/></a>}
           <div className="pr-case-rule"/>
           <h3>{t.solves}</h3><p>{detail.solves}</p>
           <div className="pr-case-columns"><div><h3>{t.features}</h3><ul>{detail.features.map(item => <li key={item}>{localizeAi(item, locale)}</li>)}</ul></div><div><h3>{t.stack}</h3><ul className="pr-stack-list"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>OpenAI</li><li>n8n</li><li>WebSockets</li></ul></div></div>
@@ -234,15 +237,15 @@ function localizeResearchState(state: string, locale: "ru" | "en") {
 
 function localizeProjectStatus(status: string, locale: "ru" | "en") {
   if (locale === "en") return status;
-  return ({ Active: "Активен", Building: "В разработке", Research: "Исследование" } as Record<string, string>)[status] ?? status;
+  return ({ Active: "Активен", Building: "В разработке", Research: "Исследование", Testing: "Тестирование" } as Record<string, string>)[status] ?? status;
 }
 
 function localizeProjectText(text: string, locale: "ru" | "en") {
   if (locale === "en") return text;
   const translations: Record<string, string> = {
-    "Live Commerce Platform": "Платформа live-commerce", "AI Consulting Platform": "Платформа ИИ-консалтинга", "AI Operating System": "Операционная ИИ-система", "Inventory Intelligence": "Интеллектуальное управление складом", "Content Automation": "Автоматизация контента", "Interactive Brand Promo": "Интерактивный бренд-промо", "Premium Property Experience": "Премиальный сервис недвижимости",
-    "AI-powered live shopping and business discovery platform.": "ИИ-платформа для прямых продаж и поиска бизнеса.", "Consulting, automation and business intelligence in one digital experience.": "Консалтинг, автоматизация и бизнес-аналитика в единой цифровой среде.", "An AI operating layer for daily execution, decisions and growth.": "ИИ-уровень для ежедневной работы, решений и роста.", "Computer vision and automation for warehouse operations.": "Компьютерное зрение и автоматизация складских операций.", "Automated research, production and publishing workflow.": "Автоматизированный процесс исследования, производства и публикации.", "A cinematic digital promotion experience.": "Кинематографичный цифровой промо-проект.", "A premium digital showcase built for discovery and conversion.": "Премиальная цифровая витрина для поиска и конверсии.",
-    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость",
+    "Live Commerce Platform": "Платформа live-commerce", "AI Consulting Platform": "Платформа ИИ-консалтинга", "AI Operating System": "Операционная ИИ-система", "Inventory Intelligence": "Интеллектуальное управление складом", "Content Automation": "Автоматизация контента", "Interactive Brand Promo": "Интерактивный бренд-промо", "Premium Property Experience": "Премиальный сервис недвижимости", "Luxury Watch Experience": "Премиальный опыт выбора часов",
+    "AI-powered live shopping and business discovery platform.": "ИИ-платформа для прямых продаж и поиска бизнеса.", "Consulting, automation and business intelligence in one digital experience.": "Консалтинг, автоматизация и бизнес-аналитика в единой цифровой среде.", "An AI operating layer for daily execution, decisions and growth.": "ИИ-уровень для ежедневной работы, решений и роста.", "Computer vision and automation for warehouse operations.": "Компьютерное зрение и автоматизация складских операций.", "Automated research, production and publishing workflow.": "Автоматизированный процесс исследования, производства и публикации.", "A cinematic digital promotion experience.": "Кинематографичный цифровой промо-проект.", "A premium digital showcase built for discovery and conversion.": "Премиальная цифровая витрина для поиска и конверсии.", "A polished luxury watch storefront and product presentation experience.": "Выверенный премиальный storefront для часов и презентации коллекции.",
+    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость", Luxury: "Люкс",
   };
   return translations[text] ?? localizeAi(text, locale);
 }

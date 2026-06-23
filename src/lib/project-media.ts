@@ -11,12 +11,36 @@ const projectFolders: Record<string, string> = {
   "warehouse-app": "warehouse",
   "n8n-news": "n8n_news",
   "mmz1-promo": "mmz1",
-  "golden-lion": "golden lion",
+  "golden-house-dubai": "golden lion",
+  chronos: "CHRONOS",
 };
 
 const mediaPattern = /\.(avif|jpe?g|png|webp|mp4|webm|mov)$/i;
 const imagePattern = /\.(avif|jpe?g|png|webp)$/i;
-const preferredCover = /^(main|main screen|mainscreen|mainscreenbt|1)(\.|\s)/i;
+const mediaOrder: Record<string, number> = {
+  main: 0,
+  "main screen": 0,
+  mainscreen: 0,
+  mainscreenbt: 0,
+  "1": 0,
+  first: 1,
+  "first screen": 1,
+  second: 2,
+  "second screen": 2,
+  third: 3,
+  "third screen": 3,
+  fourth: 4,
+  "fourth screen": 4,
+  fifth: 5,
+  "fifth screen": 5,
+  sixth: 6,
+  "sixth screen": 6,
+};
+
+function orderWeight(file: string) {
+  const name = file.replace(/\.[^.]+$/, "").toLowerCase();
+  return mediaOrder[name] ?? 50;
+}
 
 function slugify(value: string) {
   return value
@@ -56,11 +80,7 @@ export async function hydrateProjectMedia(projects: readonly PortfolioProject[])
     const files = await readFolder(folder);
     if (!files.length) return project;
 
-    const ordered = [...files].sort((a, b) => {
-      const aMain = preferredCover.test(a) ? 0 : 1;
-      const bMain = preferredCover.test(b) ? 0 : 1;
-      return aMain - bMain || a.localeCompare(b, undefined, { numeric: true });
-    });
+    const ordered = [...files].sort((a, b) => orderWeight(a) - orderWeight(b) || a.localeCompare(b, undefined, { numeric: true }));
     const cover = ordered.find((file) => imagePattern.test(file));
     return { ...project, folder, image: cover ? publicPath(folder, cover) : project.image, gallery: ordered.map((file) => publicPath(folder, file)) };
   }));
@@ -84,11 +104,7 @@ export async function discoverProjects(projects: readonly PortfolioProject[]) {
     if (knownFolders.has(folder.toLowerCase())) continue;
     const files = await readFolder(folder);
     if (!files.length) continue;
-    const ordered = [...files].sort((a, b) => {
-      const aMain = preferredCover.test(a) ? 0 : 1;
-      const bMain = preferredCover.test(b) ? 0 : 1;
-      return aMain - bMain || a.localeCompare(b, undefined, { numeric: true });
-    });
+    const ordered = [...files].sort((a, b) => orderWeight(a) - orderWeight(b) || a.localeCompare(b, undefined, { numeric: true }));
     const cover = ordered.find((file) => imagePattern.test(file));
     if (!cover) continue;
 

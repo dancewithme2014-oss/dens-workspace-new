@@ -1,4 +1,4 @@
-export type ProjectStatus = "Active" | "Building" | "Research";
+export type ProjectStatus = "Active" | "Building" | "Research" | "Testing";
 
 export type PortfolioProject = {
   number: string;
@@ -11,6 +11,7 @@ export type PortfolioProject = {
   gallery: string[];
   tags: string[];
   folder?: string;
+  websiteUrl?: string;
 };
 
 export const featuredProjects: PortfolioProject[] = [
@@ -48,9 +49,14 @@ export const additionalProjects: PortfolioProject[] = [
     gallery: ["/projects/mmz1/main.png", "/projects/mmz1/clip.mp4", "/projects/mmz1/first.png", "/projects/mmz1/second.jpg"], tags: ["Promo", "Motion", "Web"],
   },
   {
-    number: "07", name: "Golden Lion Dubai", subtitle: "Premium Property Experience",
-    description: "A premium digital showcase built for discovery and conversion.", image: "/projects/golden lion/main screen.png", status: "Active", architectureId: "golden-lion",
-    gallery: ["/projects/golden lion/main screen.png", "/projects/golden lion/first screen.png", "/projects/golden lion/third screen.png", "/projects/golden lion/fourth screen.png", "/projects/golden lion/fifth screen.png"], tags: ["Property", "Dubai", "Platform"],
+    number: "07", name: "Golden House Dubai", subtitle: "Premium Property Experience",
+    description: "A premium digital showcase built for discovery and conversion.", image: "/projects/golden lion/main screen.png", status: "Active", architectureId: "golden-house-dubai",
+    gallery: ["/projects/golden lion/main screen.png", "/projects/golden lion/first screen.png", "/projects/golden lion/second screen.png", "/projects/golden lion/third screen.png"], tags: ["Property", "Dubai", "Platform"],
+  },
+  {
+    number: "08", name: "Chronos", subtitle: "Luxury Watch Experience",
+    description: "A polished luxury watch storefront and product presentation experience.", image: "/projects/CHRONOS/first.png", status: "Testing", architectureId: "chronos",
+    gallery: ["/projects/CHRONOS/first.png", "/projects/CHRONOS/second.png", "/projects/CHRONOS/third.png", "/projects/CHRONOS/fourth.png"], tags: ["Luxury", "Commerce", "Web"], folder: "CHRONOS", websiteUrl: "https://luxury-watch-s.vercel.app/",
   },
 ];
 
