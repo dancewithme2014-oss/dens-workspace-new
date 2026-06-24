@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Antigravity, ByteDance, Claude, Cloudflare, Codex, Cursor, DeepSeek, ElevenLabs, Gemini, Groq, HermesAgent, Manus, Mistral, N8n, OpenClaw, Vercel, Zapier } from "@lobehub/icons";
-import { ArrowRight, AudioLines, Bot, BrainCircuit, Database, GitBranch, Layers3, MonitorUp, Phone, Sparkles, Users } from "lucide-react";
+import { ArrowRight, AudioLines, Bot, BrainCircuit, ChevronDown, ChevronUp, Database, GitBranch, Layers3, MonitorUp, Phone, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import AmbientBackground from "@/components/AmbientBackground";
 import SiteHeader from "@/components/SiteHeader";
@@ -16,6 +16,7 @@ const researchCopy = {
     areas: "Что я исследую", areasNote: "Технологии и системы, которые, на мой взгляд, определят будущее.", ongoing: "Текущие направления",
     experiments: "Активные эксперименты", experimentsNote: "Концепции и прототипы, которые сейчас проходят проверку.", live: "Живые эксперименты",
     tools: "Инструменты и платформы", toolsNote: "Технологии, которые я использую, изучаю и оцениваю.", core: "Основной стек",
+    showMoreTools: "Смотреть еще", hideTools: "Скрыть",
     future: "Потенциал", quote1: "Будущее не открывается предсказанием.", quote2: "Оно открывается через эксперименты.",
     quoteText: "Я исследую технологии, создаю прототипы и тестирую системы, чтобы понять, что дает реальное преимущество.", ctaTitle: "Есть система, которую стоит исследовать?", ctaText: "Обсудим идею, проверим гипотезу и определим следующий практический шаг.", ctaPrimary: "Начать разговор", ctaSecondary: "Смотреть проекты",
   },
@@ -24,6 +25,7 @@ const researchCopy = {
     areas: "What I’m Researching", areasNote: "Technologies and systems I believe will shape the future.", ongoing: "Ongoing research areas",
     experiments: "Active Experiments", experimentsNote: "Concepts and prototypes currently being tested.", live: "Live experiments",
     tools: "Tools & Platforms", toolsNote: "Technologies I actively use, study and evaluate.", core: "Core tools",
+    showMoreTools: "Show more", hideTools: "Hide",
     future: "Potential Future", quote1: "The future is not discovered through prediction.", quote2: "It is discovered through experimentation.",
     quoteText: "I research technologies, build prototypes and test systems to understand what creates real-world leverage.", ctaTitle: "Have a system worth exploring?", ctaText: "Let’s discuss the idea, test the hypothesis and define the next practical step.", ctaPrimary: "Start a conversation", ctaSecondary: "Explore projects",
   },
@@ -96,7 +98,11 @@ const secondaryTools: ToolItem[] = [
 export default function ResearchPage() {
   const { locale, setLocale, theme, setTheme } = useSitePreferences();
   const [toolCategory, setToolCategory] = useState<ToolCategory>("all");
+  const [showAllTools, setShowAllTools] = useState(false);
   const t = researchCopy[locale];
+  const allTools = [...primaryTools, ...secondaryTools];
+  const allVisibleTools = showAllTools ? allTools : allTools.slice(0, 14);
+  const hasMoreAllTools = allTools.length > 14;
   const filteredPrimaryTools = filterTools(primaryTools, toolCategory);
   const filteredSecondaryTools = filterTools(secondaryTools, toolCategory);
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
@@ -120,12 +126,25 @@ export default function ResearchPage() {
 
     <EditorialSection number="03" title={t.tools} note={t.toolsNote} meta={t.core}>
       <div className="tool-filter-bar" aria-label={locale === "ru" ? "Фильтр инструментов" : "Tool filter"}>
-        {toolCategories.map(category => <button type="button" key={category.id} className={toolCategory === category.id ? "active" : ""} onClick={() => setToolCategory(category.id)}>{category[locale]}</button>)}
+        {toolCategories.map(category => <button type="button" key={category.id} className={toolCategory === category.id ? "active" : ""} onClick={() => {
+          setToolCategory(category.id);
+          setShowAllTools(false);
+        }}>{category[locale]}</button>)}
       </div>
-      <div className="tool-rows">
+      {toolCategory === "all" ? <>
+        <div className="tool-rows">
+          <ToolGrid tools={allVisibleTools} locale={locale}/>
+        </div>
+        {hasMoreAllTools && <div className="tool-more-actions">
+          <button type="button" onClick={() => setShowAllTools(current => !current)}>
+            {showAllTools ? t.hideTools : t.showMoreTools}
+            {showAllTools ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+          </button>
+        </div>}
+      </> : <div className="tool-rows">
         {filteredPrimaryTools.length > 0 && <ToolGrid tools={filteredPrimaryTools} locale={locale}/>}
         {filteredSecondaryTools.length > 0 && <ToolGrid tools={filteredSecondaryTools} locale={locale} secondary/>}
-      </div>
+      </div>}
     </EditorialSection>
 
     <section className="research-quote shell"><div><Sparkles/><h2>{t.quote1}<strong>{t.quote2}</strong></h2><i/><p>{t.quoteText}</p><Link href="/about">{locale === "ru" ? "О подходе" : "About the approach"}<ArrowRight/></Link></div><Image src="/research/neural-field.png" alt="" fill sizes="50vw"/></section>

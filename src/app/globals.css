@@ -421,6 +421,7 @@ main>.header{z-index:40}
 /* Research tools use one deliberate row per collection. */
 .tool-rows{display:grid;gap:12px}.tool-grid-secondary{grid-template-columns:repeat(7,1fr)}
 .tool-grid article{transition:transform .22s,border-color .22s}.tool-grid article:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--green) 45%,var(--border))}
+.tool-more-actions{display:flex;justify-content:center;margin-top:18px}.tool-more-actions button{height:42px;padding:0 18px;display:inline-flex;align-items:center;gap:10px;border:1px solid #00ef7866;border-radius:7px;background:#00ef7810;color:var(--green);font:700 9px var(--font-mono);text-transform:uppercase;letter-spacing:.08em;cursor:pointer;transition:transform .2s,border-color .2s,background .2s}.tool-more-actions button:hover{transform:translateY(-2px);border-color:var(--green);background:#00ef781a}.tool-more-actions svg{width:15px;height:15px}
 
 /* Mobile experience: one compact information column plus exactly six screens. */
 .pr-mobile-experience{grid-column:1/-1;display:grid;grid-template-columns:minmax(180px,220px) minmax(0,1fr);gap:22px;align-items:start;margin-top:4px;padding-top:22px;border-top:1px solid var(--border)}
