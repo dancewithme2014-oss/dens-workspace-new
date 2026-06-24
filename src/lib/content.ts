@@ -66,11 +66,11 @@ export const content = {
 } as const;
 
 export const projects = [
-  { number: "01", title: "BizTok", category: ["B2B видеоплатформа", "Live Commerce Platform"], image: "/projects/biztok/mainscreenbt.png" },
-  { number: "02", title: "Virtual COO", category: ["Операционная AI-система", "AI Operating System"], image: "/projects/Virtual COO/main.png" },
-  { number: "03", title: "Warehouse AI", category: ["Складская аналитика", "Inventory Intelligence"], image: "/projects/warehouse/main.png" },
-  { number: "04", title: "Marketing Engine", category: ["Контент и автоматизация", "Content & Automation"], image: "/projects/n8n_news/main.jpg" },
-  { number: "05", title: "Den Workspace", category: ["Персональная AI-экосистема", "Personal Lab & OS"], image: "/ai-universe/main-planet-v13.png" },
+  { number: "01", title: "BizTok", category: ["B2B видеоплатформа", "Live Commerce Platform"], image: "/projects/biztok/mainscreenbt.webp" },
+  { number: "02", title: "Virtual COO", category: ["Операционная AI-система", "AI Operating System"], image: "/projects/Virtual COO/main.webp" },
+  { number: "03", title: "Warehouse AI", category: ["Складская аналитика", "Inventory Intelligence"], image: "/projects/warehouse/main.webp" },
+  { number: "04", title: "Marketing Engine", category: ["Контент и автоматизация", "Content & Automation"], image: "/projects/n8n_news/1.webp" },
+  { number: "05", title: "Den Workspace", category: ["Персональная AI-экосистема", "Personal Lab & OS"], image: "/ai-universe/main-planet-v13.webp" },
 ];
 
 export const workItems = [["AI Automations", "In Progress"], ["Business Systems", "Testing"], ["AI Agents Ecosystem", "Building"], ["Robotics Integrations", "Research"]];

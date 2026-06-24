@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { articleUpdateSchema, transitionSchema } from "@/lib/editorial/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { translateRussianArticleToEnglish, type TranslatedArticle } from "@/lib/editorial/translate";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -22,10 +23,92 @@ export async function PATCH(request: Request, { params }: Context) {
     payload: { ...payload, slug, translationStatus: "reviewed" },
   });
     if (error) return NextResponse.json({ error: error.message.includes("version_conflict") ? "version_conflict" : error.message }, { status: error.message.includes("version_conflict") ? 409 : 400 });
-    return NextResponse.json({ article: data });
+
+    if (payload.locale !== "ru") return NextResponse.json({ article: data });
+
+    const translated = await translateRussianArticleToEnglish({
+      slug,
+      title: payload.title,
+      summary: payload.summary,
+      body: payload.body,
+      seoTitle: payload.seoTitle,
+      seoDescription: payload.seoDescription,
+      telegramText: payload.telegramText,
+      englishComment: payload.englishComment ?? null,
+      tags: payload.tags,
+      category: payload.category,
+      sourceName: payload.sourceName ?? null,
+      sourceUrl: payload.sourceUrl ?? null,
+    });
+
+    if (!translated.translation) return NextResponse.json({ article: data, translationWarning: translated.warning });
+
+    const { data: translatedData, error: translationError } = await supabase.rpc("save_article_localization", {
+      target_article_id: id,
+      expected_version: data.version,
+      target_locale: "en",
+      payload: { ...translated.translation, imageUrl: payload.imageUrl, translationStatus: "auto_translated" },
+    });
+    if (translationError) {
+      console.error("Unable to save English article translation", translationError.message);
+      return NextResponse.json({ article: data, translation: translated.translation, translationWarning: "translation_save_failed" });
+    }
+
+    return NextResponse.json({ article: translatedData, translation: translated.translation, translationModel: translated.model });
   }
 
-  if (payload.locale !== "ru") return NextResponse.json({ error: "editorial_drafts_support_ru_only" }, { status: 400 });
+  const { data: existingDraft } = await supabase.from("editorial_drafts").select("raw_opinion").eq("id", id).maybeSingle();
+  const rawOpinion = normalizeRecord(existingDraft?.raw_opinion);
+
+  if (payload.locale === "en") {
+    const enPatch = {
+      raw_opinion: {
+        ...rawOpinion,
+        en: translationFromPayload(payload, slug),
+        englishComment: payload.englishComment ?? rawOpinion.englishComment ?? null,
+      },
+      version: payload.expectedVersion + 1,
+    };
+    const { data: draft, error: draftError } = await supabase
+      .from("editorial_drafts")
+      .update(enPatch)
+      .eq("id", id)
+      .eq("version", payload.expectedVersion)
+      .select("*")
+      .maybeSingle();
+    if (!draftError && draft) return NextResponse.json({ article: draft });
+    const shouldTryLegacy = draftError?.message.includes("column") || draftError?.message.includes("schema cache") || draftError?.message.includes("version");
+    if (!shouldTryLegacy && !draft) return NextResponse.json({ error: "version_conflict" }, { status: 409 });
+    const { data: legacyDraft, error: legacyError } = await supabase
+      .from("editorial_drafts")
+      .update({ raw_opinion: enPatch.raw_opinion })
+      .eq("id", id)
+      .select("*")
+      .maybeSingle();
+    if (legacyError) return NextResponse.json({ error: legacyError.message }, { status: 400 });
+    if (!legacyDraft) return NextResponse.json({ error: "draft_not_found" }, { status: 404 });
+    return NextResponse.json({ article: { ...legacyDraft, version: payload.expectedVersion + 1 } });
+  }
+
+  const translated = await translateRussianArticleToEnglish({
+    slug,
+    title: payload.title,
+    summary: payload.summary,
+    body: payload.body,
+    seoTitle: payload.seoTitle,
+    seoDescription: payload.seoDescription,
+    telegramText: payload.telegramText,
+    englishComment: payload.englishComment ?? null,
+    tags: payload.tags,
+    category: payload.category,
+    sourceName: payload.sourceName ?? null,
+    sourceUrl: payload.sourceUrl ?? null,
+  });
+  const nextRawOpinion = {
+    ...rawOpinion,
+    englishComment: translated.translation?.englishComment ?? payload.englishComment ?? null,
+    ...(translated.translation ? { en: translated.translation, autoTranslatedAt: new Date().toISOString(), translationModel: translated.model } : {}),
+  };
   const fullPatch = {
     slug,
     title: payload.title,
@@ -40,7 +123,7 @@ export async function PATCH(request: Request, { params }: Context) {
     seo_description: payload.seoDescription,
     telegram_text: payload.telegramText,
     raw_source: { sourceName: payload.sourceName ?? null, sourceUrl: payload.sourceUrl ?? null, imageUrl: payload.imageUrl ?? null },
-    raw_opinion: { englishComment: payload.englishComment ?? null },
+    raw_opinion: nextRawOpinion,
     version: payload.expectedVersion + 1,
   };
   const legacyPatch = {
@@ -56,7 +139,7 @@ export async function PATCH(request: Request, { params }: Context) {
     seo_description: payload.seoDescription,
     telegram_text: payload.telegramText,
     raw_source: { sourceName: payload.sourceName ?? null, sourceUrl: payload.sourceUrl ?? null, imageUrl: payload.imageUrl ?? null },
-    raw_opinion: { englishComment: payload.englishComment ?? null },
+    raw_opinion: nextRawOpinion,
   };
   const { data: draft, error: draftError } = await supabase
     .from("editorial_drafts")
@@ -65,7 +148,7 @@ export async function PATCH(request: Request, { params }: Context) {
     .eq("version", payload.expectedVersion)
     .select("*")
     .maybeSingle();
-  if (!draftError && draft) return NextResponse.json({ article: draft });
+  if (!draftError && draft) return NextResponse.json({ article: draft, translation: translated.translation, translationWarning: translated.warning, translationModel: translated.model });
 
   const shouldTryLegacy = draftError?.message.includes("column") || draftError?.message.includes("schema cache") || draftError?.message.includes("version");
   if (!shouldTryLegacy && !draft) return NextResponse.json({ error: "version_conflict" }, { status: 409 });
@@ -78,7 +161,7 @@ export async function PATCH(request: Request, { params }: Context) {
     .maybeSingle();
   if (legacyError) return NextResponse.json({ error: legacyError.message }, { status: 400 });
   if (!legacyDraft) return NextResponse.json({ error: "draft_not_found" }, { status: 404 });
-  return NextResponse.json({ article: { ...legacyDraft, version: payload.expectedVersion + 1 } });
+  return NextResponse.json({ article: { ...legacyDraft, version: payload.expectedVersion + 1 }, translation: translated.translation, translationWarning: translated.warning, translationModel: translated.model });
 }
 
 export async function POST(request: Request, { params }: Context) {
@@ -127,4 +210,23 @@ export async function POST(request: Request, { params }: Context) {
   if (legacyError) return NextResponse.json({ error: legacyError.message }, { status: 400 });
   if (!legacyDraft) return NextResponse.json({ error: "draft_not_found" }, { status: 404 });
   return NextResponse.json({ article: { ...legacyDraft, version: parsed.data.expectedVersion + 1 } });
+}
+
+function normalizeRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function translationFromPayload(payload: ReturnType<typeof articleUpdateSchema.parse>, slug: string): TranslatedArticle {
+  return {
+    slug,
+    title: payload.title,
+    summary: payload.summary,
+    body: payload.body,
+    seoTitle: payload.seoTitle,
+    seoDescription: payload.seoDescription,
+    telegramText: payload.telegramText,
+    englishComment: payload.englishComment ?? null,
+    tags: payload.tags,
+    category: payload.category,
+  };
 }

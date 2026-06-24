@@ -51,7 +51,7 @@ type EditorialDraftRow = {
   source_url?: string | null;
   source_author?: string | null;
   raw_source?: Record<string, unknown> | null;
-  raw_opinion?: Record<string, unknown> | null;
+    raw_opinion?: Record<string, unknown> | null;
   published_at?: string | null;
   version?: number | null;
   created_at?: string | null;
@@ -69,7 +69,7 @@ export type AdminArticleItem =
       source: "editorial_drafts";
       row: EditorialDraftRow;
       ru: EditorialArticle;
-      en: null;
+    en: EditorialArticle | null;
     };
 
 function mapArticle(row: ArticleRow, locale: ArticleLocale): EditorialArticle | null {
@@ -114,17 +114,19 @@ function draftSlug(row: EditorialDraftRow) {
   return row.slug || slugify(row.title) || row.id;
 }
 
-function mapDraft(row: EditorialDraftRow): EditorialArticle {
+function mapDraft(row: EditorialDraftRow, locale: ArticleLocale = "ru"): EditorialArticle | null {
   const timestamp = row.updated_at ?? row.created_at ?? new Date(0).toISOString();
   const rawSource = row.raw_source ?? {};
   const rawOpinion = row.raw_opinion ?? {};
+  const rawTranslation = rawOpinion.en && typeof rawOpinion.en === "object" ? rawOpinion.en as Record<string, unknown> : null;
+  if (locale === "en" && !rawTranslation) return null;
   const rawImageUrl = typeof rawSource.imageUrl === "string" ? rawSource.imageUrl : null;
   const rawSourceUrl = typeof rawSource.sourceUrl === "string" ? rawSource.sourceUrl : null;
   const rawSourceName = typeof rawSource.sourceName === "string" ? rawSource.sourceName : null;
   const englishComment = typeof rawOpinion.englishComment === "string" ? rawOpinion.englishComment : null;
   return {
     id: row.id,
-    slug: draftSlug(row),
+    slug: locale === "en" ? stringOr(rawTranslation?.slug, draftSlug(row)) : draftSlug(row),
     status: row.status,
     sourcePlatform: "manual",
     sourceName: row.source_name ?? rawSourceName ?? "AI News Radar",
@@ -133,20 +135,28 @@ function mapDraft(row: EditorialDraftRow): EditorialArticle {
     imageUrl: row.image_url ?? rawImageUrl,
     category: row.category ?? "ai",
     tags: row.tags ?? [],
-    locale: "ru",
-    title: row.title,
-    summary: row.summary,
-    body: row.body,
-    seoTitle: row.seo_title ?? null,
-    seoDescription: row.seo_description ?? null,
-    telegramText: row.telegram_text ?? null,
-    englishComment,
+    locale,
+    title: locale === "en" ? stringOr(rawTranslation?.title, row.title) : row.title,
+    summary: locale === "en" ? stringOr(rawTranslation?.summary, row.summary) : row.summary,
+    body: locale === "en" ? stringOr(rawTranslation?.body, row.body) : row.body,
+    seoTitle: locale === "en" ? nullableString(rawTranslation?.seoTitle) : row.seo_title ?? null,
+    seoDescription: locale === "en" ? nullableString(rawTranslation?.seoDescription) : row.seo_description ?? null,
+    telegramText: locale === "en" ? nullableString(rawTranslation?.telegramText) : row.telegram_text ?? null,
+    englishComment: locale === "en" ? nullableString(rawTranslation?.englishComment) : englishComment,
     factWarnings: row.fact_warnings ?? [],
     version: row.version ?? 1,
     publishedAt: row.published_at ?? null,
     createdAt: row.created_at ?? timestamp,
     updatedAt: timestamp,
   };
+}
+
+function stringOr(value: unknown, fallback: string) {
+  return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+function nullableString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
 }
 
 const articleSelect = `
@@ -169,13 +179,11 @@ export async function getPublishedArticles(locale: ArticleLocale, limit = 24) {
     .is("archived_at", null)
     .order("published_at", { ascending: false })
       .limit(limit),
-    locale === "ru"
-      ? supabase
-          .from("editorial_drafts")
-          .select(draftSelect)
-          .eq("status", "published")
-          .limit(limit)
-      : Promise.resolve({ data: [], error: null }),
+    supabase
+      .from("editorial_drafts")
+      .select(draftSelect)
+      .eq("status", "published")
+      .limit(limit),
   ]);
 
   if (articleResult.error) {
@@ -189,7 +197,9 @@ export async function getPublishedArticles(locale: ArticleLocale, limit = 24) {
     .map(row => mapArticle(row, locale))
     .filter((article): article is EditorialArticle => Boolean(article));
 
-  const drafts = ((draftResult.data ?? []) as unknown as EditorialDraftRow[]).map(mapDraft);
+  const drafts = ((draftResult.data ?? []) as unknown as EditorialDraftRow[])
+    .map(row => mapDraft(row, locale))
+    .filter((article): article is EditorialArticle => Boolean(article));
 
   const live = [...articles, ...drafts]
     .sort((a, b) => new Date(b.publishedAt ?? b.updatedAt).getTime() - new Date(a.publishedAt ?? a.updatedAt).getTime())
@@ -203,16 +213,17 @@ export async function getPublishedArticleBySlug(locale: ArticleLocale, slug: str
   const supabase = await createSupabaseServerClient();
   if (!supabase) return fallback;
 
-  if (locale === "ru") {
-    const { data: draftBySlug, error: draftError } = await supabase
-      .from("editorial_drafts")
-      .select(draftSelect)
-      .eq("status", "published")
-      .limit(200);
-    if (!draftError) {
-      const draft = ((draftBySlug ?? []) as unknown as EditorialDraftRow[]).find(item => draftSlug(item) === slug);
-      if (draft) return mapDraft(draft);
-    }
+  const { data: draftBySlug, error: draftError } = await supabase
+    .from("editorial_drafts")
+    .select(draftSelect)
+    .eq("status", "published")
+    .limit(200);
+  if (!draftError) {
+    const draft = ((draftBySlug ?? []) as unknown as EditorialDraftRow[])
+      .map(row => mapDraft(row, locale))
+      .filter((item): item is EditorialArticle => Boolean(item))
+      .find(item => item.slug === slug);
+    if (draft) return draft;
   }
 
   const { data: localization, error: localizationError } = await supabase
@@ -282,8 +293,8 @@ export async function getAdminArticles() {
   const drafts = ((draftResult.data ?? []) as unknown as EditorialDraftRow[]).map(row => ({
     source: "editorial_drafts" as const,
     row,
-    ru: mapDraft(row),
-    en: null,
+    ru: mapDraft(row, "ru")!,
+    en: mapDraft(row, "en"),
   }));
 
   return [...articles, ...drafts]
@@ -307,5 +318,5 @@ export async function getAdminArticle(id: string) {
     .maybeSingle();
   if (draftError || !draft) return null;
   const row = draft as unknown as EditorialDraftRow;
-  return { source: "editorial_drafts" as const, row, ru: mapDraft(row), en: null };
+  return { source: "editorial_drafts" as const, row, ru: mapDraft(row, "ru")!, en: mapDraft(row, "en") };
 }

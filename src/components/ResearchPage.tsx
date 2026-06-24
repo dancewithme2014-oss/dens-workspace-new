@@ -113,7 +113,7 @@ export default function ResearchPage() {
     <SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme} active="research"/>
     <section className="editorial-hero research-hero shell">
       <div><h1>{t.title}<i/></h1><p>{t.intro}</p></div>
-      <div className="research-hero-image"><Image src="/research/research-hero-system.png" alt="" fill priority sizes="(max-width: 800px) 100vw, 55vw"/></div>
+      <div className="research-hero-image"><Image src="/research/research-hero-system.webp" alt="" fill priority sizes="(max-width: 800px) 100vw, 55vw"/></div>
     </section>
 
     <EditorialSection number="01" title={t.areas} note={t.areasNote} meta={t.ongoing}>

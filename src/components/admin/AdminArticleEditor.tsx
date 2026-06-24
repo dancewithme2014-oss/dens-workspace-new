@@ -39,6 +39,8 @@ const copy = {
     save: "Сохранить",
     saving: "Сохранение...",
     saved: "Сохранено",
+    savedTranslated: "Сохранено и переведено на английский",
+    savedTranslationWarning: "Сохранено. Английский перевод не обновлен: проверьте OPENAI_API_KEY.",
     reject: "Отклонить",
     approve: "Подтвердить",
     publish: "Опубликовать на сайт",
@@ -83,6 +85,8 @@ const copy = {
     save: "Save",
     saving: "Saving...",
     saved: "Saved",
+    savedTranslated: "Saved and translated to English",
+    savedTranslationWarning: "Saved. English translation was not updated: check OPENAI_API_KEY.",
     reject: "Reject",
     approve: "Approve",
     publish: "Publish to site",
@@ -133,11 +137,12 @@ export default function AdminArticleEditor({ initial }: { initial: Initial }) {
   const [status, setStatus] = useState(initial.status);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
-  const article = editorLocale === "ru" ? initial.ru : initial.en;
   const [forms, setForms] = useState(() => ({
     ru: fromArticle(initial.ru, initial),
     en: fromArticle(initial.en, initial),
   }));
+  const [hasEnglishTranslation, setHasEnglishTranslation] = useState(Boolean(initial.en));
+  const article = editorLocale === "ru" ? initial.ru : initial.en;
   const form = forms[editorLocale];
   const busy = isPending;
   const imageUrl = form.imageUrl || initial.imageUrl || "";
@@ -155,7 +160,13 @@ export default function AdminArticleEditor({ initial }: { initial: Initial }) {
     const result = await response.json();
     if (!response.ok) return setMessage(result.error === "version_conflict" ? t.stale : `Error: ${result.error}`);
     setVersion(result.article.version ?? version + 1);
-    setMessage(t.saved);
+    if (result.translation) {
+      setForms(current => ({ ...current, en: fromTranslation(result.translation, form) }));
+      setHasEnglishTranslation(true);
+      setMessage(t.savedTranslated);
+      return;
+    }
+    setMessage(result.translationWarning ? t.savedTranslationWarning : t.saved);
   });
 
   const transition = (toStatus: ArticleStatus) => startTransition(async () => {
@@ -176,7 +187,7 @@ export default function AdminArticleEditor({ initial }: { initial: Initial }) {
     <div className="admin-editor-top">
       <div className="admin-tabs">
         <button className={editorLocale === "ru" ? "active" : ""} disabled={busy} onClick={() => setEditorLocale("ru")}>RU</button>
-        <button className={editorLocale === "en" ? "active" : ""} disabled={busy || initial.source === "editorial_drafts"} onClick={() => setEditorLocale("en")}>EN</button>
+        <button className={editorLocale === "en" ? "active" : ""} disabled={busy || (initial.source === "editorial_drafts" && !hasEnglishTranslation)} onClick={() => setEditorLocale("en")}>EN</button>
       </div>
       <span className={`status status-${status}`}>{t.status[status]}</span>
       <small>{initial.source === "editorial_drafts" ? t.supabaseDraft : t.article} · v{version}</small>
@@ -251,6 +262,24 @@ function fromArticle(article: EditorialArticle | null, initial: Initial): FormSt
     seoDescription: article?.seoDescription ?? "",
     telegramText: article?.telegramText ?? "",
     englishComment: article?.englishComment ?? "",
+  };
+}
+
+function fromTranslation(translation: Partial<FormState> & { tags?: string[] }, fallback: FormState): FormState {
+  return {
+    slug: translation.slug ?? fallback.slug,
+    title: translation.title ?? fallback.title,
+    summary: translation.summary ?? fallback.summary,
+    body: translation.body ?? fallback.body,
+    category: translation.category ?? fallback.category,
+    tags: Array.isArray(translation.tags) ? translation.tags.join(", ") : fallback.tags,
+    sourceName: fallback.sourceName,
+    sourceUrl: fallback.sourceUrl,
+    imageUrl: fallback.imageUrl,
+    seoTitle: translation.seoTitle ?? "",
+    seoDescription: translation.seoDescription ?? "",
+    telegramText: translation.telegramText ?? "",
+    englishComment: translation.englishComment ?? "",
   };
 }
 

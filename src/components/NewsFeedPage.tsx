@@ -27,12 +27,12 @@ import type { EditorialArticle } from "@/lib/editorial/types";
 type FeedCategory = "all" | "ai" | "agents" | "robotics" | "automation" | "research" | "startups";
 
 const feedItems = [
-  { id: 1, category: "agents", image: "/ai-universe/chatgpt-v13.png", source: "AI Lab", title: { ru: "Агентные процессы переходят в реальные продукты", en: "Agent workflows move into production" }, description: { ru: "Команды связывают модели, инструменты и контроль качества в устойчивые рабочие процессы.", en: "Teams connect models, tools and quality controls into durable operational workflows." }, tags: ["Agents", "Workflow", "API"], read: 5 },
-  { id: 2, category: "research", image: "/ai-universe/deepseek-v15.png", source: "Research", title: { ru: "Модели рассуждений становятся рабочим инструментом", en: "Reasoning models become operational tools" }, description: { ru: "Исследования смещаются от демонстраций к измеримым задачам программирования и анализа.", en: "Research moves from demos toward measurable coding and analysis tasks." }, tags: ["LLM", "Research", "Reasoning"], read: 7 },
-  { id: 3, category: "robotics", image: "/projects/warehouse/main.png", source: "Robotics", title: { ru: "Робототехника соединяет зрение и действие", en: "Robotics connects vision and action" }, description: { ru: "Компьютерное зрение и планирование движений формируют новый слой складской автоматизации.", en: "Computer vision and motion planning form a new layer of warehouse automation." }, tags: ["Robotics", "Vision", "Industry"], read: 4 },
-  { id: 4, category: "automation", image: "/projects/n8n_news/1.png", source: "n8n", title: { ru: "Автоматизации координируют AI-операции", en: "Automation coordinates AI operations" }, description: { ru: "События, память и интеграции собираются в прозрачные процессы с участием человека.", en: "Events, memory and integrations become transparent human-in-the-loop processes." }, tags: ["Automation", "AI", "Workflows"], read: 6 },
+  { id: 1, category: "agents", image: "/ai-universe/chatgpt-v13.webp", source: "AI Lab", title: { ru: "Агентные процессы переходят в реальные продукты", en: "Agent workflows move into production" }, description: { ru: "Команды связывают модели, инструменты и контроль качества в устойчивые рабочие процессы.", en: "Teams connect models, tools and quality controls into durable operational workflows." }, tags: ["Agents", "Workflow", "API"], read: 5 },
+  { id: 2, category: "research", image: "/ai-universe/deepseek-v15.webp", source: "Research", title: { ru: "Модели рассуждений становятся рабочим инструментом", en: "Reasoning models become operational tools" }, description: { ru: "Исследования смещаются от демонстраций к измеримым задачам программирования и анализа.", en: "Research moves from demos toward measurable coding and analysis tasks." }, tags: ["LLM", "Research", "Reasoning"], read: 7 },
+  { id: 3, category: "robotics", image: "/projects/warehouse/main.webp", source: "Robotics", title: { ru: "Робототехника соединяет зрение и действие", en: "Robotics connects vision and action" }, description: { ru: "Компьютерное зрение и планирование движений формируют новый слой складской автоматизации.", en: "Computer vision and motion planning form a new layer of warehouse automation." }, tags: ["Robotics", "Vision", "Industry"], read: 4 },
+  { id: 4, category: "automation", image: "/projects/n8n_news/1.webp", source: "n8n", title: { ru: "Автоматизации координируют AI-операции", en: "Automation coordinates AI operations" }, description: { ru: "События, память и интеграции собираются в прозрачные процессы с участием человека.", en: "Events, memory and integrations become transparent human-in-the-loop processes." }, tags: ["Automation", "AI", "Workflows"], read: 6 },
   { id: 5, category: "startups", image: "/ai-universe/openhands-clean.png", source: "Venture Signal", title: { ru: "Универсальные роботы выходят в пилотные проекты", en: "Generalist robots enter industrial pilots" }, description: { ru: "Стартапы проверяют, как одна аппаратная платформа работает в нескольких средах.", en: "Startups test how one hardware platform can work across several environments." }, tags: ["Startup", "Hardware", "Robotics"], read: 3 },
-  { id: 6, category: "ai", image: "/ai-universe/qwen-v10.png", source: "AI Research", title: { ru: "Мультимодальные системы ускоряют исследовательскую работу", en: "Multimodal systems accelerate research workflows" }, description: { ru: "Текст, изображение и структурированные данные анализируются в одном рабочем контуре.", en: "Text, imagery and structured data are analyzed in one working context." }, tags: ["Multimodal", "Research", "AI"], read: 6 },
+  { id: 6, category: "ai", image: "/ai-universe/qwen-v10.webp", source: "AI Research", title: { ru: "Мультимодальные системы ускоряют исследовательскую работу", en: "Multimodal systems accelerate research workflows" }, description: { ru: "Текст, изображение и структурированные данные анализируются в одном рабочем контуре.", en: "Text, imagery and structured data are analyzed in one working context." }, tags: ["Multimodal", "Research", "AI"], read: 6 },
 ] as const;
 
 const categories: { id: FeedCategory; ru: string; en: string }[] = [
@@ -90,7 +90,7 @@ export default function NewsFeedPage({ articles }: { articles?: { ru: EditorialA
   const localizedItems = useMemo(() => {
     const live = articles?.[locale] ?? [];
     if (live.length === 0) return feedItems.map(item => ({ id: String(item.id), slug: null as string | null, category: item.category, image: item.image, source: item.source, title: item.title[locale], description: item.description[locale], tags: [...item.tags], read: item.read }));
-    return live.map(item => ({ id: item.id, slug: item.slug, category: normalizeCategory(item.category), image: item.imageUrl ?? "/ai-universe/chatgpt-v13.png", source: item.sourceName, title: item.title, description: item.summary, tags: item.tags, read: Math.max(2, Math.ceil(item.body.split(/\s+/).length / 190)) }));
+    return live.map(item => ({ id: item.id, slug: item.slug, category: normalizeCategory(item.category), image: item.imageUrl ?? "/ai-universe/chatgpt-v13.webp", source: item.sourceName, title: item.title, description: item.summary, tags: item.tags, read: Math.max(2, Math.ceil(item.body.split(/\s+/).length / 190)) }));
   }, [articles, locale]);
 
   const visibleItems = useMemo(() => {
@@ -154,7 +154,7 @@ function normalizeCategory(category: string): FeedCategory {
 }
 
 function NewsCardImage({ src, title }: { src: string; title: string }) {
-  const fallback = "/ai-universe/chatgpt-v13.png";
+  const fallback = "/ai-universe/chatgpt-v13.webp";
   const [imageSrc, setImageSrc] = useState(src || fallback);
   return <div className="news-card-image"><Image src={imageSrc} alt={title} fill sizes="(max-width: 800px) 30vw, 180px" unoptimized onError={() => setImageSrc(fallback)}/></div>;
 }

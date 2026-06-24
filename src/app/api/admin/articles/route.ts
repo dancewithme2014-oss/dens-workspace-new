@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { translateRussianArticleToEnglish } from "@/lib/editorial/translate";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const manualArticleSchema = z.object({
@@ -31,13 +32,33 @@ export async function POST(request: Request) {
   const sourceUrl = payload.sourceUrl || null;
   const imageUrl = payload.imageUrl || null;
   const id = crypto.randomUUID();
+  const slug = `${slugify(payload.title) || "manual"}-${id.slice(0, 8)}`;
+  const translated = await translateRussianArticleToEnglish({
+    slug,
+    title: payload.title,
+    summary: payload.summary,
+    body: payload.body,
+    seoTitle: payload.seoTitle ?? null,
+    seoDescription: payload.seoDescription ?? null,
+    telegramText: payload.telegramText ?? null,
+    englishComment: payload.englishComment ?? null,
+    tags: payload.tags,
+    category: payload.category,
+    sourceName,
+    sourceUrl,
+  });
+  const rawOpinion = {
+    englishComment: (translated.translation?.englishComment ?? payload.englishComment) || null,
+    manual: true,
+    ...(translated.translation ? { en: translated.translation, autoTranslatedAt: new Date().toISOString(), translationModel: translated.model } : {}),
+  };
   const row = {
     external_id: `manual:${id}`,
     source_url: sourceUrl,
     canonical_url: sourceUrl,
     source_name: sourceName,
     source_author: null,
-    slug: `${slugify(payload.title) || "manual"}-${id.slice(0, 8)}`,
+    slug,
     title: payload.title,
     summary: payload.summary,
     body: payload.body,
@@ -51,12 +72,12 @@ export async function POST(request: Request) {
     status,
     published_at: payload.publishNow ? new Date().toISOString() : null,
     raw_source: { sourceName, sourceUrl, imageUrl, manual: true },
-    raw_opinion: { englishComment: payload.englishComment || null, manual: true },
+    raw_opinion: rawOpinion,
     version: 1,
   };
 
   const { data, error } = await supabase.from("editorial_drafts").insert(row).select("*").single();
-  if (!error) return NextResponse.json({ article: data }, { status: 201 });
+  if (!error) return NextResponse.json({ article: data, translation: translated.translation, translationWarning: translated.warning }, { status: 201 });
 
   const legacyRow = {
     external_id: row.external_id,
@@ -80,7 +101,7 @@ export async function POST(request: Request) {
   };
   const { data: legacyData, error: legacyError } = await supabase.from("editorial_drafts").insert(legacyRow).select("*").single();
   if (legacyError) return NextResponse.json({ error: legacyError.message }, { status: 400 });
-  return NextResponse.json({ article: legacyData }, { status: 201 });
+  return NextResponse.json({ article: legacyData, translation: translated.translation, translationWarning: translated.warning }, { status: 201 });
 }
 
 function slugify(value: string) {

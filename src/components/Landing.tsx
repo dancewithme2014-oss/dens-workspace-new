@@ -202,8 +202,8 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
         <div className="hero-buttons hero-buttons-desktop"><button className="primary" onClick={() => router.push("/projects")}>{t.explore}<ArrowDownRight/></button><button className="text-button" onClick={() => scrollTo("ai-business")}>{t.work}<i/></button></div>
         <div className="hero-mobile-stage">
           <div className="hero-mobile-art" aria-hidden="true">
-            <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.png" alt="" fill sizes="100vw" priority/>
-            <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.png" alt="" fill sizes="100vw" priority/>
+            <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.webp" alt="" fill sizes="100vw" priority/>
+            <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.webp" alt="" fill sizes="100vw" priority/>
           </div>
           <div className="hero-buttons hero-buttons-mobile"><button className="primary" onClick={() => router.push("/projects")}>{t.explore}<ArrowDownRight/></button><button className="text-button" onClick={() => scrollTo("ai-business")}>{t.work}<i/></button></div>
         </div>
@@ -216,8 +216,8 @@ export default function Landing({ projects }: { projects: PortfolioProject[] }) 
           </>}
         </div>
         <div className="hero-media-mobile">
-          <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.png" alt="" width={1672} height={940} sizes="100vw" loading="eager"/>
-          <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.png" alt="" width={1673} height={940} sizes="100vw" loading="eager"/>
+          <Image className="theme-art theme-art-dark" src="/landing/hero-robot-dark.webp" alt="" width={1672} height={940} sizes="100vw" loading="eager"/>
+          <Image className="theme-art theme-art-light" src="/landing/hero-robot-light.webp" alt="" width={1673} height={940} sizes="100vw" loading="eager"/>
         </div>
       </div>
       <div className="hero-panels">

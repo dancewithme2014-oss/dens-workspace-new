@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Atom, Bot, BrainCircuit, Clock3, ExternalLink, GitBranch, Layers3, Mail, MapPin, Mic2, MonitorSmartphone, Network, Orbit, Play, Radar, Workflow } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SystemArchitecture from "@/components/SystemArchitecture";
@@ -218,6 +217,7 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
   const [activeImage, setActiveImage] = useState(0);
   const [showDesktopHeroMedia, setShowDesktopHeroMedia] = useState(false);
   const [showMore, setShowMore] = useState(initialIndex >= featuredProjects.length);
+  const additionalProjectsRef = useRef<HTMLDivElement>(null);
   const t = copy[locale];
   const project = allProjects[selected];
   const images = project.gallery;
@@ -235,6 +235,17 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
     return () => media.removeEventListener("change", update);
   }, []);
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const toggleMoreProjects = () => {
+    if (showMore) {
+      setShowMore(false);
+      return;
+    }
+
+    setShowMore(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => additionalProjectsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" }));
+    });
+  };
 
   return <main className="projects-page projects-redesign">
     <SiteHeader locale={locale} setLocale={setLocale} theme={theme} setTheme={setTheme} active="projects"/>
@@ -242,8 +253,8 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
     <section className="pr-hero shell">
       <div className="pr-hero-art" aria-hidden="true">
         {showDesktopHeroMedia ? <><LoopingVideo key={theme} src={theme === "dark" ? "/projects/projects-hero-dark.mp4" : "/projects/projects-hero-light.mp4"}/><span className="video-corner-mask" /></> : <>
-          <Image className="theme-art theme-art-dark" src="/projects/projects-hero-dark.png" alt="" fill sizes="100vw" loading="eager"/>
-          <Image className="theme-art theme-art-light" src="/projects/projects-hero-light.png" alt="" fill sizes="100vw" loading="eager"/>
+          <Image className="theme-art theme-art-dark" src="/projects/projects-hero-dark.webp" alt="" fill sizes="100vw" loading="eager"/>
+          <Image className="theme-art theme-art-light" src="/projects/projects-hero-light.webp" alt="" fill sizes="100vw" loading="eager"/>
         </>}
       </div>
       <div className="pr-hero-copy">
@@ -261,12 +272,12 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
         <div className="pr-card-image"><Image src={item.image} alt={item.name} fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
         <h3>{item.name}</h3><p>{localizeProjectText(item.subtitle, locale)}</p><div className="pr-tags">{item.tags.map(tag => <span key={tag}>{localizeProjectText(tag, locale)}</span>)}</div>
       </button>)}</div>
-      <AnimatePresence initial={false}>{showMore && additionalProjects.length > 0 && <motion.div className="pr-featured-grid pr-featured-more" initial={{ opacity: 0, height: 0, y: -10 }} animate={{ opacity: 1, height: "auto", y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} transition={{ duration: .3 }}>{additionalProjects.map((item, index) => <button className={`pr-featured-card ${selected === featuredProjects.length + index ? "selected" : ""}`} key={item.name} onClick={() => { setSelected(featuredProjects.length + index); setActiveImage(0); jump("showcase"); }}>
+      {showMore && additionalProjects.length > 0 && <div ref={additionalProjectsRef} className="pr-featured-grid pr-featured-more">{additionalProjects.map((item, index) => <button className={`pr-featured-card ${selected === featuredProjects.length + index ? "selected" : ""}`} key={item.name} onClick={() => { setSelected(featuredProjects.length + index); setActiveImage(0); jump("showcase"); }}>
         <div className="pr-card-top"><span>{item.number}</span><b className={`status ${item.status.toLowerCase()}`}>{localizeProjectStatus(item.status, locale)}</b></div>
         <div className="pr-card-image"><Image src={item.image} alt={item.name} fill sizes="(max-width: 700px) 78vw, 20vw"/></div>
         <h3>{item.name}</h3><p>{localizeProjectText(item.subtitle, locale)}</p><div className="pr-tags">{item.tags.map(tag => <span key={tag}>{localizeProjectText(tag, locale)}</span>)}</div>
-      </button>)}</motion.div>}</AnimatePresence>
-      {additionalProjects.length > 0 && <div className="pr-show-more"><button type="button" onClick={() => setShowMore(value => !value)} aria-expanded={showMore}>{showMore ? t.showLess : t.showMore}<ArrowRight/></button></div>}
+      </button>)}</div>}
+      {additionalProjects.length > 0 && <div className="pr-show-more"><button type="button" onClick={toggleMoreProjects} aria-expanded={showMore}>{showMore ? t.showLess : t.showMore}<ArrowRight/></button></div>}
     </section>
 
     <section className="pr-section shell" id="showcase">

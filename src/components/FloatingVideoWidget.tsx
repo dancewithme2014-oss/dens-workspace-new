@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSitePreferences } from "@/lib/preferences";
 
 const videoSrc = "/about/workspace.mp4";
-const posterSrc = "/about/workspace.png";
+const posterSrc = "/about/workspace.webp";
 
 export default function FloatingVideoWidget() {
   const pathname = usePathname();

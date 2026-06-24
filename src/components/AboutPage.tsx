@@ -52,7 +52,7 @@ export default function AboutPage() {
       <article><p className="editorial-kicker"><span>01</span>{t.eyebrow}</p><h1>{t.title}<i/></h1><h2>{t.subtitle}</h2><p>{t.intro}</p><b>{t.goal}</b><ul>{t.bullets.map(item => <li key={item}>{item}</li>)}</ul></article>
       <figure className="about-video">
         <video src="/about/workspace.mp4" autoPlay muted playsInline preload="metadata" aria-label={locale === "ru" ? "Денис работает над ИИ-системами" : "Denis working on AI systems"}/>
-        <Image className="about-mobile-poster" src="/about/workspace.png" alt={locale === "ru" ? "Денис работает над ИИ-системами" : "Denis working on AI systems"} fill sizes="100vw" loading="eager"/>
+        <Image className="about-mobile-poster" src="/about/workspace.webp" alt={locale === "ru" ? "Денис работает над ИИ-системами" : "Denis working on AI systems"} fill sizes="100vw" loading="eager"/>
         <div className="about-video-badges">
           <div><UserRound/><p><strong>{locale === "ru" ? "ДЕНИС" : "DENIS"}</strong><span>{locale === "ru" ? "Создатель · ИИ-системы · Автоматизация" : "Builder · AI Systems · Automation"}</span></p></div>
           <div><TrendingUp/><p><strong>{locale === "ru" ? "Сейчас исследую" : "Currently Exploring"}</strong><span>{locale === "ru" ? "ИИ · Бизнес · Маркетинговые системы" : "AI · Business · Marketing Systems"}</span></p></div>

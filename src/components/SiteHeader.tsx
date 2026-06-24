@@ -39,7 +39,7 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
       <nav className="desktop-nav">{labels.map((label, index) => <Link key={label} href={destinations[index]} className={(active === "home" && index === 0) || (active === "projects" && index === 1) || (active === "research" && index === 2) || (active === "news" && index === 3) || (active === "about" && index === 4) ? "active" : ""}>{label}</Link>)}</nav>
       <div className="header-actions">
         <div className="desktop-preferences"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
-        <Link className="build-button" href="/#start-conversation"><span className="build-label-desktop">{locale === "ru" ? "Обсудить проект" : "Let’s Build"}</span><span className="build-label-mobile">Let’s Build</span><ArrowRight size={15}/></Link>
+        <Link className="build-button" href="/#start-conversation"><span className="build-label-desktop">{locale === "ru" ? "Обсудить проект" : "Let’s Build"}</span><span className="build-label-mobile">{locale === "ru" ? "Обсудить" : "Let’s Build"}</span><ArrowRight size={15}/></Link>
       </div>
     </header>
 
