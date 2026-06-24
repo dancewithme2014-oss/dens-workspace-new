@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ByteDance, Claude, Codex, DeepSeek, ElevenLabs, Gemini, HermesAgent, Manus, N8n, OpenClaw, Zapier } from "@lobehub/icons";
-import { ArrowRight, AudioLines, Bot, BrainCircuit, Database, Layers3, MonitorUp, Phone, Sparkles, Users } from "lucide-react";
+import { Antigravity, ByteDance, Claude, Cloudflare, Codex, Cursor, DeepSeek, ElevenLabs, Gemini, Groq, HermesAgent, Manus, Mistral, N8n, OpenClaw, Vercel, Zapier } from "@lobehub/icons";
+import { ArrowRight, AudioLines, Bot, BrainCircuit, Database, GitBranch, Layers3, MonitorUp, Phone, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import AmbientBackground from "@/components/AmbientBackground";
 import SiteHeader from "@/components/SiteHeader";
@@ -74,9 +74,16 @@ const primaryTools: ToolItem[] = [
   { name: "Gemini", icon: Gemini.Color, image: null, description: { ru: "Мультимодальные рассуждения и масштабные ИИ-исследования.", en: "Multimodal reasoning and large-scale AI research." }, state: { ru: "Исследую", en: "Research" }, categories: ["text", "video", "agents"] },
   { name: "ElevenLabs", icon: ElevenLabs, image: null, description: { ru: "Синтез голоса и разговорные интерфейсы.", en: "Voice synthesis and conversational interfaces." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["voice"] },
   { name: "DeepSeek", icon: DeepSeek.Color, image: null, description: { ru: "Открытые модели рассуждений и программирования.", en: "Open-source reasoning and coding models." }, state: { ru: "Оцениваю", en: "Evaluating" }, categories: ["text", "code"] },
+  { name: "GitHub", icon: GitBranch, image: null, description: { ru: "Репозитории, pull request-процессы и совместная разработка.", en: "Repositories, pull request workflows and collaborative development." }, state: { ru: "Каждый день", en: "Daily Use" }, categories: ["code", "automation"] },
+  { name: "Vercel", icon: Vercel, image: null, description: { ru: "Деплой, preview-среды и production-инфраструктура для сайтов.", en: "Deployments, preview environments and production infrastructure for websites." }, state: { ru: "Каждый день", en: "Daily Use" }, categories: ["code", "automation"] },
+  { name: "Cloudflare", icon: Cloudflare.Color, image: null, description: { ru: "Защита, DNS, edge-инфраструктура и контроль трафика.", en: "Security, DNS, edge infrastructure and traffic control." }, state: { ru: "Использую", en: "Using" }, categories: ["automation", "data"] },
 ];
 
 const secondaryTools: ToolItem[] = [
+  { name: "Groq", icon: Groq, image: null, description: { ru: "Быстрый inference для LLM-сценариев и прототипов.", en: "Fast inference for LLM workflows and prototypes." }, state: { ru: "Оцениваю", en: "Evaluating" }, categories: ["text", "code"] },
+  { name: "Mistral", icon: Mistral.Color, image: null, description: { ru: "Европейские модели для текста, агентов и бизнес-сценариев.", en: "European models for text, agents and business workflows." }, state: { ru: "Исследую", en: "Research" }, categories: ["text", "agents"] },
+  { name: "Cursor", icon: Cursor, image: null, description: { ru: "ИИ-среда разработки для быстрого прототипирования и рефакторинга.", en: "AI coding environment for rapid prototyping and refactoring." }, state: { ru: "Использую", en: "Using" }, categories: ["code", "agents"] },
+  { name: "Antigravity", icon: Antigravity.Color, image: null, description: { ru: "Агентная среда разработки и эксперименты с автономным кодингом.", en: "Agentic development environment and autonomous coding experiments." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["code", "agents"] },
   { name: "Seedance 2", icon: ByteDance.Color, image: null, description: { ru: "Генерация и производство видео нового поколения.", en: "Next-generation generative video production." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["video"] },
   { name: "Zapier", icon: Zapier.Color, image: null, description: { ru: "Автоматизация приложений и бизнес-процессов.", en: "Application and business workflow automation." }, state: { ru: "Использую", en: "Using" }, categories: ["automation"] },
   { name: "HeyGen", icon: null, image: "/brands/heygen.ico", description: { ru: "Видеоаватары, локализация и синтетические медиа.", en: "Video avatars, localization and synthetic media." }, state: { ru: "Тестирую", en: "Testing" }, categories: ["video", "voice"] },

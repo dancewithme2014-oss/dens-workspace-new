@@ -34,7 +34,7 @@ const copy = {
     mobileBullets: ["Быстрый поиск бизнеса", "Коммерция через прямые эфиры", "Прямая запись и покупка"],
     contactQuestion: "Есть проект, который стоит реализовать?",
     contactPrompt: "Отправьте мне идею, узкое место или систему, которую хотите создать.",
-    response: "Ответ в течение 24–48 часов",
+    response: "Моментально",
     connections: "Связи системы",
     research: "Исследования и эксперименты",
     researchNote: "Направления, которые мы изучаем сейчас.",
@@ -73,7 +73,7 @@ const copy = {
     mobileBullets: ["Fast business discovery", "Stream-first commerce", "Direct booking and purchase actions"],
     contactQuestion: "Have a project worth building?",
     contactPrompt: "Send me the idea, bottleneck or system you want to create.",
-    response: "Response within 24–48 hours",
+    response: "Instantly",
     connections: "System Connections",
     research: "Research & Exploration",
     researchNote: "Areas currently being explored.",
@@ -95,24 +95,113 @@ const copy = {
 
 const showcaseCopy = {
   ru: {
-    description: "ИИ-платформа, которая объединяет создателей, бренды и покупателей через интерактивные live-shopping сценарии.",
-    problem: "Покупки в прямом эфире разрознены, сложны и лишены данных в реальном времени.",
-    solution: "BizTok объединяет трансляции, вовлечение, платежи и аналитику в одной платформе.",
-    features: ["Live-трансляции", "Чат и вовлечение", "ИИ-рекомендации", "Платежи и аналитика"],
-    focus: "Улучшаем discovery, инструменты авторов и ИИ-рекомендации.",
-    solves: "Большинство прямых эфиров привлекают внимание, но не превращают его в продажи. BizTok сокращает путь между просмотром и покупкой.",
-    founder: "Обычные каталоги помогают людям находить бизнес. Социальные сети помогают бизнесу привлекать внимание. BizTok соединяет оба мира.",
+    biztok: {
+      features: ["Live-трансляции", "Чат и вовлечение", "ИИ-рекомендации", "Платежи и аналитика"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "Realtime", "OpenAI", "Payments"],
+      solves: "Большинство прямых эфиров привлекают внимание, но не превращают его в продажи. BizTok сокращает путь между просмотром, доверием и покупкой.",
+      founder: "Обычные каталоги помогают людям находить бизнес. Социальные сети помогают бизнесу привлекать внимание. BizTok соединяет оба мира в один коммерческий сценарий.",
+    },
+    "osa-consulting": {
+      features: ["Позиционирование услуг", "Квалификация заявок", "Контентные страницы", "Маршрутизация лидов"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "Analytics"],
+      solves: "Консалтинговые услуги часто выглядят абстрактно, а заявки приходят без контекста. OSA Consulting превращает экспертность в понятный путь: от интереса до квалифицированного обращения.",
+      founder: "Для консалтинга сайт должен быть не витриной, а системой доверия. Он объясняет подход, собирает правильные данные и помогает быстрее понять, с кем и как работать.",
+    },
+    "virtual-coo": {
+      features: ["Панель руководителя", "Приоритеты и задачи", "ИИ-рекомендации", "Операционные сигналы"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "BI Layer"],
+      solves: "В бизнесе много задач, встреч и метрик, но мало единого операционного ритма. Virtual COO собирает приоритеты, данные и действия в одно рабочее пространство.",
+      founder: "Операционная система не должна просто показывать данные. Она должна помогать руководителю каждый день видеть главное, принимать решения и запускать следующие действия.",
+    },
+    "warehouse-app": {
+      features: ["Учет запасов", "Визуальный контроль", "Оповещения", "Прогнозирование дефицита"],
+      stack: ["Next.js", "Computer Vision", "Supabase", "PostgreSQL", "Realtime Events", "WMS/ERP"],
+      solves: "Склад теряет деньги, когда данные об остатках расходятся с реальностью. Warehouse App связывает визуальный контроль, события и аналитику запасов в одну систему.",
+      founder: "Складская автоматизация ценна только тогда, когда она помогает команде действовать быстрее. Поэтому фокус здесь не на красивых графиках, а на точных сигналах и понятных действиях.",
+    },
+    "n8n-news": {
+      features: ["Мониторинг источников", "Редакционные черновики", "Публикация новостей", "Telegram-сценарии"],
+      stack: ["n8n", "Supabase", "Next.js", "OpenAI", "Vercel Blob", "Telegram API"],
+      solves: "Ручной мониторинг новостей забирает время и быстро становится хаотичным. N8N News Autoposting собирает источники, готовит материалы и проводит публикацию через управляемый редакционный поток.",
+      founder: "Хорошая автоматизация контента не должна публиковать все подряд. Она должна собирать сигнал, оставлять место редактору и сохранять контроль над качеством.",
+    },
+    "mmz1-promo": {
+      features: ["Кинематографичный лендинг", "Видео-презентация", "Сценарий вовлечения", "Контактный CTA"],
+      stack: ["Next.js", "Motion UI", "Video Assets", "Vercel", "Responsive UI", "Analytics"],
+      solves: "Промо-страницы часто показывают продукт, но не создают ощущения бренда. MMZ1 Promo строит эмоциональную подачу через медиа, движение и четкий путь к контакту.",
+      founder: "Для промо-проекта важна не только информация, но и темп. Пользователь должен быстро почувствовать атмосферу, понять предложение и получить следующий шаг.",
+    },
+    "golden-house-dubai": {
+      features: ["Премиальная витрина", "Каталог объектов", "Заявки покупателей", "Контент о локации"],
+      stack: ["Next.js", "Supabase", "Property CMS", "Lead Forms", "Vercel", "Analytics"],
+      solves: "Покупка недвижимости в Дубае требует доверия, статуса и ясной навигации. Golden House Dubai превращает премиальную подачу объектов в понятный путь к заявке.",
+      founder: "В недвижимости дизайн должен работать на доверие. Красивые экраны важны, но еще важнее быстро довести человека до объекта, вопроса и контакта.",
+    },
+    chronos: {
+      features: ["Каталог часов", "Премиальная подача", "Карточки коллекций", "Переход к покупке"],
+      stack: ["Next.js", "Vercel", "Product Catalog", "Motion UI", "Responsive UI", "Analytics"],
+      solves: "В премиальных товарах пользователь покупает не только характеристики, но и ощущение ценности. Chronos выстраивает витрину часов вокруг визуального доверия и удобного выбора.",
+      founder: "Luxury-интерфейс должен быть спокойным, точным и уверенным. В Chronos фокус на том, чтобы товар выглядел дорого, а путь пользователя оставался простым.",
+    },
   },
   en: {
-    description: "A live-commerce platform that connects creators, brands and customers through interactive shopping experiences.",
-    problem: "Live shopping is fragmented, complex and lacks real-time interaction tools.",
-    solution: "BizTok unifies streaming, engagement, payments and analytics in one platform.",
-    features: ["Live shopping & streaming", "Real-time chat", "AI recommendations", "Payments & analytics"],
-    focus: "Improving discovery, creator tools and AI recommendations.",
-    solves: "Most livestreams generate attention but fail to generate transactions. BizTok was designed to reduce the distance between watching and buying.",
-    founder: "Traditional directories help people find businesses. Social media helps businesses find attention. BizTok was built to connect both worlds.",
+    biztok: {
+      features: ["Live shopping streams", "Chat and engagement", "AI recommendations", "Payments and analytics"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "Realtime", "OpenAI", "Payments"],
+      solves: "Most livestreams generate attention but fail to turn it into transactions. BizTok reduces the distance between watching, trust and buying.",
+      founder: "Traditional directories help people find businesses. Social media helps businesses earn attention. BizTok connects both worlds into one commercial flow.",
+    },
+    "osa-consulting": {
+      features: ["Service positioning", "Lead qualification", "Content pages", "Lead routing"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "Analytics"],
+      solves: "Consulting services often feel abstract, and inquiries arrive without context. OSA Consulting turns expertise into a clear path from interest to qualified conversation.",
+      founder: "A consulting website should be more than a brochure. It should build trust, capture the right context and make it easier to decide who to work with.",
+    },
+    "virtual-coo": {
+      features: ["Executive dashboard", "Priorities and tasks", "AI recommendations", "Operational signals"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "BI Layer"],
+      solves: "Businesses have many tasks, meetings and metrics, but rarely one operating rhythm. Virtual COO brings priorities, data and action into one workspace.",
+      founder: "An operating system should not just display data. It should help leaders see what matters, make decisions and trigger the next action.",
+    },
+    "warehouse-app": {
+      features: ["Inventory tracking", "Visual control", "Operational alerts", "Shortage forecasting"],
+      stack: ["Next.js", "Computer Vision", "Supabase", "PostgreSQL", "Realtime Events", "WMS/ERP"],
+      solves: "Warehouses lose money when stock data drifts away from reality. Warehouse App connects visual control, events and inventory intelligence into one system.",
+      founder: "Warehouse automation is valuable only when it helps teams act faster. The focus is not pretty charts, but accurate signals and clear next steps.",
+    },
+    "n8n-news": {
+      features: ["Source monitoring", "Editorial drafts", "News publishing", "Telegram workflows"],
+      stack: ["n8n", "Supabase", "Next.js", "OpenAI", "Vercel Blob", "Telegram API"],
+      solves: "Manual news monitoring consumes time and quickly becomes chaotic. N8N News Autoposting collects sources, prepares materials and runs publishing through a controlled editorial flow.",
+      founder: "Good content automation should not publish everything blindly. It should collect signal, keep an editor in control and preserve quality.",
+    },
+    "mmz1-promo": {
+      features: ["Cinematic landing page", "Video presentation", "Engagement flow", "Contact CTA"],
+      stack: ["Next.js", "Motion UI", "Video Assets", "Vercel", "Responsive UI", "Analytics"],
+      solves: "Promo pages often show a product without creating a brand feeling. MMZ1 Promo builds emotional momentum through media, motion and a clear path to contact.",
+      founder: "For a promo project, information is only half the work. The user needs to feel the atmosphere, understand the offer and see the next step.",
+    },
+    "golden-house-dubai": {
+      features: ["Premium showcase", "Property catalog", "Buyer inquiries", "Location content"],
+      stack: ["Next.js", "Supabase", "Property CMS", "Lead Forms", "Vercel", "Analytics"],
+      solves: "Dubai real-estate discovery requires trust, status and clear navigation. Golden House Dubai turns premium property presentation into a direct path to inquiry.",
+      founder: "In real estate, design has to create trust. Beautiful screens matter, but the real job is helping a buyer move from interest to property, question and contact.",
+    },
+    chronos: {
+      features: ["Watch catalog", "Premium presentation", "Collection cards", "Purchase intent"],
+      stack: ["Next.js", "Vercel", "Product Catalog", "Motion UI", "Responsive UI", "Analytics"],
+      solves: "In premium goods, people buy more than specifications; they buy a sense of value. Chronos builds a watch storefront around visual trust and simple discovery.",
+      founder: "A luxury interface should feel calm, precise and confident. Chronos focuses on making the product feel premium while keeping the user journey simple.",
+    },
   },
 } as const;
+
+type ShowcaseDetail = {
+  readonly features: readonly string[];
+  readonly stack: readonly string[];
+  readonly solves: string;
+  readonly founder: string;
+};
 
 const research = [
   ["AI Agents", Bot, "Exploring"], ["Voice AI", Mic2, "Testing"], ["Computer Vision", Radar, "Exploring"], ["Knowledge Systems", BrainCircuit, "Researching"],
@@ -134,7 +223,8 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
   const images = project.gallery;
   const mobileScreens = mobileMedia[project.name] ?? [];
   const hasMobileExperience = mobileScreens.length === 6;
-  const detail = showcaseCopy[locale];
+  const detailMap = showcaseCopy[locale] as Record<string, ShowcaseDetail>;
+  const detail = detailMap[project.architectureId] ?? detailMap.biztok;
 
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
@@ -188,7 +278,7 @@ export default function ProjectsPage({ projects, mobileMedia, initialProjectId }
           {project.websiteUrl && <a className="pr-project-link" href={project.websiteUrl} target="_blank" rel="noreferrer">{t.openProject}<ExternalLink/></a>}
           <div className="pr-case-rule"/>
           <h3>{t.solves}</h3><p>{detail.solves}</p>
-          <div className="pr-case-columns"><div><h3>{t.features}</h3><ul>{detail.features.map(item => <li key={item}>{localizeAi(item, locale)}</li>)}</ul></div><div><h3>{t.stack}</h3><ul className="pr-stack-list"><li>Next.js</li><li>Supabase</li><li>PostgreSQL</li><li>OpenAI</li><li>n8n</li><li>WebSockets</li></ul></div></div>
+          <div className="pr-case-columns"><div><h3>{t.features}</h3><ul>{detail.features.map(item => <li key={item}>{item}</li>)}</ul></div><div><h3>{t.stack}</h3><ul className="pr-stack-list">{detail.stack.map(item => <li key={item}>{item}</li>)}</ul></div></div>
           <blockquote><b>{t.founder}</b><p>{detail.founder}</p></blockquote>
         </article>
         <div className="pr-case-media">
@@ -244,8 +334,8 @@ function localizeProjectText(text: string, locale: "ru" | "en") {
   if (locale === "en") return text;
   const translations: Record<string, string> = {
     "Live Commerce Platform": "Платформа live-commerce", "AI Consulting Platform": "Платформа ИИ-консалтинга", "AI Operating System": "Операционная ИИ-система", "Inventory Intelligence": "Интеллектуальное управление складом", "Content Automation": "Автоматизация контента", "Interactive Brand Promo": "Интерактивный бренд-промо", "Premium Property Experience": "Премиальный сервис недвижимости", "Luxury Watch Experience": "Премиальный опыт выбора часов",
-    "AI-powered live shopping and business discovery platform.": "ИИ-платформа для прямых продаж и поиска бизнеса.", "Consulting, automation and business intelligence in one digital experience.": "Консалтинг, автоматизация и бизнес-аналитика в единой цифровой среде.", "An AI operating layer for daily execution, decisions and growth.": "ИИ-уровень для ежедневной работы, решений и роста.", "Computer vision and automation for warehouse operations.": "Компьютерное зрение и автоматизация складских операций.", "Automated research, production and publishing workflow.": "Автоматизированный процесс исследования, производства и публикации.", "A cinematic digital promotion experience.": "Кинематографичный цифровой промо-проект.", "A premium digital showcase built for discovery and conversion.": "Премиальная цифровая витрина для поиска и конверсии.", "A polished luxury watch storefront and product presentation experience.": "Выверенный премиальный storefront для часов и презентации коллекции.",
-    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость", Luxury: "Люкс",
+    "Live-commerce platform for streams, business discovery and purchase intent.": "Платформа live-commerce для эфиров, поиска бизнеса и перехода к покупке.", "AI consulting site that packages offers, qualifies leads and routes requests.": "Сайт ИИ-консалтинга, который упаковывает услуги, квалифицирует лиды и направляет заявки.", "AI operating workspace for priorities, metrics, tasks and execution.": "Операционное ИИ-пространство для приоритетов, метрик, задач и выполнения.", "Inventory intelligence system for stock visibility, visual control and alerts.": "Система складской аналитики для видимости остатков, визуального контроля и оповещений.", "Editorial automation pipeline for source monitoring, drafts and publishing.": "Редакционный конвейер для мониторинга источников, черновиков и публикации.", "Motion-led promotional website for brand storytelling and conversion.": "Промо-сайт с акцентом на движение, историю бренда и конверсию.", "Premium Dubai real estate showcase for property discovery and qualified inquiries.": "Премиальная витрина недвижимости в Дубае для поиска объектов и квалифицированных заявок.", "Luxury watch storefront for catalog browsing, product storytelling and purchase intent.": "Премиальная витрина часов для каталога, продуктовой подачи и намерения к покупке.",
+    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость", Luxury: "Люкс", Dubai: "Дубай",
   };
   return translations[text] ?? localizeAi(text, locale);
 }
