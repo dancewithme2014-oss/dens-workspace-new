@@ -60,8 +60,13 @@ export const additionalProjects: PortfolioProject[] = [
   },
   {
     number: "09", name: "LightBI", subtitle: "Business Intelligence",
-    description: "Business intelligence platform for data visualization and analytics.", image: "/projects/LightBI/1.png", status: "Active", architectureId: "lightbi",
+    description: "Lightweight BI platform for real-time data exploration, dashboards and team analytics.", image: "/projects/LightBI/1.png", status: "Active", architectureId: "lightbi",
     gallery: ["/projects/LightBI/1.png", "/projects/LightBI/2.png", "/projects/LightBI/3.png", "/projects/LightBI/4.png"], tags: ["BI", "Analytics", "Data"],
+  },
+  {
+    number: "10", name: "Website", subtitle: "Portfolio & Brand System",
+    description: "Personal portfolio and brand platform for project showcase, client engagement and system demonstration.", image: "/projects/Website/1.png", status: "Active", architectureId: "website",
+    gallery: ["/projects/Website/1.png", "/projects/Website/2.png", "/projects/Website/3.png", "/projects/Website/4.png"], tags: ["Portfolio", "Brand", "Web"],
   },
 ];
 

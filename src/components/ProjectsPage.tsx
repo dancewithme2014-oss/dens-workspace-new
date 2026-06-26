@@ -142,6 +142,18 @@ const showcaseCopy = {
       solves: "В премиальных товарах пользователь покупает не только характеристики, но и ощущение ценности. Chronos выстраивает витрину часов вокруг визуального доверия и удобного выбора.",
       founder: "Luxury-интерфейс должен быть спокойным, точным и уверенным. В Chronos фокус на том, чтобы товар выглядел дорого, а путь пользователя оставался простым.",
     },
+    lightbi: {
+      features: ["Дашборды реального времени", "Визуальное исследование данных", "Командная аналитика", "Гибкая интеграция источников"],
+      stack: ["Next.js", "D3.js", "Supabase", "PostgreSQL", "WebSockets", "Analytics Engine"],
+      solves: "Команды тонут в сырых данных, а BI-системы либо перегружены, либо слишком медленные. LightBI даёт лёгкий, быстрый слой аналитики между данными и решением.",
+      founder: "BI не должна быть отдельным проектом с выделенной командой. Она должна работать как прозрачный слой — подключаться к любым данным и отвечать на вопросы без шума.",
+    },
+    website: {
+      features: ["Портфолио проектов", "Система бренда", "Демонстрация продуктов", "Клиентские сценарии"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "Vercel"],
+      solves: "Фрилансеры и студии показывают работы, но редко выстраивают вокруг них системный бренд. Website превращает портфолио в цельную презентацию — от проекта до контакта.",
+      founder: "Сайт — это не просто витрина работ. Это первое впечатление и доказательство компетенции. Каждая секция должна работать на доверие и понятный следующий шаг.",
+    },
   },
   en: {
     biztok: {
@@ -191,6 +203,18 @@ const showcaseCopy = {
       stack: ["Next.js", "Vercel", "Product Catalog", "Motion UI", "Responsive UI", "Analytics"],
       solves: "In premium goods, people buy more than specifications; they buy a sense of value. Chronos builds a watch storefront around visual trust and simple discovery.",
       founder: "A luxury interface should feel calm, precise and confident. Chronos focuses on making the product feel premium while keeping the user journey simple.",
+    },
+    lightbi: {
+      features: ["Real-time dashboards", "Visual data exploration", "Team analytics", "Flexible source integration"],
+      stack: ["Next.js", "D3.js", "Supabase", "PostgreSQL", "WebSockets", "Analytics Engine"],
+      solves: "Teams drown in raw data while BI tools are either overloaded or too slow. LightBI provides a lightweight, fast analytics layer between data and decisions.",
+      founder: "BI should not require a dedicated team. It should work as a transparent layer — connect to any data source and answer questions without friction.",
+    },
+    website: {
+      features: ["Project portfolio", "Brand system", "Product demonstration", "Client engagement flows"],
+      stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "Vercel"],
+      solves: "Freelancers and studios showcase work but rarely build a systematic brand around it. Website turns a portfolio into a coherent presentation — from project to contact.",
+      founder: "A website is more than a gallery of work. It is the first impression and proof of competence. Every section should build trust and offer a clear next step.",
     },
   },
 } as const;
@@ -344,9 +368,11 @@ function localizeProjectStatus(status: string, locale: "ru" | "en") {
 function localizeProjectText(text: string, locale: "ru" | "en") {
   if (locale === "en") return text;
   const translations: Record<string, string> = {
-    "Live Commerce Platform": "Платформа live-commerce", "AI Consulting Platform": "Платформа ИИ-консалтинга", "AI Operating System": "Операционная ИИ-система", "Inventory Intelligence": "Интеллектуальное управление складом", "Content Automation": "Автоматизация контента", "Interactive Brand Promo": "Интерактивный бренд-промо", "Premium Property Experience": "Премиальный сервис недвижимости", "Luxury Watch Experience": "Премиальный опыт выбора часов",
-    "Live-commerce platform for streams, business discovery and purchase intent.": "Платформа live-commerce для эфиров, поиска бизнеса и перехода к покупке.", "AI consulting site that packages offers, qualifies leads and routes requests.": "Сайт ИИ-консалтинга, который упаковывает услуги, квалифицирует лиды и направляет заявки.", "AI operating workspace for priorities, metrics, tasks and execution.": "Операционное ИИ-пространство для приоритетов, метрик, задач и выполнения.", "Inventory intelligence system for stock visibility, visual control and alerts.": "Система складской аналитики для видимости остатков, визуального контроля и оповещений.", "Editorial automation pipeline for source monitoring, drafts and publishing.": "Редакционный конвейер для мониторинга источников, черновиков и публикации.", "Motion-led promotional website for brand storytelling and conversion.": "Промо-сайт с акцентом на движение, историю бренда и конверсию.", "Premium Dubai real estate showcase for property discovery and qualified inquiries.": "Премиальная витрина недвижимости в Дубае для поиска объектов и квалифицированных заявок.", "Luxury watch storefront for catalog browsing, product storytelling and purchase intent.": "Премиальная витрина часов для каталога, продуктовой подачи и намерения к покупке.",
-    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость", Luxury: "Люкс", Dubai: "Дубай",
+    "Live Commerce Platform": "Платформа live-commerce", "AI Consulting Platform": "Платформа ИИ-консалтинга", "AI Operating System": "Операционная ИИ-система", "Inventory Intelligence": "Интеллектуальное управление складом", "Content Automation": "Автоматизация контента", "Interactive Brand Promo": "Интерактивный бренд-промо", "Premium Property Experience": "Премиальный сервис недвижимости",     "Luxury Watch Experience": "Премиальный опыт выбора часов", "Business Intelligence": "Бизнес-аналитика", "Portfolio & Brand System": "Портфолио и бренд",
+    "Live-commerce platform for streams, business discovery and purchase intent.": "Платформа live-commerce для эфиров, поиска бизнеса и перехода к покупке.", "AI consulting site that packages offers, qualifies leads and routes requests.": "Сайт ИИ-консалтинга, который упаковывает услуги, квалифицирует лиды и направляет заявки.", "AI operating workspace for priorities, metrics, tasks and execution.": "Операционное ИИ-пространство для приоритетов, метрик, задач и выполнения.", "Inventory intelligence system for stock visibility, visual control and alerts.": "Система складской аналитики для видимости остатков, визуального контроля и оповещений.", "Editorial automation pipeline for source monitoring, drafts and publishing.": "Редакционный конвейер для мониторинга источников, черновиков и публикации.", "Motion-led promotional website for brand storytelling and conversion.": "Промо-сайт с акцентом на движение, историю бренда и конверсию.", "Premium Dubai real estate showcase for property discovery and qualified inquiries.": "Премиальная витрина недвижимости в Дубае для поиска объектов и квалифицированных заявок.",     "Luxury watch storefront for catalog browsing, product storytelling and purchase intent.": "Премиальная витрина часов для каталога, продуктовой подачи и намерения к покупке.",
+    "Lightweight BI platform for real-time data exploration, dashboards and team analytics.": "Лёгкая BI-платформа для исследования данных в реальном времени, дашбордов и командной аналитики.",
+    "Personal portfolio and brand platform for project showcase, client engagement and system demonstration.": "Персональное портфолио и бренд-платформа для демонстрации проектов, взаимодействия с клиентами и презентации систем.",
+    Commerce: "Коммерция", Platform: "Платформа", Consulting: "Консалтинг", Web: "Веб", Operations: "Операции", Logistics: "Логистика", Vision: "Зрение", Content: "Контент", Automation: "Автоматизация", Promo: "Промо", Motion: "Анимация", Property: "Недвижимость", Luxury: "Люкс", Dubai: "Дубай", BI: "BI", Analytics: "Аналитика", Data: "Данные", Portfolio: "Портфолио", Brand: "Бренд",
   };
   return translations[text] ?? localizeAi(text, locale);
 }

@@ -14,6 +14,7 @@ const projectFolders: Record<string, string> = {
   "golden-house-dubai": "golden lion",
   chronos: "CHRONOS",
   lightbi: "LightBI",
+  website: "Website",
 };
 
 const mediaPattern = /\.(avif|jpe?g|png|webp|mp4|webm|mov)$/i;
