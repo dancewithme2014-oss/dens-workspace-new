@@ -58,6 +58,11 @@ export const additionalProjects: PortfolioProject[] = [
     description: "Luxury watch storefront for catalog browsing, product storytelling and purchase intent.", image: "/projects/CHRONOS/first.webp", status: "Testing", architectureId: "chronos",
     gallery: ["/projects/CHRONOS/first.webp", "/projects/CHRONOS/second.webp", "/projects/CHRONOS/third.webp", "/projects/CHRONOS/fourth.webp"], tags: ["Luxury", "Commerce", "Web"], folder: "CHRONOS", websiteUrl: "https://luxury-watch-s.vercel.app/",
   },
+  {
+    number: "09", name: "LightBI", subtitle: "Business Intelligence",
+    description: "Business intelligence platform for data visualization and analytics.", image: "/projects/LightBI/1.png", status: "Active", architectureId: "lightbi",
+    gallery: ["/projects/LightBI/1.png", "/projects/LightBI/2.png", "/projects/LightBI/3.png", "/projects/LightBI/4.png"], tags: ["BI", "Analytics", "Data"],
+  },
 ];
 
 export const allProjects = [...featuredProjects, ...additionalProjects];

@@ -13,6 +13,7 @@ const projectFolders: Record<string, string> = {
   "mmz1-promo": "mmz1",
   "golden-house-dubai": "golden lion",
   chronos: "CHRONOS",
+  lightbi: "LightBI",
 };
 
 const mediaPattern = /\.(avif|jpe?g|png|webp|mp4|webm|mov)$/i;
