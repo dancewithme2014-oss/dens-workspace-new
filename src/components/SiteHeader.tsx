@@ -34,7 +34,7 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
     <header className="header shell site-header">
       <div className="header-identity">
         <button className="icon-button menu-trigger" aria-label={locale === "ru" ? "Открыть меню" : "Open menu"} onClick={() => setMenu(true)}><Menu size={20}/></button>
-        <Link className="brand" href="/">Den Workspace<span className="green-dot"/></Link>
+        <Link className="brand" href="/">Den Workspace</Link>
       </div>
       <nav className="desktop-nav">{labels.map((label, index) => <Link key={label} href={destinations[index]} className={(active === "home" && index === 0) || (active === "projects" && index === 1) || (active === "research" && index === 2) || (active === "news" && index === 3) || (active === "about" && index === 4) ? "active" : ""}>{label}</Link>)}</nav>
       <div className="header-actions">
@@ -44,7 +44,7 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
     </header>
 
     {menu && <aside className="mobile-menu site-menu">
-      <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace<span className="green-dot"/></Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
+      <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace</Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
       <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={() => setMenu(false)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
       <div className="mobile-account"><AccountMenu locale={locale} onNavigate={() => setMenu(false)}/></div>
     </aside>}
