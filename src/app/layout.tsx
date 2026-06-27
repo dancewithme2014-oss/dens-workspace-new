@@ -18,7 +18,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Den Workspace | AI Systems & Automation",
-  description: "Интеллектуальные системы, автоматизация и продукты для реального бизнеса.",
+  description: "Intelligent systems, automation, and products for real business outcomes.",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" suppressHydrationWarning data-scroll-behavior="smooth" className={`${inter.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth" className={`${inter.variable} ${mono.variable}`}>
       <body>{children}<SiteFooter/><FloatingVideoWidget/><CookieConsent/></body>
     </html>
   );

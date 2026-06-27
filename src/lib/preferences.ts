@@ -12,21 +12,21 @@ function applyDocumentPreferences(locale: Locale, theme: Theme) {
 }
 
 export function useSitePreferences() {
-  const [locale, setLocaleState] = useState<Locale>("ru");
+  const [locale, setLocaleState] = useState<Locale>("en");
   const [theme, setThemeState] = useState<Theme>("dark");
 
   useEffect(() => {
     const sync = () => {
       try {
-        const nextLocale = window.localStorage.getItem("dw-locale") === "en" ? "en" : "ru";
+        const nextLocale = window.localStorage.getItem("dw-locale") === "ru" ? "ru" : "en";
         const nextTheme = window.localStorage.getItem("dw-theme") === "light" ? "light" : "dark";
         setLocaleState(nextLocale);
         setThemeState(nextTheme);
         applyDocumentPreferences(nextLocale, nextTheme);
       } catch {
-        setLocaleState("ru");
+        setLocaleState("en");
         setThemeState("dark");
-        applyDocumentPreferences("ru", "dark");
+        applyDocumentPreferences("en", "dark");
       }
     };
 
