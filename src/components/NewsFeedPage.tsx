@@ -88,9 +88,42 @@ export default function NewsFeedPage({ articles }: { articles?: { ru: EditorialA
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
 
   const localizedItems = useMemo(() => {
-    const live = articles?.[locale] ?? [];
-    if (live.length === 0) return feedItems.map(item => ({ id: String(item.id), slug: null as string | null, category: item.category, image: item.image, source: item.source, title: item.title[locale], description: item.description[locale], tags: [...item.tags], read: item.read }));
-    return live.map(item => ({ id: item.id, slug: item.slug, category: normalizeCategory(item.category), image: item.imageUrl ?? "/ai-universe/chatgpt-v13.webp", source: item.sourceName, title: item.title, description: item.summary, tags: item.tags, read: Math.max(2, Math.ceil(item.body.split(/\s+/).length / 190)) }));
+    const ru = articles?.ru ?? [];
+    const en = articles?.en ?? [];
+    const preferred = locale === "ru" ? [ru, en] : [en, ru];
+    const combined = new Map<string, EditorialArticle>();
+
+    for (const list of preferred) {
+      for (const item of list) {
+        if (!combined.has(item.id)) combined.set(item.id, item);
+      }
+    }
+
+    if (combined.size === 0) {
+      return feedItems.map(item => ({
+        id: String(item.id),
+        slug: null as string | null,
+        category: item.category,
+        image: item.image,
+        source: item.source,
+        title: item.title[locale],
+        description: item.description[locale],
+        tags: [...item.tags],
+        read: item.read,
+      }));
+    }
+
+    return [...combined.values()].map(item => ({
+      id: item.id,
+      slug: item.slug,
+      category: normalizeCategory(item.category),
+      image: item.imageUrl ?? "/ai-universe/chatgpt-v13.webp",
+      source: item.sourceName,
+      title: item.title,
+      description: item.summary,
+      tags: item.tags,
+      read: Math.max(2, Math.ceil(item.body.split(/\s+/).length / 190)),
+    }));
   }, [articles, locale]);
 
   const visibleItems = useMemo(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowDownRight, ArrowRight, ChevronDown, Globe2, Menu, Moon, Sun, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ChevronDown, Globe2, Menu, Moon, Send, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Locale } from "@/lib/content";
 import AccountMenu from "@/components/AccountMenu";
@@ -24,6 +24,9 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
 }) {
   const [menu, setMenu] = useState(false);
   const labels = navigation[locale];
+  void setLocale;
+  void theme;
+  void setTheme;
 
   useEffect(() => {
     document.body.style.overflow = menu ? "hidden" : "";
@@ -38,7 +41,7 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
       </div>
       <nav className="desktop-nav">{labels.map((label, index) => <Link key={label} href={destinations[index]} className={(active === "home" && index === 0) || (active === "projects" && index === 1) || (active === "research" && index === 2) || (active === "news" && index === 3) || (active === "about" && index === 4) ? "active" : ""}>{label}</Link>)}</nav>
       <div className="header-actions">
-        <div className="desktop-preferences"><LanguageSelect locale={locale} setLocale={setLocale}/><ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/></div>
+        <a className="telegram-button" href="https://t.me/dwspace_bot" target="_blank" rel="noreferrer" aria-label={locale === "ru" ? "Открыть Telegram-бот" : "Open Telegram bot"}><Send size={15}/><span>TG</span></a>
         <Link className="build-button" href="/#start-conversation"><span className="build-label-desktop">{locale === "ru" ? "Обсудить проект" : "Let’s Build"}</span><span className="build-label-mobile">{locale === "ru" ? "Обсудить" : "Let’s Build"}</span><ArrowRight size={15}/></Link>
       </div>
     </header>
