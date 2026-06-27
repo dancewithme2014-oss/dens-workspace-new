@@ -18,7 +18,7 @@ const aboutCopy = {
     next: "Давайте создадим то, что будет дальше.", nextText: "Если вы создаете продукты, исследуете ИИ, улучшаете маркетинговые системы или проектируете интеллектуальные бизнес-процессы — давайте познакомимся.", start: "Начать разговор", projects: "Смотреть проекты",
   },
   en: {
-    eyebrow: "About", title: "Building Businesses With AI.", subtitle: "Through Systems, Automation and Continuous Experimentation.",
+    eyebrow: "About", title: "Building Businesses With AI", subtitle: "Through Systems, Automation and Continuous Experimentation.",
     intro: "Den Workspace is a personal laboratory where business, marketing, AI and automation come together. I research emerging technologies, build real systems, test ideas in practice and share what actually works.",
     goal: "The goal is simple:", bullets: ["Learn.", "Build.", "Experiment.", "Share what works."], what: "What I Do", interested: "What I’m Interested In", process: "How I Work", focus: "Current Focus", philosophy: "Philosophy",
     quote1: "The future is not discovered through prediction.", quote2: "It is discovered through experimentation.",
