@@ -37,7 +37,7 @@ export const content = {
     build: "Let’s Build",
     status: "System Status",
     operational: "Operational",
-    heroTitle: "Building Systems For Real Impact.",
+    heroTitle: "Building Systems For Real Impact",
     kicker: "AI. Automation. Business Systems. Marketing.",
     intro: "I help businesses and founders design, build, and scale intelligent systems that automate operations, increase revenue, and create meaningful leverage.",
     explore: "Explore Projects",
