@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowDownRight, ArrowRight, ChevronDown, Globe2, Menu, Moon, Send, Sun, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ChevronDown, Globe2, Menu, Moon, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Locale } from "@/lib/content";
 import AccountMenu from "@/components/AccountMenu";
@@ -41,15 +41,21 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
       </div>
       <nav className="desktop-nav">{labels.map((label, index) => <Link key={label} href={destinations[index]} className={(active === "home" && index === 0) || (active === "projects" && index === 1) || (active === "research" && index === 2) || (active === "news" && index === 3) || (active === "about" && index === 4) ? "active" : ""}>{label}</Link>)}</nav>
       <div className="header-actions">
-        <a className="telegram-button" href="https://t.me/dwspace_bot" target="_blank" rel="noreferrer" aria-label={locale === "ru" ? "Открыть Telegram-бот" : "Open Telegram bot"}><Send size={15}/><span>TG</span></a>
+        <a className="telegram-button" href="https://t.me/dwspace_bot" target="_blank" rel="noreferrer" aria-label={locale === "ru" ? "Открыть Telegram-бот" : "Open Telegram bot"}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M21.8 4.6 18.9 20c-.2 1.1-.9 1.4-1.8.9l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.2L18.7 6c.4-.4-.1-.6-.6-.2L8 12.2l-5.1-1.6c-1.1-.3-1.1-1.1.2-1.6L20.5 3.2c.9-.3 1.7.2 1.3 1.4Z" fill="currentColor"/>
+          </svg>
+        </a>
         <Link className="build-button" href="/#start-conversation"><span className="build-label-desktop">{locale === "ru" ? "Обсудить проект" : "Let’s Build"}</span><span className="build-label-mobile">{locale === "ru" ? "Обсудить" : "Let’s Build"}</span><ArrowRight size={15}/></Link>
       </div>
     </header>
 
     {menu && <aside className="mobile-menu site-menu">
-      <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace</Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
-      <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={() => setMenu(false)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
-      <div className="mobile-account"><AccountMenu locale={locale} onNavigate={() => setMenu(false)}/></div>
+      <div className="mobile-menu-panel">
+        <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace</Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
+        <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={() => setMenu(false)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
+        <div className="mobile-account"><AccountMenu locale={locale} onNavigate={() => setMenu(false)}/></div>
+      </div>
     </aside>}
   </>;
 }

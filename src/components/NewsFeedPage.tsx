@@ -88,18 +88,9 @@ export default function NewsFeedPage({ articles }: { articles?: { ru: EditorialA
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
 
   const localizedItems = useMemo(() => {
-    const ru = articles?.ru ?? [];
-    const en = articles?.en ?? [];
-    const preferred = locale === "ru" ? [ru, en] : [en, ru];
-    const combined = new Map<string, EditorialArticle>();
+    const live = articles?.[locale] ?? [];
 
-    for (const list of preferred) {
-      for (const item of list) {
-        if (!combined.has(item.id)) combined.set(item.id, item);
-      }
-    }
-
-    if (combined.size === 0) {
+    if (live.length === 0) {
       return feedItems.map(item => ({
         id: String(item.id),
         slug: null as string | null,
@@ -113,7 +104,7 @@ export default function NewsFeedPage({ articles }: { articles?: { ru: EditorialA
       }));
     }
 
-    return [...combined.values()].map(item => ({
+    return live.map(item => ({
       id: item.id,
       slug: item.slug,
       category: normalizeCategory(item.category),
