@@ -24,9 +24,6 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
 }) {
   const [menu, setMenu] = useState(false);
   const labels = navigation[locale];
-  void setLocale;
-  void theme;
-  void setTheme;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -66,6 +63,10 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
       <div className="mobile-menu-panel">
         <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace</Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
         <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={() => setMenu(false)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
+        <div className="mobile-menu-controls">
+          <LanguageSelect locale={locale} setLocale={setLocale}/>
+          <ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/>
+        </div>
         <div className="mobile-account"><AccountMenu locale={locale} onNavigate={() => setMenu(false)}/></div>
       </div>
     </aside>}
