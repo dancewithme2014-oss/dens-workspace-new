@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowDownRight, ArrowRight, ChevronDown, Globe2, Menu, Moon, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Locale } from "@/lib/content";
@@ -22,12 +23,16 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
   setTheme: (theme: Theme) => void;
   active?: "home" | "projects" | "research" | "news" | "about";
 }) {
-  const [menu, setMenu] = useState(false);
+  const pathname = usePathname();
+  const [menuState, setMenuState] = useState({ open: false, pathname });
+  const menu = menuState.open && menuState.pathname === pathname;
   const labels = navigation[locale];
+  const closeMenu = () => setMenuState((state) => ({ ...state, open: false }));
+  const toggleMenu = () => setMenuState((state) => ({ open: !(state.open && state.pathname === pathname), pathname }));
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenu(false);
+      if (event.key === "Escape") closeMenu();
     };
 
     document.body.style.overflow = menu ? "hidden" : "";
@@ -44,7 +49,7 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
   return <>
     <header className="header shell site-header">
       <div className="header-identity">
-        <button className="icon-button menu-trigger" aria-label={locale === "ru" ? "Открыть меню" : "Open menu"} onClick={() => setMenu(true)}><Menu size={20}/></button>
+        <button className="icon-button menu-trigger" type="button" aria-label={locale === "ru" ? "Открыть меню" : "Open menu"} onClick={toggleMenu}><Menu size={20}/></button>
         <Link className="brand" href="/">Den Workspace</Link>
       </div>
       <nav className="desktop-nav">{labels.map((label, index) => <Link key={label} href={destinations[index]} className={(active === "home" && index === 0) || (active === "projects" && index === 1) || (active === "research" && index === 2) || (active === "news" && index === 3) || (active === "about" && index === 4) ? "active" : ""}>{label}</Link>)}</nav>
@@ -59,15 +64,15 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
     </header>
 
     {menu && <aside className="mobile-menu site-menu" aria-label={locale === "ru" ? "Меню сайта" : "Site menu"}>
-      <button className="mobile-menu-backdrop" type="button" aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"} onClick={() => setMenu(false)}/>
+      <button className="mobile-menu-backdrop" type="button" aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"} onClick={closeMenu}/>
       <div className="mobile-menu-panel">
-        <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace</Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
-        <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={() => setMenu(false)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
+        <div className="mobile-menu-head"><Link href="/" onClick={closeMenu}>Den Workspace</Link><button className="icon-button" type="button" onClick={closeMenu} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
+        <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={closeMenu}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
         <div className="mobile-menu-controls">
           <LanguageSelect locale={locale} setLocale={setLocale}/>
           <ThemeSwitch locale={locale} theme={theme} setTheme={setTheme}/>
         </div>
-        <div className="mobile-account"><AccountMenu locale={locale} onNavigate={() => setMenu(false)}/></div>
+        <div className="mobile-account"><AccountMenu locale={locale} onNavigate={closeMenu}/></div>
       </div>
     </aside>}
   </>;
