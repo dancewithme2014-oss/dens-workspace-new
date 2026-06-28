@@ -73,7 +73,7 @@ body.site-menu-open .floating-video-widget,body.site-menu-open .cookie-banner{di
 /* Projects page */
 .projects-page{--p-panel:#06100fda;--p-line:#8ca49a2b;--p-soft:#a9b5b0;position:relative;background:#010504;color:#f2f7f5;font-size:14px}
 :root[data-theme="light"] .projects-page{--p-panel:#ffffffdf;--p-line:#1e3d3226;--p-soft:#52615c;background:#f2f3ef;color:#101714}
-.projects-page>*:not(.projects-bg):not(.projects-menu):not(.site-header){position:relative;z-index:1}
+.projects-page>*:not(.projects-bg):not(.projects-menu):not(.site-header):not(.site-menu){position:relative;z-index:1}
 .projects-shell{width:min(calc(100% - 48px),1380px);margin-inline:auto}
 .projects-bg{position:fixed;z-index:0;inset:0;overflow:hidden;pointer-events:none;background:radial-gradient(circle at 68% 5%,#08423325,transparent 30%),linear-gradient(160deg,#010504,#020807 55%,#010403)}
 .projects-bg>div{position:absolute;inset:0;opacity:.24;background-image:radial-gradient(circle,#51ffc2 0 1px,transparent 1.3px);background-size:128px 128px}
