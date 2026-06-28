@@ -29,9 +29,16 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
   void setTheme;
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenu(false);
+    };
+
     document.body.style.overflow = menu ? "hidden" : "";
     document.body.classList.toggle("site-menu-open", menu);
+    if (menu) document.addEventListener("keydown", handleKeyDown);
+
     return () => {
+      document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
       document.body.classList.remove("site-menu-open");
     };
@@ -54,7 +61,8 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
       </div>
     </header>
 
-    {menu && <aside className="mobile-menu site-menu">
+    {menu && <aside className="mobile-menu site-menu" aria-label={locale === "ru" ? "Меню сайта" : "Site menu"}>
+      <button className="mobile-menu-backdrop" type="button" aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"} onClick={() => setMenu(false)}/>
       <div className="mobile-menu-panel">
         <div className="mobile-menu-head"><Link href="/" onClick={() => setMenu(false)}>Den Workspace</Link><button className="icon-button" onClick={() => setMenu(false)} aria-label={locale === "ru" ? "Закрыть меню" : "Close menu"}><X size={22}/></button></div>
         <nav>{labels.map((label, index) => <Link key={label} href={destinations[index]} onClick={() => setMenu(false)}><span>0{index + 1}</span><strong>{label}</strong><ArrowDownRight/></Link>)}</nav>
