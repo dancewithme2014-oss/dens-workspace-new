@@ -30,7 +30,11 @@ export default function SiteHeader({ locale, setLocale, theme, setTheme, active 
 
   useEffect(() => {
     document.body.style.overflow = menu ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    document.body.classList.toggle("site-menu-open", menu);
+    return () => {
+      document.body.style.overflow = "";
+      document.body.classList.remove("site-menu-open");
+    };
   }, [menu]);
 
   return <>
