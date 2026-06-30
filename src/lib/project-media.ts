@@ -15,6 +15,7 @@ const projectFolders: Record<string, string> = {
   chronos: "CHRONOS",
   lightbi: "LightBI",
   website: "Website",
+  "n8n-voice-assistant": "n8n_AI Voice Assistant ",
 };
 
 const mediaPattern = /\.(avif|jpe?g|png|webp|mp4|webm|mov)$/i;
