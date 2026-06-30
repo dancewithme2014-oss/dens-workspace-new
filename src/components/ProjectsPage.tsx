@@ -154,6 +154,12 @@ const showcaseCopy = {
       solves: "Фрилансеры и студии показывают работы, но редко выстраивают вокруг них системный бренд. Website превращает портфолио в цельную презентацию — от проекта до контакта.",
       founder: "Сайт — это не просто витрина работ. Это первое впечатление и доказательство компетенции. Каждая секция должна работать на доверие и понятный следующий шаг.",
     },
+    "n8n-voice-assistant": {
+      features: ["Прием звонков 24/7", "Запись в Google Calendar", "Интеграция с Bitrix24", "Аналитика звонков"],
+      stack: ["n8n", "ElevenLabs Voice AI", "Groq LLM", "Redis", "Google Calendar", "Bitrix24 CRM"],
+      solves: "Медицинские и сервисные компании теряют клиентов из-за пропущенных звонков и перегрузки операторов. AI Voice Assistant автоматизирует первую линию поддержки, ведет естественный диалог и записывает клиентов 24/7.",
+      founder: "Голосовой ИИ не просто отвечает на вопросы. Он полностью берет на себя рутину: проверяет календарь, вносит записи и обновляет CRM, освобождая команду для сложных задач.",
+    },
   },
   en: {
     biztok: {
@@ -215,6 +221,12 @@ const showcaseCopy = {
       stack: ["Next.js", "Supabase", "PostgreSQL", "OpenAI", "n8n", "Vercel"],
       solves: "Freelancers and studios showcase work but rarely build a systematic brand around it. Website turns a portfolio into a coherent presentation — from project to contact.",
       founder: "A website is more than a gallery of work. It is the first impression and proof of competence. Every section should build trust and offer a clear next step.",
+    },
+    "n8n-voice-assistant": {
+      features: ["24/7 Call Handling", "Google Calendar Booking", "Bitrix24 Integration", "Call Analytics"],
+      stack: ["n8n", "ElevenLabs Voice AI", "Groq LLM", "Redis", "Google Calendar", "Bitrix24 CRM"],
+      solves: "Service businesses lose clients due to missed calls and busy receptionists. AI Voice Assistant automates first-line support, speaks like a human, and manages bookings 24/7.",
+      founder: "A voice assistant shouldn't just talk. It must perform real work: checking availability, scheduling bookings, and updating CRM records without human intervention.",
     },
   },
 } as const;

@@ -68,6 +68,11 @@ export const additionalProjects: PortfolioProject[] = [
     description: "Personal portfolio and brand platform for project showcase, client engagement and system demonstration.", image: "/projects/Website/1.png", status: "Active", architectureId: "website",
     gallery: ["/projects/Website/1.png", "/projects/Website/2.png", "/projects/Website/3.png", "/projects/Website/4.png"], tags: ["Portfolio", "Brand", "Web"],
   },
+  {
+    number: "11", name: "AI Voice Assistant", subtitle: "AI Voice Assistant",
+    description: "24/7 intelligent voice assistant for call handling, scheduling, CRM and analytics.", image: "/projects/n8n_AI Voice Assistant /1.webp", status: "Active", architectureId: "n8n-voice-assistant",
+    gallery: ["/projects/n8n_AI Voice Assistant /1.webp"], tags: ["n8n", "Voice AI", "Automation"], folder: "n8n_AI Voice Assistant ",
+  },
 ];
 
 export const allProjects = [...featuredProjects, ...additionalProjects];

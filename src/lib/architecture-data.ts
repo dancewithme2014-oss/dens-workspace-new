@@ -220,6 +220,29 @@ const additionalArchitectureProjects: ArchitectureProject[] = [
       { id: "ch-contact", layer: "external", row: 1, icon: "cloud", label: { ru: "Контакт-каналы", en: "Contact Channels" }, description: { ru: "Связь с покупателем после интереса к модели.", en: "Communication after buyer interest in a model." }, connections: [] },
     ],
   },
+  {
+    id: "n8n-voice-assistant",
+    name: "AI Voice Assistant",
+    subtitle: { ru: "Голосовой ИИ-ассистент", en: "AI Voice Assistant" },
+    description: {
+      ru: "Интеллектуальный голосовой сотрудник принимает звонки 24/7, записывает в Google Calendar и заносит лиды в Bitrix24.",
+      en: "Intelligent voice assistant answers calls 24/7, schedules in Google Calendar and records leads in Bitrix24.",
+    },
+    nodes: [
+      { id: "voice-callers", layer: "clients", row: 0, icon: "users", label: { ru: "Клиенты", en: "Callers" }, description: { ru: "Клиенты, звонящие для записи или консультации.", en: "Customers calling for bookings or inquiries." }, connections: ["voice-gateway"] },
+      { id: "voice-managers", layer: "clients", row: 1, icon: "users", label: { ru: "Администраторы", en: "Managers" }, description: { ru: "Сотрудники, управляющие CRM, расписанием и прослушивающие звонки.", en: "Staff managing CRM, calendar and reviewing call recordings." }, connections: ["voice-portal"] },
+      { id: "voice-gateway", layer: "application", row: 0, icon: "mobile", label: { ru: "Телефония / Webhook", en: "Telephony / Webhooks" }, description: { ru: "Телефонный шлюз принимает звонки и инициирует вебхуки.", en: "Telephony provider handling inbound calls and webhook routing." }, connections: ["voice-elevenlabs", "voice-n8n"] },
+      { id: "voice-portal", layer: "application", row: 1, icon: "monitor", label: { ru: "Личный кабинет", en: "Business Portal" }, description: { ru: "Панель управления настройками, записями и аналитикой.", en: "Dashboard for settings, booking management and analytics." }, connections: ["voice-n8n"] },
+      { id: "voice-elevenlabs", layer: "ai", row: 0, icon: "brain", label: { ru: "ElevenLabs Voice AI", en: "ElevenLabs Voice AI" }, description: { ru: "Синтезирует голос, преобразует речь в текст (STT/TTS).", en: "Converts text-to-speech and speech-to-text dynamically." }, connections: ["voice-groq"] },
+      { id: "voice-groq", layer: "ai", row: 1, icon: "sparkles", label: { ru: "Groq LLM", en: "Groq LLM" }, description: { ru: "Мощная языковая модель для генерации ответов и распознавания намерений.", en: "High-performance LLM generating natural dialogue and extracting intent." }, connections: ["voice-n8n"] },
+      { id: "voice-n8n", layer: "automation", row: 0, icon: "workflow", label: { ru: "n8n-сценарии", en: "n8n Workflows" }, description: { ru: "Оркестрирует диалог, проверяет занятость и отправляет данные в CRM.", en: "Orchestrates dialogue, updates calendar availability and CRM records." }, connections: ["voice-redis", "voice-crm", "voice-calendar"] },
+      { id: "voice-redis", layer: "automation", row: 1, icon: "bot", label: { ru: "Redis (Память)", en: "Redis Context Store" }, description: { ru: "Хранит историю диалога и контекст звонка.", en: "Stores dialogue history and contextual call state." }, connections: ["voice-crm"] },
+      { id: "voice-crm", layer: "data", row: 0, icon: "database", label: { ru: "Bitrix24 CRM", en: "Bitrix24 CRM" }, description: { ru: "Хранит карточки клиентов, сделки, лиды и историю звонков.", en: "Stores client files, deals, leads and interaction history." }, connections: ["voice-email"] },
+      { id: "voice-calendar", layer: "data", row: 1, icon: "files", label: { ru: "Google Calendar", en: "Google Calendar" }, description: { ru: "Сетка расписания, доступные слоты сотрудников и брони.", en: "Schedule grid, staff availability and booked appointments." }, connections: ["voice-email"] },
+      { id: "voice-email", layer: "external", row: 0, icon: "cloud", label: { ru: "Email уведомления", en: "Email Alerts" }, description: { ru: "Письма с подтверждениями для клиентов и отчеты для менеджеров.", en: "Confirmation emails for clients and alert reports for managers." }, connections: [] },
+      { id: "voice-api", layer: "external", row: 1, icon: "cloud", label: { ru: "Внешние API", en: "External APIs" }, description: { ru: "Платежные шлюзы, SMS-провайдеры и прочие интеграции.", en: "Payment systems, SMS gates and custom external systems." }, connections: [] },
+    ],
+  },
 ];
 
 export const architectureProjects: ArchitectureProject[] = [
