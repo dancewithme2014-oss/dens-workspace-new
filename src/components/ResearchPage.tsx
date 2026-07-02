@@ -127,8 +127,7 @@ export default function ResearchPage() {
   const allTools = [...primaryTools, ...secondaryTools];
   const allVisibleTools = showAllTools ? allTools : allTools.slice(0, 14);
   const hasMoreAllTools = allTools.length > 14;
-  const filteredPrimaryTools = filterTools(primaryTools, toolCategory);
-  const filteredSecondaryTools = filterTools(secondaryTools, toolCategory);
+  const filteredTools = filterTools(allTools, toolCategory);
   useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
 
@@ -166,8 +165,7 @@ export default function ResearchPage() {
           </button>
         </div>}
       </> : <div className="tool-rows">
-        {filteredPrimaryTools.length > 0 && <ToolGrid tools={filteredPrimaryTools} locale={locale}/>}
-        {filteredSecondaryTools.length > 0 && <ToolGrid tools={filteredSecondaryTools} locale={locale} secondary/>}
+        <ToolGrid tools={filteredTools} locale={locale}/>
       </div>}
     </EditorialSection>
 
@@ -180,8 +178,8 @@ function filterTools(tools: ToolItem[], category: ToolCategory) {
   return category === "all" ? tools : tools.filter(tool => tool.categories.includes(category));
 }
 
-function ToolGrid({ tools, locale, secondary = false }: { tools: readonly ToolItem[]; locale: "ru" | "en"; secondary?: boolean }) {
-  return <div className={`tool-grid ${secondary ? "tool-grid-secondary" : ""}`}>{tools.map(({ name, icon: Icon, image, description, state }) => {
+function ToolGrid({ tools, locale }: { tools: readonly ToolItem[]; locale: "ru" | "en" }) {
+  return <div className="tool-grid">{tools.map(({ name, icon: Icon, image, description, state }) => {
     const href = toolExternalLinks[name];
     return <a key={name} className="tool-card-link" href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open ${name}`} title={`Open ${name}`}>
       <article><i>{Icon ? <Icon size={38}/> : image ? <Image src={image} alt={name} width={38} height={38}/> : null}</i><h3>{name}</h3><p>{description[locale]}</p><b>{state[locale]}</b></article>
