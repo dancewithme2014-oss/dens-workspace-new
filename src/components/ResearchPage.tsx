@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { Antigravity, ByteDance, Claude, Cloudflare, Codex, Cursor, DeepSeek, ElevenLabs, Gemini, Groq, HermesAgent, Manus, Mistral, N8n, OpenClaw, Vercel, Zapier } from "@lobehub/icons";
 import { ArrowRight, AudioLines, Bot, BrainCircuit, ChevronDown, ChevronUp, Database, GitBranch, Layers3, MonitorUp, Phone, Sparkles, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import AmbientBackground from "@/components/AmbientBackground";
 import SiteHeader from "@/components/SiteHeader";
 import { useSitePreferences } from "@/lib/preferences";
@@ -57,11 +57,6 @@ type ToolItem = {
   categories: readonly Exclude<ToolCategory, "all">[];
 };
 
-type ToolProjectLink = {
-  projectId: string;
-  label?: string;
-};
-
 const toolCategories: { id: ToolCategory; ru: string; en: string }[] = [
   { id: "all", ru: "Все", en: "All" },
   { id: "text", ru: "Текст", en: "Text" },
@@ -100,28 +95,28 @@ const secondaryTools: ToolItem[] = [
   { name: "Hermes", icon: HermesAgent, image: null, description: { ru: "Агентные рассуждения, инструменты и выполнение задач.", en: "Agent reasoning, tools and task execution." }, state: { ru: "Исследую", en: "Research" }, categories: ["text", "agents"] },
 ];
 
-const toolProjectLinks: Record<string, ToolProjectLink> = {
-  Claude: { projectId: "virtual-coo" },
-  Codex: { projectId: "website" },
-  n8n: { projectId: "n8n-news" },
-  Supabase: { projectId: "lightbi" },
-  Gemini: { projectId: "virtual-coo" },
-  ElevenLabs: { projectId: "n8n-voice-assistant" },
-  DeepSeek: { projectId: "website" },
-  GitHub: { projectId: "website" },
-  Vercel: { projectId: "chronos" },
-  Cloudflare: { projectId: "website" },
-  Groq: { projectId: "n8n-voice-assistant" },
-  Mistral: { projectId: "virtual-coo" },
-  Cursor: { projectId: "website" },
-  Antigravity: { projectId: "website" },
-  "Seedance 2": { projectId: "mmz1-promo" },
-  Zapier: { projectId: "n8n-news" },
-  HeyGen: { projectId: "mmz1-promo" },
-  Manus: { projectId: "virtual-coo" },
-  Genspark: { projectId: "n8n-news" },
-  OpenClaw: { projectId: "virtual-coo" },
-  Hermes: { projectId: "virtual-coo" },
+const toolExternalLinks: Record<string, string> = {
+  Claude: "https://claude.ai/",
+  Codex: "https://openai.com/codex/",
+  n8n: "https://n8n.io/",
+  Supabase: "https://supabase.com/",
+  Gemini: "https://gemini.google.com/",
+  ElevenLabs: "https://elevenlabs.io/",
+  DeepSeek: "https://www.deepseek.com/en/",
+  GitHub: "https://github.com/",
+  Vercel: "https://vercel.com/",
+  Cloudflare: "https://www.cloudflare.com/",
+  Groq: "https://groq.com/",
+  Mistral: "https://mistral.ai/",
+  Cursor: "https://cursor.com/",
+  Antigravity: "https://antigravity.google/",
+  "Seedance 2": "https://seed.bytedance.com/en/seedance2_0",
+  Zapier: "https://zapier.com/",
+  HeyGen: "https://www.heygen.com/",
+  Manus: "https://manus.im/",
+  Genspark: "https://www.genspark.ai/",
+  OpenClaw: "https://openclaw.ai/",
+  Hermes: "https://hermes-agent.nousresearch.com/",
 };
 
 export default function ResearchPage() {
@@ -187,11 +182,10 @@ function filterTools(tools: ToolItem[], category: ToolCategory) {
 
 function ToolGrid({ tools, locale, secondary = false }: { tools: readonly ToolItem[]; locale: "ru" | "en"; secondary?: boolean }) {
   return <div className={`tool-grid ${secondary ? "tool-grid-secondary" : ""}`}>{tools.map(({ name, icon: Icon, image, description, state }) => {
-    const link = toolProjectLinks[name];
-    const href = link ? `/projects?project=${link.projectId}#showcase` : "/projects";
-    return <Link key={name} className="tool-card-link" href={href} aria-label={`Open ${name}`} title={`Open ${name}`}>
+    const href = toolExternalLinks[name];
+    return <a key={name} className="tool-card-link" href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open ${name}`} title={`Open ${name}`}>
       <article><i>{Icon ? <Icon size={38}/> : image ? <Image src={image} alt={name} width={38} height={38}/> : null}</i><h3>{name}</h3><p>{description[locale]}</p><b>{state[locale]}</b></article>
-    </Link>;
+    </a>;
   })}</div>;
 }
 
